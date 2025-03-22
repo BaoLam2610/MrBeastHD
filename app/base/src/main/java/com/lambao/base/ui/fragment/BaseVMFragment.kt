@@ -8,7 +8,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-abstract class BaseViewModelFragment<B : ViewDataBinding, VM : ViewModel> : BaseFragment<B>() {
+abstract class BaseVMFragment<B : ViewDataBinding, VM : ViewModel> : BaseFragment<B>() {
 
     @Inject
     lateinit var viewModel: VM

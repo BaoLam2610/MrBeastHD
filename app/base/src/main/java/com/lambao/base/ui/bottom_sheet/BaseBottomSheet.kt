@@ -13,7 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.CoroutineScope
 
-abstract class BaseBottomSheetDialogFragment<B : ViewDataBinding> : BottomSheetDialogFragment() {
+abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment() {
 
     private var _binding: B? = null
     protected val binding: B
@@ -60,7 +60,7 @@ abstract class BaseBottomSheetDialogFragment<B : ViewDataBinding> : BottomSheetD
                     behavior.peekHeight = BottomSheetBehavior.PEEK_HEIGHT_AUTO
                     behavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 }
-                view.requestLayout() // Đảm bảo layout được cập nhật
+                view.requestLayout()
             }
         }
     }

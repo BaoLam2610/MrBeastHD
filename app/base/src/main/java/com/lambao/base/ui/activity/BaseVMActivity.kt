@@ -7,7 +7,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-abstract class BaseViewModelActivity<B : ViewDataBinding, VM : ViewModel> : BaseActivity<B>() {
+abstract class BaseVMActivity<B : ViewDataBinding, VM : ViewModel> : BaseActivity<B>() {
 
     @Inject
     lateinit var viewModel: VM

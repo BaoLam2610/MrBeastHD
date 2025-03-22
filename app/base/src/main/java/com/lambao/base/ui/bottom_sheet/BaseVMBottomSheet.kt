@@ -8,8 +8,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-abstract class BaseBottomSheetViewModelFragment<B : ViewDataBinding, VM : ViewModel> :
-    BaseBottomSheetDialogFragment<B>() {
+abstract class BaseVMBottomSheet<B : ViewDataBinding, VM : ViewModel> : BaseBottomSheet<B>() {
 
     @Inject
     lateinit var viewModel: VM
