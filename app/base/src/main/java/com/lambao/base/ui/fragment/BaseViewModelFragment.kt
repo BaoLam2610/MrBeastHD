@@ -1,24 +1,22 @@
 package com.lambao.base.ui.fragment
 
 import android.os.Bundle
+import android.view.View
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 abstract class BaseViewModelFragment<B : ViewDataBinding, VM : ViewModel> : BaseFragment<B>() {
 
-    protected lateinit var viewModel: VM
-
-    abstract fun getViewModelClass(): Class<VM>
+    @Inject
+    lateinit var viewModel: VM
 
     abstract fun initObserve()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this, getViewModelFactory())[getViewModelClass()]
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initObserve()
     }
-
-    protected open fun getViewModelFactory(): ViewModelProvider.Factory =
-        defaultViewModelProviderFactory
 }
