@@ -1,4 +1,4 @@
-package com.lambao.base.ui.fragment
+package com.lambao.base.ui.bottom_sheet
 
 import android.os.Bundle
 import android.view.View
@@ -8,7 +8,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-abstract class BaseViewModelFragment<B : ViewDataBinding, VM : ViewModel> : BaseFragment<B>() {
+abstract class BaseBottomSheetViewModelFragment<B : ViewDataBinding, VM : ViewModel> :
+    BaseBottomSheetDialogFragment<B>() {
 
     @Inject
     lateinit var viewModel: VM

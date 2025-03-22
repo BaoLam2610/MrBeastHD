@@ -12,7 +12,7 @@ abstract class BaseViewModelActivity<B : ViewDataBinding, VM : ViewModel> : Base
     @Inject
     lateinit var viewModel: VM
     
-    abstract fun initObserve()
+    protected abstract fun initObserve()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

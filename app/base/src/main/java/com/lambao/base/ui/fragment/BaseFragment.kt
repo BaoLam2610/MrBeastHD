@@ -19,7 +19,7 @@ abstract class BaseFragment<B : ViewDataBinding> : Fragment() {
             ?: throw IllegalStateException("Binding in ${this::class.java.simpleName} is null")
 
     @LayoutRes
-    abstract fun getLayoutResId(): Int
+    protected abstract fun getLayoutResId(): Int
 
     protected abstract fun onViewReady(savedInstanceState: Bundle?)
 

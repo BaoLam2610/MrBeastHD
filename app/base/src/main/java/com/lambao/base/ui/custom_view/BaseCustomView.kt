@@ -3,18 +3,17 @@ package com.lambao.base.ui.custom_view
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import android.widget.FrameLayout
 
 abstract class BaseCustomView<B : ViewDataBinding> : FrameLayout {
 
-    private var _binding: ViewDataBinding? = null
-
-    @Suppress("UNCHECKED_CAST")
+    private var _binding: B? = null
     protected val binding: B
-        get() = _binding as B
+        get() = _binding
+            ?: throw IllegalStateException("Binding in ${this::class.java.simpleName} is null")
 
     constructor(context: Context) : super(context) {
         initBinding()

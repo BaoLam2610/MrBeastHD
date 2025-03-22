@@ -16,9 +16,9 @@ abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
             ?: throw IllegalStateException("Binding in ${this::class.java.simpleName} is null")
 
     @LayoutRes
-    abstract fun getLayoutResId(): Int
+    protected abstract fun getLayoutResId(): Int
 
-    abstract fun onViewReady(savedInstanceState: Bundle?)
+    protected abstract fun onViewReady(savedInstanceState: Bundle?)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
