@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MrBeast"
 include(":app")
- 
+include(":app:base")
