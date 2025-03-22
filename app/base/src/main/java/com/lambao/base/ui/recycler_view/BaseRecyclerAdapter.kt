@@ -7,6 +7,7 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
+import com.lambao.base.ui.view.click
 
 abstract class BaseRecyclerAdapter<T, B : ViewDataBinding>(
     private val onItemClickListener: ((item: T, position: Int) -> Unit)? = null
@@ -32,7 +33,7 @@ abstract class BaseRecyclerAdapter<T, B : ViewDataBinding>(
     override fun onBindViewHolder(holder: BaseRecyclerViewHolder<B>, position: Int) {
         bind(holder.binding, items[position], position)
         onItemClickListener?.let { listener ->
-            holder.itemView.setOnClickListener {
+            holder.itemView.click {
                 listener.invoke(items[position], position)
             }
         }

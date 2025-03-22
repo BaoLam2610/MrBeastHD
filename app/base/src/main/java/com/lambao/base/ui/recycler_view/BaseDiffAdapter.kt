@@ -6,6 +6,7 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.ListAdapter
+import com.lambao.base.ui.view.click
 
 abstract class BaseDiffAdapter<T : Any, B : ViewDataBinding>(
     areItemsTheSame: (T, T) -> Boolean = { old, new -> old == new },
@@ -36,7 +37,7 @@ abstract class BaseDiffAdapter<T : Any, B : ViewDataBinding>(
     override fun onBindViewHolder(holder: BaseRecyclerViewHolder<B>, position: Int) {
         bind(holder.binding, getItem(position), position)
         onItemClickListener?.let { listener ->
-            holder.itemView.setOnClickListener {
+            holder.itemView.click {
                 listener.invoke(getItem(position), position)
             }
         }
