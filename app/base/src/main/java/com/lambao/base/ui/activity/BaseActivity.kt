@@ -1,6 +1,7 @@
 package com.lambao.base.ui.activity
 
 import android.os.Bundle
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -14,6 +15,7 @@ abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
         get() = _binding
             ?: throw IllegalStateException("Binding in ${this::class.java.simpleName} is null")
 
+    @LayoutRes
     abstract fun getLayoutResId(): Int
 
     abstract fun onViewReady(savedInstanceState: Bundle?)
