@@ -21,13 +21,13 @@ open class BaseViewModel : ViewModel() {
     @DefaultDispatcher
     lateinit var defaultDispatcher: CoroutineDispatcher
 
-    private fun launchIo(block: suspend CoroutineScope.() -> Unit) {
+    protected fun launchIo(block: suspend CoroutineScope.() -> Unit) {
         viewModelScope.launch(ioDispatcher) {
             block()
         }
     }
 
-    private fun launch(block: suspend CoroutineScope.() -> Unit) {
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
         viewModelScope.launch(defaultDispatcher) {
             block()
         }
