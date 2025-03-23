@@ -5,10 +5,8 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.lifecycle.lifecycleScope
 import com.lambao.base.ui.view.loading.LoadingDialogHandler
 import com.lambao.base.ui.view.loading.LoadingHandler
-import kotlinx.coroutines.CoroutineScope
 
 abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
 
@@ -32,10 +30,6 @@ abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
         binding.lifecycleOwner = this
         binding.executePendingBindings()
         onViewReady(savedInstanceState)
-    }
-
-    protected fun launchWhenCreated(block: suspend CoroutineScope.() -> Unit) {
-        lifecycleScope.launchWhenCreated(block)
     }
 
     fun showLoading() {

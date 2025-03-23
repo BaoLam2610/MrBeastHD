@@ -16,13 +16,13 @@ open class NetworkViewModel : BaseViewModel() {
     protected fun <T> collectApi(
         flowUseCase: Flow<Resource<T>>,
         onLoading: () -> Unit = {},
-        onSuccess: ((T?) -> Unit)? = null,
-        onError: ((Exception) -> Unit)? = null
+        onError: ((Exception) -> Unit)? = null,
+        onSuccess: (T?) -> Unit
     ) {
         flowUseCase.onEach { resource ->
             when (resource) {
                 is Resource.Loading -> onLoading()
-                is Resource.Success -> onSuccess?.invoke(resource.data)
+                is Resource.Success -> onSuccess.invoke(resource.data)
                 is Resource.Error -> {
                     val exception = resource.throwable as Exception
                     onError?.invoke(exception) ?: handleError(resource)

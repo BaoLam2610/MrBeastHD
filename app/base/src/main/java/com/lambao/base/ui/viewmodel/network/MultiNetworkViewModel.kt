@@ -30,8 +30,8 @@ open class MultiNetworkViewModel : NetworkViewModel() {
 
     protected fun <T> collectApis(
         vararg flows: Flow<Resource<T>>,
-        onResults: (List<T>) -> Unit,
-        onError: ((Exception) -> Unit)? = null
+        onError: ((Exception) -> Unit)? = null,
+        onResults: (List<T>) -> Unit
     ) {
         combine(flows.toList()) { resources ->
             resources.toList()

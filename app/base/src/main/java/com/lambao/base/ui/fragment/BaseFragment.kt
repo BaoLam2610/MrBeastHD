@@ -9,10 +9,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import com.lambao.base.ui.view.loading.LoadingDialogHandler
 import com.lambao.base.ui.view.loading.LoadingHandler
-import kotlinx.coroutines.CoroutineScope
 
 abstract class BaseFragment<B : ViewDataBinding> : Fragment() {
 
@@ -46,17 +44,13 @@ abstract class BaseFragment<B : ViewDataBinding> : Fragment() {
         onViewReady(savedInstanceState)
     }
 
-    protected fun launchWhenCreated(block: suspend CoroutineScope.() -> Unit) {
-        lifecycleScope.launchWhenCreated(block)
-    }
-
-    protected fun showLoading() {
+    fun showLoading() {
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
             loadingHandler.showLoading()
         }
     }
 
-    protected fun hideLoading() {
+    fun hideLoading() {
         loadingHandler.hideLoading()
     }
 

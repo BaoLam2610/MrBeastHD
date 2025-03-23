@@ -9,12 +9,10 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lambao.base.ui.view.loading.LoadingDialogHandler
 import com.lambao.base.ui.view.loading.LoadingHandler
-import kotlinx.coroutines.CoroutineScope
 
 abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment() {
 
@@ -48,10 +46,6 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
         onViewReady(savedInstanceState)
     }
 
-    protected fun launchWhenCreated(block: suspend CoroutineScope.() -> Unit) {
-        lifecycleScope.launchWhenCreated(block)
-    }
-
     protected fun setFull(isFull: Boolean) {
         dialog?.let { bottomSheetDialog ->
             val bottomSheet: FrameLayout? =
@@ -72,13 +66,13 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
         }
     }
 
-    protected fun showLoading() {
+    fun showLoading() {
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
             loadingHandler.showLoading()
         }
     }
 
-    protected fun hideLoading() {
+    fun hideLoading() {
         loadingHandler.hideLoading()
     }
 
