@@ -8,7 +8,10 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import com.lambao.base.ui.view.loading.LoadingDialogHandler
+import com.lambao.base.ui.view.loading.LoadingHandler
 import kotlinx.coroutines.CoroutineScope
 
 abstract class BaseDialog<B : ViewDataBinding> : DialogFragment() {
@@ -17,6 +20,10 @@ abstract class BaseDialog<B : ViewDataBinding> : DialogFragment() {
     protected val binding: B
         get() = _binding
             ?: throw IllegalStateException("Binding in ${this::class.java.simpleName} is null")
+
+    protected open val loadingHandler: LoadingHandler by lazy {
+        LoadingDialogHandler(requireActivity())
+    }
 
     @LayoutRes
     protected abstract fun getLayoutId(): Int
@@ -59,8 +66,19 @@ abstract class BaseDialog<B : ViewDataBinding> : DialogFragment() {
         }
     }
 
+    protected fun showLoading() {
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            loadingHandler.showLoading()
+        }
+    }
+
+    protected fun hideLoading() {
+        loadingHandler.hideLoading()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        hideLoading()
         _binding = null
     }
 }

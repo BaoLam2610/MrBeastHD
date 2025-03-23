@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.lifecycleScope
+import com.lambao.base.ui.view.loading.LoadingDialogHandler
+import com.lambao.base.ui.view.loading.LoadingHandler
 import kotlinx.coroutines.CoroutineScope
 
 abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
@@ -14,6 +16,10 @@ abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
     protected val binding: B
         get() = _binding
             ?: throw IllegalStateException("Binding in ${this::class.java.simpleName} is null")
+
+    protected open val loadingHandler: LoadingHandler by lazy {
+        LoadingDialogHandler(this)
+    }
 
     @LayoutRes
     protected abstract fun getLayoutResId(): Int
@@ -32,8 +38,17 @@ abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
         lifecycleScope.launchWhenCreated(block)
     }
 
+    fun showLoading() {
+        loadingHandler.showLoading()
+    }
+
+    fun hideLoading() {
+        loadingHandler.hideLoading()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        if (isFinishing) hideLoading()
         _binding = null
     }
 }

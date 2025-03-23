@@ -8,9 +8,12 @@ import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.lambao.base.ui.view.loading.LoadingDialogHandler
+import com.lambao.base.ui.view.loading.LoadingHandler
 import kotlinx.coroutines.CoroutineScope
 
 abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment() {
@@ -19,6 +22,10 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
     protected val binding: B
         get() = _binding
             ?: throw IllegalStateException("Binding in ${this::class.java.simpleName} is null")
+
+    protected open val loadingHandler: LoadingHandler by lazy {
+        LoadingDialogHandler(requireActivity())
+    }
 
     @LayoutRes
     protected abstract fun getLayoutId(): Int
@@ -65,8 +72,19 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
         }
     }
 
+    protected fun showLoading() {
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            loadingHandler.showLoading()
+        }
+    }
+
+    protected fun hideLoading() {
+        loadingHandler.hideLoading()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        hideLoading()
         _binding = null
     }
 }
