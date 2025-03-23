@@ -49,6 +49,13 @@ dependencies {
     /* Hilt */
     implementation(libs.hilt.android)
     implementation(libs.hilt.android.compiler)
+
+    /* Retrofit 2 */
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+
+    /* Logging Interceptor */
+    implementation(libs.logging.interceptor)
 }
 
 /* Hilt: Allow references to generated code*/
