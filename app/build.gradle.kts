@@ -59,6 +59,9 @@ dependencies {
 
     /* Logging Interceptor */
     implementation(libs.logging.interceptor)
+
+    /* Timber */
+    implementation(libs.timber)
 }
 
 /* Hilt: Allow references to generated code*/
