@@ -5,6 +5,7 @@ import com.lambao.base.data.Resource
 import com.lambao.base.data.remote.NetworkErrorType
 import com.lambao.base.data.remote.NetworkException
 import com.lambao.base.ui.viewmodel.BaseViewModel
+import com.lambao.base.utils.log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -37,8 +38,8 @@ open class NetworkViewModel : BaseViewModel() {
         flowUseCase.onEach { resource ->
             stateFlow.emit(resource)
             when (resource) {
-                is Resource.Loading -> println("Loading data...")
-                is Resource.Success -> println("Data loaded: ${resource.data}")
+                is Resource.Loading -> log("Loading data...")
+                is Resource.Success -> log("Data loaded: ${resource.data}")
                 is Resource.Error -> handleError(resource)
             }
         }.launchIn(viewModelScope)
@@ -52,7 +53,7 @@ open class NetworkViewModel : BaseViewModel() {
             if (resource !is Resource.Loading) {
                 stateFlow.emit(resource)
                 when (resource) {
-                    is Resource.Success -> println("Data loaded: ${resource.data}")
+                    is Resource.Success -> log("Data loaded: ${resource.data}")
                     is Resource.Error -> handleError(resource)
                     else -> Unit
                 }
@@ -62,17 +63,17 @@ open class NetworkViewModel : BaseViewModel() {
 
     protected fun <T> handleError(resource: Resource<T>) {
         when ((resource.throwable as? NetworkException)?.type) {
-            NetworkErrorType.UNAUTHORIZED -> println("Error 401: Please login again")
-            NetworkErrorType.NOT_FOUND -> println("Error 404: Data not found")
-            NetworkErrorType.SERVER_ERROR -> println("Error 500: Server issue")
-            NetworkErrorType.NO_NETWORK -> println("No internet connection")
-            NetworkErrorType.TOO_MANY_REQUESTS -> println("Error 429: Too many requests")
-            NetworkErrorType.BAD_REQUEST -> println("Error 400: Invalid request")
-            NetworkErrorType.FORBIDDEN -> println("Error 403: Access denied")
-            NetworkErrorType.BAD_GATEWAY -> println("Error 502: Bad gateway")
-            NetworkErrorType.SERVICE_UNAVAILABLE -> println("Error 503: Service unavailable")
-            NetworkErrorType.UNKNOWN -> println("Unknown error: ${resource.message}")
-            null -> println("Unexpected error")
+            NetworkErrorType.UNAUTHORIZED -> log("Error 401: Please login again")
+            NetworkErrorType.NOT_FOUND -> log("Error 404: Data not found")
+            NetworkErrorType.SERVER_ERROR -> log("Error 500: Server issue")
+            NetworkErrorType.NO_NETWORK -> log("No internet connection")
+            NetworkErrorType.TOO_MANY_REQUESTS -> log("Error 429: Too many requests")
+            NetworkErrorType.BAD_REQUEST -> log("Error 400: Invalid request")
+            NetworkErrorType.FORBIDDEN -> log("Error 403: Access denied")
+            NetworkErrorType.BAD_GATEWAY -> log("Error 502: Bad gateway")
+            NetworkErrorType.SERVICE_UNAVAILABLE -> log("Error 503: Service unavailable")
+            NetworkErrorType.UNKNOWN -> log("Unknown error: ${resource.message}")
+            null -> log("Unexpected error")
         }
     }
 }

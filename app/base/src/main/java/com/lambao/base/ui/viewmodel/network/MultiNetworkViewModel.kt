@@ -2,6 +2,7 @@ package com.lambao.base.ui.viewmodel.network
 
 import androidx.lifecycle.viewModelScope
 import com.lambao.base.data.Resource
+import com.lambao.base.utils.log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
@@ -19,8 +20,8 @@ open class MultiNetworkViewModel : NetworkViewModel() {
             onResults(resources)
             resources.forEach { resource ->
                 when (resource) {
-                    is Resource.Loading -> println("Loading: $resource")
-                    is Resource.Success -> println("Success: ${resource.data}")
+                    is Resource.Loading -> log("Loading: $resource")
+                    is Resource.Success -> log("Success: ${resource.data}")
                     is Resource.Error -> handleError(resource)
                 }
             }
