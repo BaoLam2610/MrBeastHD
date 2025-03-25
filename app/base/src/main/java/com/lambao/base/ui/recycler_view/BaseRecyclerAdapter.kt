@@ -7,7 +7,7 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.lambao.base.ui.view.click
+import com.lambao.base.extension.click
 
 abstract class BaseRecyclerAdapter<T, B : ViewDataBinding>(
     private val onItemClickListener: ((item: T, position: Int) -> Unit)? = null

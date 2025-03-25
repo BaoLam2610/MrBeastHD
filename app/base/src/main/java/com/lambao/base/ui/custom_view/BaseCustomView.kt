@@ -1,12 +1,16 @@
 package com.lambao.base.ui.custom_view
 
 import android.content.Context
+import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.SparseArray
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import com.lambao.base.extension.restoreInstanceState
+import com.lambao.base.extension.saveInstanceState
 
 abstract class BaseCustomView<B : ViewDataBinding> : FrameLayout {
 
@@ -41,5 +45,21 @@ abstract class BaseCustomView<B : ViewDataBinding> : FrameLayout {
             this,
             true
         )
+    }
+
+    override fun onSaveInstanceState(): Parcelable? {
+        return saveInstanceState(super.onSaveInstanceState())
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        super.onRestoreInstanceState(restoreInstanceState(state))
+    }
+
+    override fun dispatchSaveInstanceState(container: SparseArray<Parcelable>) {
+        dispatchFreezeSelfOnly(container)
+    }
+
+    override fun dispatchRestoreInstanceState(container: SparseArray<Parcelable>) {
+        dispatchThawSelfOnly(container)
     }
 }

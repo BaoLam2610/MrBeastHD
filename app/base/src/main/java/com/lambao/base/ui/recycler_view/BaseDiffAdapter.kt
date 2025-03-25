@@ -6,7 +6,7 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.ListAdapter
-import com.lambao.base.ui.view.click
+import com.lambao.base.extension.click
 
 abstract class BaseDiffAdapter<T : Any, B : ViewDataBinding>(
     areItemsTheSame: (T, T) -> Boolean = { old, new -> old == new },
