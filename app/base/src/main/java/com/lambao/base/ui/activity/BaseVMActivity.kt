@@ -2,20 +2,23 @@ package com.lambao.base.ui.activity
 
 import android.os.Bundle
 import androidx.databinding.ViewDataBinding
-import androidx.lifecycle.ViewModel
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import androidx.lifecycle.ViewModelProvider
+import com.lambao.base.ui.viewmodel.BaseViewModel
 
-@AndroidEntryPoint
-abstract class BaseVMActivity<B : ViewDataBinding, VM : ViewModel> : BaseActivity<B>() {
+abstract class BaseVMActivity<B : ViewDataBinding, VM : BaseViewModel> : BaseActivity<B>() {
 
-    @Inject
-    lateinit var viewModel: VM
-    
+    protected lateinit var viewModel: VM
+
+    protected abstract fun getViewModelClass(): Class<VM>
+
     protected abstract fun initObserve()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this, getViewModelFactory())[getViewModelClass()]
         initObserve()
     }
+
+    protected open fun getViewModelFactory(): ViewModelProvider.Factory =
+        defaultViewModelProviderFactory
 }

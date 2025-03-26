@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.hilt)
 }
 
 android {
@@ -46,10 +45,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    /* Hilt */
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.android.compiler)
-
     /* Retrofit 2 */
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
@@ -64,9 +59,4 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.navigation.runtime.ktx)
-}
-
-/* Hilt: Allow references to generated code*/
-kapt {
-    correctErrorTypes = true
 }

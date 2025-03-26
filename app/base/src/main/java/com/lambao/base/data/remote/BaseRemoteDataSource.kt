@@ -3,7 +3,7 @@ package com.lambao.base.data.remote
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.lambao.base.data.Resource
-import com.lambao.base.di.IODispatcher
+import com.lambao.base.utils.log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
@@ -13,14 +13,13 @@ import kotlinx.coroutines.flow.flowOn
 import retrofit2.HttpException
 import retrofit2.Response
 import java.io.IOException
-import javax.inject.Inject
 
-abstract class BaseRemoteDataSource @Inject constructor(
+abstract class BaseRemoteDataSource(
     private val jsonParser: Gson = Gson(),
-    @IODispatcher private val dispatcher: CoroutineDispatcher
+    private val dispatcher: CoroutineDispatcher
 ) {
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        // Có thể log lỗi ở đây nếu cần
+        log(throwable.message ?: "")
     }
 
     suspend fun <T> safeApiCall(apiCall: suspend () -> Response<T>): Flow<Resource<T>> = flow {
@@ -81,10 +80,12 @@ abstract class BaseRemoteDataSource @Inject constructor(
                 code = e.code(),
                 message = e.message()
             )
+
             is IOException -> NetworkException(
                 type = NetworkErrorType.NO_NETWORK,
                 message = e.message ?: "No network connection"
             )
+
             else -> NetworkException(
                 type = NetworkErrorType.UNKNOWN,
                 message = e.message ?: "Unknown error"
