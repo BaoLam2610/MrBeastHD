@@ -11,8 +11,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+/**
+ * Open ViewModel class extending BaseViewModel, providing utilities for handling network API flows.
+ */
 open class NetworkViewModel : BaseViewModel() {
 
+    /**
+     * Collects a Flow of Resource from an API call with customizable callbacks for different states.
+     *
+     * @param T The type of data wrapped in the Resource
+     * @param flowUseCase The Flow emitting Resource states from an API call
+     * @param onLoading Callback executed when loading state is received (defaults to empty lambda)
+     * @param onError Optional callback for handling errors, defaults to internal error handling if null
+     * @param onSuccess Callback executed with the data when success state is received
+     */
     protected fun <T> collectApi(
         flowUseCase: Flow<Resource<T>>,
         onLoading: () -> Unit = {},
@@ -31,6 +43,13 @@ open class NetworkViewModel : BaseViewModel() {
         }.launchIn(viewModelScope)
     }
 
+    /**
+     * Collects a Flow of Resource from an API call and updates a StateFlow with the results.
+     *
+     * @param T The type of data wrapped in the Resource
+     * @param flowUseCase The Flow emitting Resource states from an API call
+     * @param stateFlow The MutableStateFlow to update with resource states
+     */
     protected fun <T> collectApi(
         flowUseCase: Flow<Resource<T>>,
         stateFlow: MutableStateFlow<Resource<T>>
@@ -45,6 +64,13 @@ open class NetworkViewModel : BaseViewModel() {
         }.launchIn(viewModelScope)
     }
 
+    /**
+     * Collects a Flow of Resource from an API call, skipping loading state, and updates a StateFlow.
+     *
+     * @param T The type of data wrapped in the Resource
+     * @param flowUseCase The Flow emitting Resource states from an API call
+     * @param stateFlow The MutableStateFlow to update with non-loading resource states
+     */
     protected fun <T> collectApiNoLoading(
         flowUseCase: Flow<Resource<T>>,
         stateFlow: MutableStateFlow<Resource<T>>
@@ -61,6 +87,12 @@ open class NetworkViewModel : BaseViewModel() {
         }.launchIn(viewModelScope)
     }
 
+    /**
+     * Handles error states from API calls by logging specific messages based on error type.
+     *
+     * @param T The type of data wrapped in the Resource
+     * @param resource The Resource.Error containing the error information
+     */
     protected fun <T> handleError(resource: Resource<T>) {
         when ((resource.throwable as? NetworkException)?.type) {
             NetworkErrorType.UNAUTHORIZED -> log("Error 401: Please login again")

@@ -8,8 +8,18 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+/**
+ * Open ViewModel class extending NetworkViewModel, providing utilities for handling multiple network API flows concurrently.
+ */
 open class MultiNetworkViewModel : NetworkViewModel() {
 
+    /**
+     * Collects multiple API Flows and provides all results as a list of Resources.
+     *
+     * @param T The type of data wrapped in the Resources
+     * @param flows Variable number of Flows emitting Resource states from API calls
+     * @param onResults Callback executed with the list of all Resource results
+     */
     protected fun <T> collectApis(
         vararg flows: Flow<Resource<T>>,
         onResults: (List<Resource<T>>) -> Unit
@@ -28,6 +38,14 @@ open class MultiNetworkViewModel : NetworkViewModel() {
         }.launchIn(viewModelScope)
     }
 
+    /**
+     * Collects multiple API Flows, invoking onResults only if all succeed, or handling first error.
+     *
+     * @param T The type of data wrapped in the Resources
+     * @param flows Variable number of Flows emitting Resource states from API calls
+     * @param onError Optional callback for handling the first encountered error
+     * @param onResults Callback executed with list of successful data when all calls succeed
+     */
     protected fun <T> collectApis(
         vararg flows: Flow<Resource<T>>,
         onError: ((Exception) -> Unit)? = null,
@@ -49,7 +67,15 @@ open class MultiNetworkViewModel : NetworkViewModel() {
         }.launchIn(viewModelScope)
     }
 
-    /** call multiple api and ignore error */
+    /**
+     * Collects multiple API Flows, ignoring errors and providing only successful results.
+     *
+     * Calls multiple APIs and ignores errors, passing only successful Resources to the callback.
+     *
+     * @param T The type of data wrapped in the Resources
+     * @param flows Variable number of Flows emitting Resource states from API calls
+     * @param onResults Callback executed with list of successful Resource results
+     */
     protected fun <T> collectSafeApis(
         vararg flows: Flow<Resource<T>>,
         onResults: (List<Resource<T>>) -> Unit
@@ -70,7 +96,15 @@ open class MultiNetworkViewModel : NetworkViewModel() {
         }.launchIn(viewModelScope)
     }
 
-    /** call multiple api and ignore error */
+    /**
+     * Collects multiple API Flows, ignoring errors and providing only successful data.
+     *
+     * Calls multiple APIs and ignores errors, passing only successful data to the callback.
+     *
+     * @param T The type of data wrapped in the Resources
+     * @param flows Variable number of Flows emitting Resource states from API calls
+     * @param onResults Callback executed with list of successful data when any calls succeed
+     */
     protected fun <T> collectApisIgnoreErrors(
         vararg flows: Flow<Resource<T>>,
         onResults: (List<T>) -> Unit
