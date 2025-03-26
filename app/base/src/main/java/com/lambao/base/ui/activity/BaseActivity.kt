@@ -5,6 +5,10 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import com.lambao.base.data.remote.NetworkException
+import com.lambao.base.ui.dialog.DialogHandlerImpl
+import com.lambao.base.ui.error_handler.NetworkErrorHandler
+import com.lambao.base.ui.error_handler.NetworkErrorHandlerImpl
 import com.lambao.base.ui.view.loading.LoadingDialogHandler
 import com.lambao.base.ui.view.loading.LoadingHandler
 
@@ -17,6 +21,13 @@ abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
 
     protected open val loadingHandler: LoadingHandler by lazy {
         LoadingDialogHandler(this)
+    }
+
+    protected open val networkErrorHandler: NetworkErrorHandler by lazy {
+        NetworkErrorHandlerImpl(
+            this,
+            DialogHandlerImpl(this)
+        )
     }
 
     @LayoutRes
@@ -38,6 +49,10 @@ abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
 
     fun hideLoading() {
         loadingHandler.hideLoading()
+    }
+
+    fun handleNetworkError(networkException: NetworkException) {
+        networkErrorHandler.handleError(networkException)
     }
 
     override fun onDestroy() {

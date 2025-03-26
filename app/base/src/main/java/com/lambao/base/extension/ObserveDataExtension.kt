@@ -1,6 +1,7 @@
 package com.lambao.base.extension
 
 import com.lambao.base.data.Resource
+import com.lambao.base.data.remote.NetworkException
 import com.lambao.base.ui.activity.BaseActivity
 import com.lambao.base.ui.bottom_sheet.BaseBottomSheet
 import com.lambao.base.ui.dialog.BaseDialog
@@ -35,7 +36,7 @@ fun <T> BaseActivity<*>.observe(
 fun <T> BaseActivity<*>.observeData(
     flow: Flow<Resource<T>>,
     onLoading: ((isLoading: Boolean) -> Unit)? = null,
-    onError: ((Exception) -> Unit)? = null,
+    onError: ((Throwable) -> Unit)? = null,
     onSuccess: (T?) -> Unit
 ) {
     flow.launchWhen(this) { resource ->
@@ -45,9 +46,14 @@ fun <T> BaseActivity<*>.observeData(
                 onLoading?.invoke(false) ?: hideLoading()
                 onSuccess(resource.data)
             }
+
             is Resource.Error -> {
                 onLoading?.invoke(false) ?: hideLoading()
-                onError?.invoke(resource.throwable as Exception)
+                val throwable = resource.throwable ?: Exception("Unknown error")
+                if (throwable is NetworkException) {
+                    handleNetworkError(throwable)
+                }
+                onError?.invoke(throwable)
             }
         }
     }
@@ -81,7 +87,7 @@ fun <T> BaseFragment<*>.observe(
 fun <T> BaseFragment<*>.observeData(
     flow: Flow<Resource<T>>,
     onLoading: ((isLoading: Boolean) -> Unit)? = null,
-    onError: ((Exception) -> Unit)? = null,
+    onError: ((Throwable) -> Unit)? = null,
     onSuccess: (T?) -> Unit
 ) {
     flow.launchWhen(this) { resource ->
@@ -91,9 +97,14 @@ fun <T> BaseFragment<*>.observeData(
                 onLoading?.invoke(false) ?: hideLoading()
                 onSuccess(resource.data)
             }
+
             is Resource.Error -> {
                 onLoading?.invoke(false) ?: hideLoading()
-                onError?.invoke(resource.throwable as Exception)
+                val throwable = resource.throwable ?: Exception("Unknown error")
+                if (throwable is NetworkException) {
+                    handleNetworkError(throwable)
+                }
+                onError?.invoke(throwable)
             }
         }
     }
@@ -127,7 +138,7 @@ fun <T> BaseDialog<*>.observe(
 fun <T> BaseDialog<*>.observeData(
     flow: Flow<Resource<T>>,
     onLoading: ((isLoading: Boolean) -> Unit)? = null,
-    onError: ((Exception) -> Unit)? = null,
+    onError: ((Throwable) -> Unit)? = null,
     onSuccess: (T?) -> Unit
 ) {
     flow.launchWhen(this) { resource ->
@@ -137,9 +148,14 @@ fun <T> BaseDialog<*>.observeData(
                 onLoading?.invoke(false) ?: hideLoading()
                 onSuccess(resource.data)
             }
+
             is Resource.Error -> {
                 onLoading?.invoke(false) ?: hideLoading()
-                onError?.invoke(resource.throwable as Exception)
+                val throwable = resource.throwable ?: Exception("Unknown error")
+                if (throwable is NetworkException) {
+                    handleNetworkError(throwable)
+                }
+                onError?.invoke(throwable)
             }
         }
     }
@@ -173,7 +189,7 @@ fun <T> BaseBottomSheet<*>.observe(
 fun <T> BaseBottomSheet<*>.observeData(
     flow: Flow<Resource<T>>,
     onLoading: ((isLoading: Boolean) -> Unit)? = null,
-    onError: ((Exception) -> Unit)? = null,
+    onError: ((Throwable) -> Unit)? = null,
     onSuccess: (T?) -> Unit
 ) {
     flow.launchWhen(this) { resource ->
@@ -183,9 +199,14 @@ fun <T> BaseBottomSheet<*>.observeData(
                 onLoading?.invoke(false) ?: hideLoading()
                 onSuccess(resource.data)
             }
+
             is Resource.Error -> {
                 onLoading?.invoke(false) ?: hideLoading()
-                onError?.invoke(resource.throwable as Exception)
+                val throwable = resource.throwable ?: Exception("Unknown error")
+                if (throwable is NetworkException) {
+                    handleNetworkError(throwable)
+                }
+                onError?.invoke(throwable)
             }
         }
     }

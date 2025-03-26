@@ -9,6 +9,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import com.lambao.base.data.remote.NetworkException
+import com.lambao.base.ui.dialog.DialogHandlerImpl
+import com.lambao.base.ui.error_handler.NetworkErrorHandler
+import com.lambao.base.ui.error_handler.NetworkErrorHandlerImpl
 import com.lambao.base.ui.view.loading.LoadingDialogHandler
 import com.lambao.base.ui.view.loading.LoadingHandler
 
@@ -21,6 +25,13 @@ abstract class BaseFragment<B : ViewDataBinding> : Fragment() {
 
     protected open val loadingHandler: LoadingHandler by lazy {
         LoadingDialogHandler(requireActivity())
+    }
+
+    protected open val networkErrorHandler: NetworkErrorHandler by lazy {
+        NetworkErrorHandlerImpl(
+            requireContext(),
+            DialogHandlerImpl(requireActivity())
+        )
     }
 
     @LayoutRes
@@ -52,6 +63,10 @@ abstract class BaseFragment<B : ViewDataBinding> : Fragment() {
 
     fun hideLoading() {
         loadingHandler.hideLoading()
+    }
+
+    fun handleNetworkError(networkException: NetworkException) {
+        networkErrorHandler.handleError(networkException)
     }
 
     override fun onDestroyView() {

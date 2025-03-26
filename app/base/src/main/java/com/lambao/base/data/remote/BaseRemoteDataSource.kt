@@ -33,6 +33,7 @@ abstract class BaseRemoteDataSource(
         }
     }.flowOn(dispatcher + exceptionHandler)
         .catch { e ->
+            val s: Exception = e
             emit(Resource.Error(throwable = mapExceptionToNetworkError(e)))
         }
 

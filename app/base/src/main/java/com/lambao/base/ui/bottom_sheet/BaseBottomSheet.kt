@@ -11,6 +11,10 @@ import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Lifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.lambao.base.data.remote.NetworkException
+import com.lambao.base.ui.dialog.DialogHandlerImpl
+import com.lambao.base.ui.error_handler.NetworkErrorHandler
+import com.lambao.base.ui.error_handler.NetworkErrorHandlerImpl
 import com.lambao.base.ui.view.loading.LoadingDialogHandler
 import com.lambao.base.ui.view.loading.LoadingHandler
 
@@ -23,6 +27,13 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
 
     protected open val loadingHandler: LoadingHandler by lazy {
         LoadingDialogHandler(requireActivity())
+    }
+
+    protected open val networkErrorHandler: NetworkErrorHandler by lazy {
+        NetworkErrorHandlerImpl(
+            requireContext(),
+            DialogHandlerImpl(requireActivity())
+        )
     }
 
     @LayoutRes
@@ -74,6 +85,10 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
 
     fun hideLoading() {
         loadingHandler.hideLoading()
+    }
+
+    fun handleNetworkError(networkException: NetworkException) {
+        networkErrorHandler.handleError(networkException)
     }
 
     override fun onDestroyView() {
