@@ -60,7 +60,7 @@ dependencies {
 
     /* Hilt */
     implementation(libs.hilt.android)
-    implementation(libs.hilt.android.compiler)
+    kapt(libs.hilt.android.compiler)
 
     /* Retrofit 2 */
     implementation(libs.retrofit)
