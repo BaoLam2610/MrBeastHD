@@ -38,6 +38,7 @@ open class MultiNetworkViewModel(
                     is Resource.Loading -> log("Loading: $resource")
                     is Resource.Success -> log("Success: ${resource.data}")
                     is Resource.Error -> handleError(resource)
+                    else -> Unit
                 }
             }
         }.launchIn(viewModelScope)

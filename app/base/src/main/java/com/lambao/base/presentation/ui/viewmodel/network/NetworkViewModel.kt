@@ -44,6 +44,7 @@ open class NetworkViewModel(
                     val exception = resource.throwable as Exception
                     onError?.invoke(exception) ?: handleError(resource)
                 }
+                else -> Unit
             }
         }.launchIn(viewModelScope)
     }
@@ -65,6 +66,7 @@ open class NetworkViewModel(
                 is Resource.Loading -> log("Loading data...")
                 is Resource.Success -> log("Data loaded: ${resource.data}")
                 is Resource.Error -> handleError(resource)
+                else -> Unit
             }
         }.launchIn(viewModelScope)
     }
