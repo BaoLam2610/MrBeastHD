@@ -1,4 +1,4 @@
-package com.lambao.base.presentation.ui.view.loading
+package com.lambao.base.presentation.handler.loading
 
 interface LoadingHandler {
     fun showLoading()

@@ -16,8 +16,8 @@ import com.lambao.base.presentation.handler.network_error.NetworkErrorHandler
 import com.lambao.base.presentation.handler.network_error.NetworkErrorHandlerImpl
 import com.lambao.base.presentation.handler.permission.common.PermissionHandlerFactory
 import com.lambao.base.presentation.handler.permission.common.SpecificPermissionHandler
-import com.lambao.base.presentation.ui.view.loading.LoadingDialogHandler
-import com.lambao.base.presentation.ui.view.loading.LoadingHandler
+import com.lambao.base.presentation.handler.loading.LoadingDialogHandler
+import com.lambao.base.presentation.handler.loading.LoadingHandler
 
 abstract class BaseDialog<B : ViewDataBinding> : DialogFragment() {
 
@@ -41,9 +41,6 @@ abstract class BaseDialog<B : ViewDataBinding> : DialogFragment() {
         )
     }
 
-    protected fun getPermissionHandler(type: PermissionHandlerFactory.PermissionType): SpecificPermissionHandler =
-        PermissionHandlerFactory.getHandler(type, requireActivity(), dialogHandler)
-
     @LayoutRes
     protected abstract fun getLayoutId(): Int
 
@@ -64,6 +61,9 @@ abstract class BaseDialog<B : ViewDataBinding> : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         onViewReady(savedInstanceState)
     }
+
+    protected fun getPermissionHandler(type: PermissionHandlerFactory.PermissionType): SpecificPermissionHandler =
+        PermissionHandlerFactory.getHandler(type, requireActivity(), dialogHandler)
 
     protected fun setFull(isFull: Boolean) {
         dialog?.let {

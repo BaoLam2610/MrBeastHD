@@ -1,6 +1,9 @@
 package com.lambao.base.presentation.handler.permission.common
 
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -9,9 +12,10 @@ import com.lambao.base.presentation.handler.dialog.DialogHandler
 
 abstract class BasePermissionHandler(
     private val activity: FragmentActivity,
-    private val dialogHandler: DialogHandler,
-    private val rationaleHandler: PermissionRationaleHandler
+    private val dialogHandler: DialogHandler
 ) : PermissionHandler {
+    abstract val permissionDescription: String
+
     private val requestPermissionLauncher = activity.registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
@@ -34,9 +38,14 @@ abstract class BasePermissionHandler(
         currentCallback = onResult
         val shouldShowRationale = permissionsToRequest.any { shouldShowRationale(it) }
         if (shouldShowRationale) {
-            rationaleHandler.showRationale("this feature") {
-                requestPermissionLauncher.launch(permissionsToRequest)
-            }
+            dialogHandler.showRationaleDialog(
+                title = "Permission Required",
+                permissionDescription = permissionDescription,
+                positiveText = "Grant",
+                negativeText = "Deny",
+                onPositiveListener = { requestPermissionLauncher.launch(permissionsToRequest) },
+                onNegativeListener = { onResult(permissionsToRequest.associateWith { false }) }
+            )
         } else {
             requestPermissionLauncher.launch(permissionsToRequest)
         }
@@ -51,18 +60,18 @@ abstract class BasePermissionHandler(
     private fun handlePermissionResult(result: Map<String, Boolean>) {
         val deniedPermissions = result.filterValues { !it }.keys
         if (deniedPermissions.isNotEmpty() && deniedPermissions.none { shouldShowRationale(it) }) {
-            dialogHandler.showMessageDialog("this feature")
-            /*AlertDialog.Builder(activity)
-                .setTitle("Permission Denied")
-                .setMessage("Please enable permissions in Settings.")
-                .setPositiveButton("Go to Settings") { _, _ ->
+            dialogHandler.showRationaleDialog(
+                title = "Permission Denied",
+                permissionDescription = permissionDescription,
+                positiveText = "Settings",
+                negativeText = "Cancel",
+                onPositiveListener = {
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                         data = Uri.fromParts("package", activity.packageName, null)
                     }
                     activity.startActivity(intent)
                 }
-                .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-                .show()*/
+            )
         }
     }
 }

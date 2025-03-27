@@ -14,6 +14,27 @@ class DialogHandlerImpl(
 
     private var currentDialog: Dialog? = null
 
+    override fun showRationaleDialog(
+        title: String,
+        permissionDescription: String,
+        positiveText: String,
+        negativeText: String,
+        onPositiveListener: (() -> Unit)?,
+        onNegativeListener: (() -> Unit)?
+    ) {
+        showAlertDialog(
+            title = title,
+            message = permissionDescription,
+            positiveText = positiveText,
+            negativeText = negativeText,
+            cancelable = false,
+            shouldShowPositiveButton = true,
+            shouldShowNegativeButton = true,
+            onPositiveListener = onPositiveListener,
+            onNegativeListener = onNegativeListener
+        )
+    }
+
     override fun showAlertDialog(message: String) {
         showAlertDialog(
             title = null,
