@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.lambao.mrbeast"
+    namespace = "com.lambao.mrbeast_music"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.lambao.mrbeast"
+        applicationId = "com.lambao.mrbeast_music"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -37,7 +37,9 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
-
+    dataBinding {
+        enable = true
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -47,7 +49,7 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":app:base"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
