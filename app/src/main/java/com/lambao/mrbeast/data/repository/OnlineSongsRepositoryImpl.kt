@@ -12,7 +12,7 @@ class OnlineSongsRepositoryImpl @Inject constructor(
     gson: Gson,
     @IoDispatcher ioDispatcher: CoroutineDispatcher
 ) : OnlineSongsRepository, BaseRemoteDataSource(gson, ioDispatcher) {
-    override suspend fun getSongs() = safeApiCall {
+    override fun getSongs() = safeCall {
         apiService.getSongs()
     }
 }

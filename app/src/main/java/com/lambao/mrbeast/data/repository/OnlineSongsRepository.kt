@@ -5,5 +5,5 @@ import com.lambao.mrbeast.data.remote.dto.SongDto
 import kotlinx.coroutines.flow.Flow
 
 interface OnlineSongsRepository {
-    suspend fun getSongs(): Flow<Resource<List<SongDto>>>
+    fun getSongs(): Flow<Resource<List<SongDto>>>
 }
