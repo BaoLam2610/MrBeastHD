@@ -22,19 +22,31 @@ abstract class BaseRemoteDataSource(
         log(throwable.message ?: "")
     }
 
-    suspend fun <T> safeApiCall(apiCall: suspend () -> Response<T>): Flow<Resource<T>> = flow {
+    suspend fun <T> safeCall(apiCall: suspend () -> Response<T>): Flow<Resource<T>> = flow {
         emit(Resource.Loading())
-
         val response = apiCall()
-        if (response.isSuccessful) {
-            emit(Resource.Success(data = response.body()))
-        } else {
-            emit(Resource.Error(throwable = parseErrorResponse(response)))
-        }
+        emit(
+            if (response.isSuccessful) {
+                Resource.Success(data = response.body())
+            } else {
+                Resource.Error(throwable = parseErrorResponse(response))
+            }
+        )
     }.flowOn(dispatcher + exceptionHandler)
-        .catch { e ->
-            emit(Resource.Error(throwable = mapExceptionToNetworkError(e)))
-        }
+        .catch { e -> emit(Resource.Error(throwable = mapExceptionToNetworkError(e))) }
+
+    suspend fun <T> safeApiCall(apiCall: suspend () -> ApiResponse<T>): Flow<Resource<T>> = flow {
+        emit(Resource.Loading())
+        val response = apiCall()
+        emit(
+            if (response.status == true) {
+                Resource.Success(data = response.data)
+            } else {
+                Resource.Error(throwable = parseErrorResponse(response))
+            }
+        )
+    }.flowOn(dispatcher + exceptionHandler)
+        .catch { e -> emit(Resource.Error(throwable = mapExceptionToNetworkError(e))) }
 
     private fun <T> parseErrorResponse(response: Response<T>): NetworkException {
         return try {
@@ -43,23 +55,33 @@ abstract class BaseRemoteDataSource(
                 jsonParser.fromJson(response.errorBody()?.charStream(), type)
             val code = errorResponse?.code ?: response.code()
             val message = errorResponse?.message ?: response.message()
-            when (code) {
-                400 -> NetworkException(NetworkErrorType.BAD_REQUEST, code, message)
-                401 -> NetworkException(NetworkErrorType.UNAUTHORIZED, code, message)
-                403 -> NetworkException(NetworkErrorType.FORBIDDEN, code, message)
-                404 -> NetworkException(NetworkErrorType.NOT_FOUND, code, message)
-                429 -> NetworkException(NetworkErrorType.TOO_MANY_REQUESTS, code, message)
-                500 -> NetworkException(NetworkErrorType.SERVER_ERROR, code, message)
-                502 -> NetworkException(NetworkErrorType.BAD_GATEWAY, code, message)
-                503 -> NetworkException(NetworkErrorType.SERVICE_UNAVAILABLE, code, message)
-                else -> NetworkException(NetworkErrorType.UNKNOWN, code, message)
-            }
+            mapToNetworkException(code, message)
         } catch (e: Exception) {
             NetworkException(
                 type = NetworkErrorType.UNKNOWN,
                 code = response.code(),
                 message = e.message ?: response.message()
             )
+        }
+    }
+
+    private fun <T> parseErrorResponse(response: ApiResponse<T>): NetworkException {
+        val code = response.code ?: 0
+        val message = response.message ?: "Unknown error"
+        return mapToNetworkException(code, message)
+    }
+
+    private fun mapToNetworkException(code: Int, message: String): NetworkException {
+        return when (code) {
+            400 -> NetworkException(NetworkErrorType.BAD_REQUEST, code, message)
+            401 -> NetworkException(NetworkErrorType.UNAUTHORIZED, code, message)
+            403 -> NetworkException(NetworkErrorType.FORBIDDEN, code, message)
+            404 -> NetworkException(NetworkErrorType.NOT_FOUND, code, message)
+            429 -> NetworkException(NetworkErrorType.TOO_MANY_REQUESTS, code, message)
+            500 -> NetworkException(NetworkErrorType.SERVER_ERROR, code, message)
+            502 -> NetworkException(NetworkErrorType.BAD_GATEWAY, code, message)
+            503 -> NetworkException(NetworkErrorType.SERVICE_UNAVAILABLE, code, message)
+            else -> NetworkException(NetworkErrorType.UNKNOWN, code, message)
         }
     }
 
