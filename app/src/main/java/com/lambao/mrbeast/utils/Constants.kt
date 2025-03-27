@@ -2,7 +2,8 @@ package com.lambao.mrbeast.utils
 
 object Constants {
 
-    const val BASE_URL = "https://m.vuiz.net/getlink/mp3zing/api.php"
+    const val BASE_URL = "https://m.vuiz.net/"
+    const val URL_VER = "getlink/mp3zing/api.php"
 
     const val NETWORK_TIME_OUT = 3000L
     const val HTTP_CONTENT_TYPE_KEY = "Content-Type"
