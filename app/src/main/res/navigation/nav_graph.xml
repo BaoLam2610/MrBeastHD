@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/onlineSongsFragment">
+
+    <fragment
+        android:id="@+id/onlineSongsFragment"
+        android:name="com.lambao.mrbeast_music.OnlineSongsFragment"
+        android:label="fragment_online_songs"
+        tools:layout="@layout/fragment_online_songs" >
+        <action
+            android:id="@+id/action_onlineSongsFragment_to_playSongFragment"
+            app:destination="@id/playSongFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/offlineSongsFragment"
+        android:name="com.lambao.mrbeast_music.OfflineSongsFragment"
+        android:label="fragment_offline_songs"
+        tools:layout="@layout/fragment_offline_songs" >
+        <action
+            android:id="@+id/action_offlineSongsFragment_to_playSongFragment"
+            app:destination="@id/playSongFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/favoriteSongsFragment"
+        android:name="com.lambao.mrbeast_music.FavoriteSongsFragment"
+        android:label="fragment_favorite_songs"
+        tools:layout="@layout/fragment_favorite_songs" >
+        <action
+            android:id="@+id/action_favoriteSongsFragment_to_playSongFragment"
+            app:destination="@id/playSongFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/playSongFragment"
+        android:name="com.lambao.mrbeast_music.PlaySongFragment"
+        android:label="fragment_play_song"
+        tools:layout="@layout/fragment_play_song" />
+</navigation>
