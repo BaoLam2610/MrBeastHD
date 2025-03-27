@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/onlineSongsFragment"
-        android:name="com.lambao.mrbeast_music.OnlineSongsFragment"
+        android:name="com.lambao.mrbeast.presentation.ui.fragment.online_songs.OnlineSongsFragment"
         android:label="fragment_online_songs"
         tools:layout="@layout/fragment_online_songs" >
         <action
@@ -17,7 +17,7 @@
 
     <fragment
         android:id="@+id/offlineSongsFragment"
-        android:name="com.lambao.mrbeast_music.OfflineSongsFragment"
+        android:name="com.lambao.mrbeast.presentation.ui.fragment.offline_songs.OfflineSongsFragment"
         android:label="fragment_offline_songs"
         tools:layout="@layout/fragment_offline_songs" >
         <action
@@ -27,7 +27,7 @@
 
     <fragment
         android:id="@+id/favoriteSongsFragment"
-        android:name="com.lambao.mrbeast_music.FavoriteSongsFragment"
+        android:name="com.lambao.mrbeast.presentation.ui.fragment.favorite_songs.FavoriteSongsFragment"
         android:label="fragment_favorite_songs"
         tools:layout="@layout/fragment_favorite_songs" >
         <action
@@ -37,7 +37,7 @@
 
     <fragment
         android:id="@+id/playSongFragment"
-        android:name="com.lambao.mrbeast_music.PlaySongFragment"
+        android:name="com.lambao.mrbeast.presentation.ui.fragment.play_song.PlaySongFragment"
         android:label="fragment_play_song"
         tools:layout="@layout/fragment_play_song" />
 </navigation>
