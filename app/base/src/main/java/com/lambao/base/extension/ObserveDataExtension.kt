@@ -2,10 +2,10 @@ package com.lambao.base.extension
 
 import com.lambao.base.data.Resource
 import com.lambao.base.data.remote.NetworkException
-import com.lambao.base.ui.activity.BaseActivity
-import com.lambao.base.ui.bottom_sheet.BaseBottomSheet
-import com.lambao.base.ui.dialog.BaseDialog
-import com.lambao.base.ui.fragment.BaseFragment
+import com.lambao.base.presentation.ui.activity.BaseActivity
+import com.lambao.base.presentation.ui.bottom_sheet.BaseBottomSheet
+import com.lambao.base.presentation.ui.dialog.BaseDialog
+import com.lambao.base.presentation.ui.fragment.BaseFragment
 import kotlinx.coroutines.flow.Flow
 
 /**

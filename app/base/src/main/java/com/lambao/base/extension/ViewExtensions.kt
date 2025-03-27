@@ -6,7 +6,7 @@ import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
-import com.lambao.base.ui.view.OnSingleClickListener
+import com.lambao.base.presentation.ui.view.OnSingleClickListener
 
 private const val SUPER_STATE = "SUPER_STATE"
 private const val SPARSE_STATE_KEY = "SPARSE_STATE_KEY"
