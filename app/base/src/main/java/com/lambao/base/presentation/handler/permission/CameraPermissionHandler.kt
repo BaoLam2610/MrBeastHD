@@ -2,6 +2,7 @@ package com.lambao.base.presentation.handler.permission
 
 import android.Manifest
 import androidx.fragment.app.FragmentActivity
+import com.lambao.base.R
 import com.lambao.base.presentation.handler.dialog.DialogHandler
 import com.lambao.base.presentation.handler.permission.common.BasePermissionHandler
 import com.lambao.base.presentation.handler.permission.common.SpecificPermissionHandler
@@ -14,5 +15,5 @@ class CameraPermissionHandler(
         get() = arrayOf(Manifest.permission.CAMERA)
 
     override val permissionDescription: String
-        get() = "Please grant camera permission to use this feature"
+        get() = activity.getString(R.string.camera_permission_description)
 }

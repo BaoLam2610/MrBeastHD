@@ -3,6 +3,7 @@ package com.lambao.base.presentation.handler.permission
 import android.Manifest
 import android.os.Build
 import androidx.fragment.app.FragmentActivity
+import com.lambao.base.R
 import com.lambao.base.presentation.handler.dialog.DialogHandler
 import com.lambao.base.presentation.handler.permission.common.BasePermissionHandler
 import com.lambao.base.presentation.handler.permission.common.SpecificPermissionHandler
@@ -26,5 +27,5 @@ class StoragePermissionHandler(
         }
 
     override val permissionDescription: String
-        get() = "Please grant storage permission to use this feature"
+        get() = activity.getString(R.string.storage_permission_description)
 }

@@ -24,6 +24,6 @@ class NetworkErrorHandlerImpl(
             NetworkErrorType.UNKNOWN -> "Unknown error: ${networkException.message}"
         }
         log(message)
-        dialogHandler.showMessageDialog(message)
+        dialogHandler.showAlertDialog(message)
     }
 }

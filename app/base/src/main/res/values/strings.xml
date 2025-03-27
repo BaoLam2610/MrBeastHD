@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="permission_required">Permission Required</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="grant">grant</string>
+    <string name="deny">deny</string>
+    <string name="settings">Settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="camera_permission_description">Please grant camera permission to use this feature</string>"
+    <string name="notification_permission_description">Please grant notification permission to use this feature</string>"
+    <string name="storage_permission_description">Please grant storage permission to use this feature</string>"
+</resources>

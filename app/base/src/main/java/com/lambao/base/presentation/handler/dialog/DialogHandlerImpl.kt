@@ -3,6 +3,7 @@ package com.lambao.base.presentation.handler.dialog
 import android.app.Dialog
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
+import com.lambao.base.R
 import com.lambao.base.presentation.ui.dialog.DefaultDialogCreator
 import com.lambao.base.presentation.ui.dialog.DialogCreator
 import com.lambao.base.utils.log
@@ -39,8 +40,8 @@ class DialogHandlerImpl(
         showAlertDialog(
             title = null,
             message = message,
-            positiveText = "OK",
-            negativeText = null,
+            positiveText = null,
+            negativeText = activity.getString(R.string.cancel),
             cancelable = false,
             shouldShowPositiveButton = true,
             shouldShowNegativeButton = false
