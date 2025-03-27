@@ -36,6 +36,9 @@
     <style name="bold_18" parent="roobert_bold">
         <item name="android:textSize">18sp</item>
     </style>
+    <style name="bold_24" parent="roobert_bold">
+        <item name="android:textSize">18sp</item>
+    </style>
     <style name="bold_78" parent="roobert_bold">
         <item name="android:textSize">78sp</item>
     </style>
@@ -48,7 +51,27 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <!-- Medium Variants -->
+    <style name="medium_12" parent="roobert_medium">
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="medium_14" parent="roobert_medium">
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="medium_16" parent="roobert_medium">
+        <item name="android:textSize">16sp</item>
+    </style>
+    <style name="medium_18" parent="roobert_medium">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="medium_20" parent="roobert_medium">
+        <item name="android:textSize">20sp</item>
+    </style>
+
     <!-- Regular Variants -->
+    <style name="regular_10" parent="roobert_regular">
+        <item name="android:textSize">10sp</item>
+    </style>
     <style name="regular_12" parent="roobert_regular">
         <item name="android:textSize">12sp</item>
     </style>
