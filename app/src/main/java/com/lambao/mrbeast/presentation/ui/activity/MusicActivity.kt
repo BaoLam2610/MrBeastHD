@@ -22,12 +22,15 @@ class MusicActivity : BaseActivity<ActivityMusicBinding>() {
 
     private val menuAdapter by lazy {
         DrawerMenuAdapter { menuItem, _ ->
-//            when (menuItem) {
-//                MenuItem.DISCOVER -> navController.navigate(R.id.)
-//                MenuItem.MY_MUSIC -> navController.navigate(R.id.myMusicFragment)
-//                MenuItem.FAVORITE_SONG -> navController.navigate(R.id.favoriteSongFragment)
-//                MenuItem.LANGUAGE -> navController.navigate(R.id.languageFragment)
-//            }
+            if (menuItem != MenuItem.LANGUAGE) {
+                binding.drawerLayout.close()
+            }
+            when (menuItem) {
+                MenuItem.DISCOVER -> navController.navigate(R.id.onlineSongsFragment)
+                MenuItem.MY_MUSIC -> navController.navigate(R.id.offlineSongsFragment)
+                MenuItem.FAVORITE_SONG -> navController.navigate(R.id.favoriteSongsFragment)
+                MenuItem.LANGUAGE -> {}
+            }
         }
     }
 
