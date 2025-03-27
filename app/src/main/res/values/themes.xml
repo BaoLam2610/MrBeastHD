@@ -6,4 +6,53 @@
     </style>
 
     <style name="Theme.MrBeast" parent="Base.Theme.MrBeast" />
+
+    <style name="base_font">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/grey_900</item>
+    </style>
+
+    <!-- Font Weights -->
+    <style name="roobert_bold" parent="base_font">
+        <item name="android:fontFamily">@font/roobert_bold</item>
+    </style>
+    <style name="roobert_semibold" parent="base_font">
+        <item name="android:fontFamily">@font/roobert_semibold</item>
+    </style>
+    <style name="roobert_medium" parent="base_font">
+        <item name="android:fontFamily">@font/roobert_medium</item>
+    </style>
+    <style name="roobert_regular" parent="base_font">
+        <item name="android:fontFamily">@font/roobert_regular</item>
+    </style>
+
+    <!-- Bold Variants -->
+    <style name="bold_12" parent="roobert_bold">
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="bold_14" parent="roobert_bold">
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="bold_18" parent="roobert_bold">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="bold_78" parent="roobert_bold">
+        <item name="android:textSize">78sp</item>
+    </style>
+
+    <!-- Semibold Variants -->
+    <style name="semibold_14" parent="roobert_semibold">
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="semibold_16" parent="roobert_semibold">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Regular Variants -->
+    <style name="regular_12" parent="roobert_regular">
+        <item name="android:textSize">12sp</item>
+    </style>
+    <style name="regular_16" parent="roobert_regular">
+        <item name="android:textSize">16sp</item>
+    </style>
 </resources>
