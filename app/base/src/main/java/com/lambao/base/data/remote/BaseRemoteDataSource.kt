@@ -22,7 +22,7 @@ abstract class BaseRemoteDataSource(
         log(throwable.message ?: "")
     }
 
-    suspend fun <T> safeCall(apiCall: suspend () -> Response<T>): Flow<Resource<T>> = flow {
+    fun <T> safeCall(apiCall: suspend () -> Response<T>): Flow<Resource<T>> = flow {
         emit(Resource.Loading())
         val response = apiCall()
         emit(
@@ -35,7 +35,7 @@ abstract class BaseRemoteDataSource(
     }.flowOn(dispatcher + exceptionHandler)
         .catch { e -> emit(Resource.Error(throwable = mapExceptionToNetworkError(e))) }
 
-    suspend fun <T> safeApiCall(apiCall: suspend () -> ApiResponse<T>): Flow<Resource<T>> = flow {
+    fun <T> safeApiCall(apiCall: suspend () -> ApiResponse<T>): Flow<Resource<T>> = flow {
         emit(Resource.Loading())
         val response = apiCall()
         emit(

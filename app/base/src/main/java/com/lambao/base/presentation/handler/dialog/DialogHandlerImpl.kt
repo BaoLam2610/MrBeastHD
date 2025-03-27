@@ -43,8 +43,8 @@ class DialogHandlerImpl(
             positiveText = null,
             negativeText = activity.getString(R.string.cancel),
             cancelable = false,
-            shouldShowPositiveButton = true,
-            shouldShowNegativeButton = false
+            shouldShowPositiveButton = false,
+            shouldShowNegativeButton = true
         )
     }
 

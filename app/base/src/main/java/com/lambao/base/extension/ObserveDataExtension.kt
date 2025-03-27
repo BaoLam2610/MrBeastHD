@@ -55,6 +55,7 @@ fun <T> BaseActivity<*>.observeData(
                 }
                 onError?.invoke(throwable)
             }
+            else -> Unit
         }
     }
 }
@@ -106,6 +107,7 @@ fun <T> BaseFragment<*>.observeData(
                 }
                 onError?.invoke(throwable)
             }
+            else -> Unit
         }
     }
 }
@@ -157,6 +159,7 @@ fun <T> BaseDialog<*>.observeData(
                 }
                 onError?.invoke(throwable)
             }
+            else -> Unit
         }
     }
 }
@@ -208,6 +211,7 @@ fun <T> BaseBottomSheet<*>.observeData(
                 }
                 onError?.invoke(throwable)
             }
+            else -> Unit
         }
     }
 }
