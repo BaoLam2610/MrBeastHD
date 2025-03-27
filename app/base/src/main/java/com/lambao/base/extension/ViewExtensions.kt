@@ -42,9 +42,9 @@ fun ViewGroup.restoreInstanceState(state: Parcelable?): Parcelable? {
     var newState = state
     if (newState is Bundle) {
         val childrenState =
-            newState.getSparseParcelableArrayCompat(SPARSE_STATE_KEY, Parcelable::class.java)
+            newState.getSparseParcelableArrayCompat<Parcelable>(SPARSE_STATE_KEY)
         childrenState?.let { restoreChildViewStates(it) }
-        newState = newState.getParcelableCompat(SUPER_STATE, Parcelable::class.java)
+        newState = newState.getParcelableCompat(SUPER_STATE)
     }
     return newState
 }
