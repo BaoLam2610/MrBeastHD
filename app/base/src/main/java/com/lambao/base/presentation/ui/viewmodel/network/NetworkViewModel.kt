@@ -6,6 +6,8 @@ import com.lambao.base.data.remote.NetworkErrorType
 import com.lambao.base.data.remote.NetworkException
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 import com.lambao.base.utils.log
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -14,7 +16,10 @@ import kotlinx.coroutines.flow.onEach
 /**
  * Open ViewModel class extending BaseViewModel, providing utilities for handling network API flows.
  */
-open class NetworkViewModel : BaseViewModel() {
+open class NetworkViewModel(
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
+) : BaseViewModel(ioDispatcher, defaultDispatcher) {
 
     /**
      * Collects a Flow of Resource from an API call with customizable callbacks for different states.

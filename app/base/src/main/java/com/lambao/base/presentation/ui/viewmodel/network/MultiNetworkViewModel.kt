@@ -3,6 +3,8 @@ package com.lambao.base.presentation.ui.viewmodel.network
 import androidx.lifecycle.viewModelScope
 import com.lambao.base.data.Resource
 import com.lambao.base.utils.log
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
@@ -11,7 +13,10 @@ import kotlinx.coroutines.flow.onEach
 /**
  * Open ViewModel class extending NetworkViewModel, providing utilities for handling multiple network API flows concurrently.
  */
-open class MultiNetworkViewModel : NetworkViewModel() {
+open class MultiNetworkViewModel(
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
+) : NetworkViewModel(ioDispatcher, defaultDispatcher) {
 
     /**
      * Collects multiple API Flows and provides all results as a list of Resources.
