@@ -1,13 +1,15 @@
 package com.lambao.mrbeast.presentation.ui.fragment.online_songs
 
 import android.os.Bundle
-import com.lambao.base.extension.observeData
+import com.lambao.base.extension.launchWhenCreated
+import com.lambao.base.extension.observe
 import com.lambao.base.presentation.ui.fragment.BaseVMFragment
 import com.lambao.base.utils.log
 import com.lambao.mrbeast.presentation.ui.fragment.common.SongInfoAdapter
 import com.lambao.mrbeast_music.R
 import com.lambao.mrbeast_music.databinding.FragmentOnlineSongsBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class OnlineSongsFragment : BaseVMFragment<FragmentOnlineSongsBinding, OnlineSongsViewModel>() {
@@ -27,8 +29,14 @@ class OnlineSongsFragment : BaseVMFragment<FragmentOnlineSongsBinding, OnlineSon
     }
 
     override fun initObserve() {
-        observeData(viewModel.songs) {
-            songsAdapter.submitList(it ?: emptyList())
+        binding.viewModel = viewModel
+
+        observe(viewModel.songs) {
+            songsAdapter.submitList(it)
+        }
+
+        launchWhenCreated {
+            viewModel.shouldShowEmptyData.collect()
         }
 
         viewModel.getOnlineSongs()
