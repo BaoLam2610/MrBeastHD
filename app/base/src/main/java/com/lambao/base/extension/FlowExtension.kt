@@ -54,3 +54,23 @@ fun LifecycleOwner.launchWhen(
 fun LifecycleOwner.launchWhenCreated(block: suspend CoroutineScope.() -> Unit) {
     launchWhen(Lifecycle.State.CREATED, block)
 }
+
+/**
+ * Launches a coroutine tied to a LifecycleOwner's lifecycle, executing the block when in STARTED state.
+ *
+ * @param block The suspend function to execute within the coroutine scope
+ * @return A Job representing the launched coroutine
+ */
+fun LifecycleOwner.launchWhenStarted(block: suspend CoroutineScope.() -> Unit) {
+    launchWhen(Lifecycle.State.STARTED, block)
+}
+
+/**
+ * Launches a coroutine tied to a LifecycleOwner's lifecycle, executing the block when in RESUMED state.
+ *
+ * @param block The suspend function to execute within the coroutine scope
+ * @return A Job representing the launched coroutine
+ */
+fun LifecycleOwner.launchWhenResumed(block: suspend CoroutineScope.() -> Unit) {
+    launchWhen(Lifecycle.State.RESUMED, block)
+}

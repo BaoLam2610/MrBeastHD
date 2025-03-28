@@ -1,7 +1,5 @@
 package com.lambao.base.extension
 
-import com.lambao.base.data.Resource
-import com.lambao.base.data.remote.NetworkException
 import com.lambao.base.presentation.ui.activity.BaseActivity
 import com.lambao.base.presentation.ui.bottom_sheet.BaseBottomSheet
 import com.lambao.base.presentation.ui.dialog.BaseDialog
@@ -25,42 +23,6 @@ fun <T> BaseActivity<*>.observe(
 }
 
 /**
- * Observes a Flow of Resource and handles loading, success, and error states.
- *
- * @param flow The Flow of Resource to observe
- * @param onLoading Optional callback for handling loading state, defaults to showing/hiding loading UI
- * @param onError Optional callback for handling error state
- * @param onSuccess Callback for handling successful data emission
- * @param T The type of data wrapped in the Resource
- */
-fun <T> BaseActivity<*>.observeData(
-    flow: Flow<Resource<T>>,
-    onLoading: ((isLoading: Boolean) -> Unit)? = null,
-    onError: ((Throwable) -> Unit)? = null,
-    onSuccess: (T?) -> Unit
-) {
-    flow.launchWhen(this) { resource ->
-        when (resource) {
-            is Resource.Loading -> onLoading?.invoke(true) ?: showLoading()
-            is Resource.Success -> {
-                onLoading?.invoke(false) ?: hideLoading()
-                onSuccess(resource.data)
-            }
-
-            is Resource.Error -> {
-                onLoading?.invoke(false) ?: hideLoading()
-                val throwable = resource.throwable ?: Exception("Unknown error")
-                if (throwable is NetworkException) {
-                    handleNetworkError(throwable)
-                }
-                onError?.invoke(throwable)
-            }
-            else -> Unit
-        }
-    }
-}
-
-/**
  * Observes a Flow in a Fragment and executes the provided callback when new values are emitted.
  *
  * @param flow The Flow to observe
@@ -73,42 +35,6 @@ fun <T> BaseFragment<*>.observe(
 ) {
     flow.launchWhen(this) {
         onChanged.invoke(it)
-    }
-}
-
-/**
- * Observes a Flow of Resource in a Fragment and handles different resource states.
- *
- * @param flow The Flow of Resource to observe
- * @param onLoading Optional callback for handling loading state, defaults to showing/hiding loading UI
- * @param onError Optional callback for handling error state
- * @param onSuccess Callback for handling successful data emission
- * @param T The type of data wrapped in the Resource
- */
-fun <T> BaseFragment<*>.observeData(
-    flow: Flow<Resource<T>>,
-    onLoading: ((isLoading: Boolean) -> Unit)? = null,
-    onError: ((Throwable) -> Unit)? = null,
-    onSuccess: (T?) -> Unit
-) {
-    flow.launchWhen(this) { resource ->
-        when (resource) {
-            is Resource.Loading -> onLoading?.invoke(true) ?: showLoading()
-            is Resource.Success -> {
-                onLoading?.invoke(false) ?: hideLoading()
-                onSuccess(resource.data)
-            }
-
-            is Resource.Error -> {
-                onLoading?.invoke(false) ?: hideLoading()
-                val throwable = resource.throwable ?: Exception("Unknown error")
-                if (throwable is NetworkException) {
-                    handleNetworkError(throwable)
-                }
-                onError?.invoke(throwable)
-            }
-            else -> Unit
-        }
     }
 }
 
@@ -129,42 +55,6 @@ fun <T> BaseDialog<*>.observe(
 }
 
 /**
- * Observes a Flow of Resource in a Dialog and handles different resource states.
- *
- * @param flow The Flow of Resource to observe
- * @param onLoading Optional callback for handling loading state, defaults to showing/hiding loading UI
- * @param onError Optional callback for handling error state
- * @param onSuccess Callback for handling successful data emission
- * @param T The type of data wrapped in the Resource
- */
-fun <T> BaseDialog<*>.observeData(
-    flow: Flow<Resource<T>>,
-    onLoading: ((isLoading: Boolean) -> Unit)? = null,
-    onError: ((Throwable) -> Unit)? = null,
-    onSuccess: (T?) -> Unit
-) {
-    flow.launchWhen(this) { resource ->
-        when (resource) {
-            is Resource.Loading -> onLoading?.invoke(true) ?: showLoading()
-            is Resource.Success -> {
-                onLoading?.invoke(false) ?: hideLoading()
-                onSuccess(resource.data)
-            }
-
-            is Resource.Error -> {
-                onLoading?.invoke(false) ?: hideLoading()
-                val throwable = resource.throwable ?: Exception("Unknown error")
-                if (throwable is NetworkException) {
-                    handleNetworkError(throwable)
-                }
-                onError?.invoke(throwable)
-            }
-            else -> Unit
-        }
-    }
-}
-
-/**
  * Observes a Flow in a BottomSheet and executes the callback when new values are emitted.
  *
  * @param flow The Flow to observe
@@ -177,41 +67,5 @@ fun <T> BaseBottomSheet<*>.observe(
 ) {
     flow.launchWhen(this) {
         onChanged.invoke(it)
-    }
-}
-
-/**
- * Observes a Flow of Resource in a BottomSheet and handles different resource states.
- *
- * @param flow The Flow of Resource to observe
- * @param onLoading Optional callback for handling loading state, defaults to showing/hiding loading UI
- * @param onError Optional callback for handling error state
- * @param onSuccess Callback for handling successful data emission
- * @param T The type of data wrapped in the Resource
- */
-fun <T> BaseBottomSheet<*>.observeData(
-    flow: Flow<Resource<T>>,
-    onLoading: ((isLoading: Boolean) -> Unit)? = null,
-    onError: ((Throwable) -> Unit)? = null,
-    onSuccess: (T?) -> Unit
-) {
-    flow.launchWhen(this) { resource ->
-        when (resource) {
-            is Resource.Loading -> onLoading?.invoke(true) ?: showLoading()
-            is Resource.Success -> {
-                onLoading?.invoke(false) ?: hideLoading()
-                onSuccess(resource.data)
-            }
-
-            is Resource.Error -> {
-                onLoading?.invoke(false) ?: hideLoading()
-                val throwable = resource.throwable ?: Exception("Unknown error")
-                if (throwable is NetworkException) {
-                    handleNetworkError(throwable)
-                }
-                onError?.invoke(throwable)
-            }
-            else -> Unit
-        }
     }
 }
