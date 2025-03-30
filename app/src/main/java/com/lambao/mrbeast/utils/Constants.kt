@@ -14,6 +14,7 @@ object Constants {
 
     object Argument {
         const val SONG = "SONG"
+        const val SONGS = "SONGS"
         const val THUMBNAILS = "THUMBNAILS"
     }
 }

@@ -22,7 +22,7 @@ class OnlineSongsFragment : BaseVMFragment<FragmentOnlineSongsBinding, OnlineSon
                 R.id.action_onlineSongsFragment_to_playSongFragment,
                 bundleOf(
                     Constants.Argument.SONG to song,
-                    Constants.Argument.THUMBNAILS to viewModel.songThumbnails.value
+                    Constants.Argument.SONGS to viewModel.songs.value
                 )
             )
         }

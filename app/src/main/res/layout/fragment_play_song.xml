@@ -28,11 +28,11 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="12dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
             android:paddingStart="40dp"
             android:paddingEnd="40dp"
-            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintBottom_toTopOf="@id/tvSongTitle"
+            app:layout_constraintHeight_percent="0.4"
             app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
         <TextView
@@ -41,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="12dp"
             android:ellipsize="marquee"
             android:focusable="true"
             android:focusableInTouchMode="true"
@@ -50,6 +50,8 @@
             android:maxLines="1"
             android:scrollHorizontally="true"
             android:singleLine="true"
+            android:text="@{viewModel.song.title}"
+            app:layout_constraintBottom_toTopOf="@id/tvArtistName"
             app:layout_constraintTop_toBottomOf="@id/viewPager"
             tools:text="Believer" />
 
@@ -68,17 +70,20 @@
             android:maxLines="1"
             android:scrollHorizontally="true"
             android:singleLine="true"
+            android:text="@{viewModel.song.artistsNames}"
             android:textColor="@color/grey_700"
+            app:layout_constraintBottom_toTopOf="@+id/btnFavorite"
             app:layout_constraintTop_toBottomOf="@id/tvSongTitle"
+            tools:layout_editor_absoluteX="4dp"
             tools:text="IMAGINE DRAGON" />
 
-        <ImageButton
+        <androidx.appcompat.widget.AppCompatCheckedTextView
             android:id="@+id/btnFavorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginBottom="24dp"
-            android:background="@drawable/ic_favorite_outline"
+            android:checkMark="@drawable/selector_favorite_button"
             app:layout_constraintBottom_toTopOf="@id/tvTime"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -92,13 +97,12 @@
             app:layout_constraintEnd_toStartOf="@id/btnShuffle"
             app:layout_constraintTop_toTopOf="@id/btnFavorite" />
 
-        <ImageButton
+        <androidx.appcompat.widget.AppCompatCheckedTextView
             android:id="@+id/btnShuffle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            android:adjustViewBounds="true"
-            android:background="@drawable/ic_shuffle_disable"
+            android:checkMark="@drawable/selector_shuffle_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/btnFavorite" />
 
@@ -133,6 +137,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="16dp"
+            android:text="@{viewModel.song.durationTime}"
             app:layout_constraintBottom_toTopOf="@+id/seekBar"
             app:layout_constraintEnd_toEndOf="@id/seekBar"
             tools:text="04:20" />
@@ -148,13 +153,12 @@
             app:layout_constraintEnd_toStartOf="@id/btnSongAction"
             app:layout_constraintTop_toTopOf="@id/btnSongAction" />
 
-        <ImageButton
+        <androidx.appcompat.widget.AppCompatCheckedTextView
             android:id="@+id/btnSongAction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="28dp"
-            android:adjustViewBounds="true"
-            android:background="@drawable/ic_pause_56"
+            android:checkMark="@drawable/selector_action_song_button_56"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

@@ -2,6 +2,7 @@ package com.lambao.mrbeast.domain.model
 
 import android.os.Parcelable
 import com.lambao.mrbeast.data.remote.dto.SongDto
+import com.lambao.mrbeast.extension.toTimeString
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -29,7 +30,9 @@ data class Song(
     val position: Long,
     val order: String,
     val album: Album?,
-) : Parcelable
+) : Parcelable {
+    fun getDurationTime() = duration.toTimeString()
+}
 
 fun SongDto.toSong() = Song(
     id = id ?: "",
