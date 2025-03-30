@@ -71,4 +71,10 @@ open class BaseViewModel(
             block()
         }
     }
+
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
+        viewModelScope.launch {
+            block()
+        }
+    }
 }
