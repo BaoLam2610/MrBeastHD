@@ -70,6 +70,9 @@
     <style name="medium_20" parent="roobert_medium">
         <item name="android:textSize">20sp</item>
     </style>
+    <style name="medium_24" parent="roobert_medium">
+        <item name="android:textSize">20sp</item>
+    </style>
 
     <!-- Regular Variants -->
     <style name="regular_10" parent="roobert_regular">

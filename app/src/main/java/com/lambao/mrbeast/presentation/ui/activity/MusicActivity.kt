@@ -1,6 +1,7 @@
 package com.lambao.mrbeast.presentation.ui.activity
 
 import android.os.Bundle
+import android.os.PersistableBundle
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -8,6 +9,8 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.lambao.base.extension.click
+import com.lambao.base.extension.gone
+import com.lambao.base.extension.visible
 import com.lambao.base.presentation.ui.activity.BaseActivity
 import com.lambao.base.utils.log
 import com.lambao.mrbeast.data.model.MenuItem
@@ -36,13 +39,17 @@ class MusicActivity : BaseActivity<ActivityMusicBinding>() {
 
     override fun getLayoutResId() = R.layout.activity_music
 
-    override fun onViewReady(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
         enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.drawerLayout) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
+
+    override fun onViewReady(savedInstanceState: Bundle?) {
         setupNavigation()
         setupDrawerLayout()
     }
@@ -60,7 +67,7 @@ class MusicActivity : BaseActivity<ActivityMusicBinding>() {
     }
 
     private fun setupDrawerLayout() {
-        binding.btnDrawerMenu.click {
+        binding.toolbar.setOnBackClickListener {
             binding.drawerLayout.open()
         }
 
@@ -70,6 +77,14 @@ class MusicActivity : BaseActivity<ActivityMusicBinding>() {
 
         binding.layoutDrawerBody.rvMenu.adapter = menuAdapter
         menuAdapter.submitList(MenuItem.entries)
+    }
+
+    fun showToolbar() {
+        binding.toolbar.visible()
+    }
+
+    fun hideToolbar() {
+        binding.toolbar.gone()
     }
 
     override fun onSupportNavigateUp(): Boolean {

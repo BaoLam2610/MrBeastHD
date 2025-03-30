@@ -1,7 +1,10 @@
 package com.lambao.mrbeast.domain.model
 
+import android.os.Parcelable
 import com.lambao.mrbeast.data.remote.dto.AlbumDto
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Album(
     val id: String,
     val link: String,
@@ -12,7 +15,7 @@ data class Album(
     val artists: List<Artist>,
     val thumbnail: String,
     val thumbnailMedium: String
-)
+) : Parcelable
 
 fun AlbumDto.toAlbum() = Album(
     id = id ?: "",

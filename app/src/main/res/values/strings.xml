@@ -7,4 +7,5 @@
     <string name="favorite_song">Bài hát yêu thích</string>
     <string name="language">Ngôn ngữ</string>
     <string name="empty_data">Không có dữ liệu</string>
+    <string name="playing">Đang chơi</string>
 </resources>

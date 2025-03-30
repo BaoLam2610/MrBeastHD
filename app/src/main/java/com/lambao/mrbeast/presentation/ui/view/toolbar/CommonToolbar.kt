@@ -79,29 +79,40 @@ class CommonToolbar : BaseCustomView<LayoutToolbarBinding> {
     override fun getLayoutId() = R.layout.layout_toolbar
 
     override fun initView(attrs: AttributeSet) {
-        context.obtainStyledAttributes(attrs, R.styleable.CommonToolbar).run {
-            title = getString(R.styleable.CommonToolbar_title) ?: ""
-            showBackButton = getBoolean(R.styleable.CommonToolbar_showBackButton, true)
-            showActionButton = getBoolean(R.styleable.CommonToolbar_showActionButton, false)
-            toolbarBackground = ContextCompat.getDrawable(
-                context,
-                getResourceId(R.styleable.CommonToolbar_background, 0)
-            )
-            backIcon = ContextCompat.getDrawable(
-                context,
-                getResourceId(R.styleable.CommonToolbar_srcBackIcon, 0)
-            )
-            actionIcon = ContextCompat.getDrawable(
-                context,
-                getResourceId(R.styleable.CommonToolbar_srcActionIcon, 0)
-            )
+        try {
+            context.obtainStyledAttributes(attrs, R.styleable.CommonToolbar).run {
+                title = getString(R.styleable.CommonToolbar_title) ?: ""
+                showBackButton = getBoolean(R.styleable.CommonToolbar_showBackButton, true)
+                showActionButton = getBoolean(R.styleable.CommonToolbar_showActionButton, false)
+                getResourceId(R.styleable.CommonToolbar_background, 0).let {
+                    if (it != 0) {
+                        toolbarBackground = ContextCompat.getDrawable(context, it)
+                    }
+                }
+                getResourceId(R.styleable.CommonToolbar_srcBackIcon, R.drawable.ic_back).let {
+                    if (it != 0) {
+                        backIcon = ContextCompat.getDrawable(context, it)
+                    }
+                }
+                getResourceId(R.styleable.CommonToolbar_srcActionIcon, 0).let {
+                    if (it != 0) {
+                        actionIcon = ContextCompat.getDrawable(context, it)
+                    }
+                }
 
-            recycle()
+                recycle()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
     override fun setBackground(drawable: Drawable?) {
         this.toolbarBackground = drawable
+    }
+
+    fun setOnBackClickListener(listener: () -> Unit) {
+        binding.btnBack.click { listener() }
     }
 
     fun setOnActionClickListener(listener: () -> Unit) {

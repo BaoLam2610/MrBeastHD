@@ -21,6 +21,18 @@ fun View.click(func: (v: View) -> Unit) {
     )
 }
 
+fun View.visible() {
+    visibility = View.VISIBLE
+}
+
+fun View.invisible() {
+    visibility = View.INVISIBLE
+}
+
+fun View.gone() {
+    visibility = View.GONE
+}
+
 fun ViewGroup.saveChildViewStates(): SparseArray<Parcelable> {
     val childViewStates = SparseArray<Parcelable>()
     children.forEach { child -> child.saveHierarchyState(childViewStates) }

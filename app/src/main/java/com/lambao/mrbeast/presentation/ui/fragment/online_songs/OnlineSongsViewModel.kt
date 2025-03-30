@@ -6,6 +6,7 @@ import com.lambao.base.presentation.ui.viewmodel.network.NetworkViewModel
 import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
 import com.lambao.mrbeast.domain.model.Song
+import com.lambao.mrbeast.domain.model.Thumbnail
 import com.lambao.mrbeast.domain.usecase.GetOnlineSongsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -26,6 +28,11 @@ class OnlineSongsViewModel @Inject constructor(
 
     private val _songs = MutableStateFlow<List<Song>>(emptyList())
     val songs get() = _songs.asStateFlow()
+
+    private val _songThumbnails = _songs.map {
+        it.map { Thumbnail(it.thumbnail) }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val songThumbnails get() = _songThumbnails
 
     private val _shouldShowEmptyData = combine(
         screenState,

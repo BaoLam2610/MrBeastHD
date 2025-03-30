@@ -7,6 +7,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
+import com.lambao.mrbeast.extension.toDp
 
 object ImageViewBindingAdapters {
     /**
@@ -18,6 +19,7 @@ object ImageViewBindingAdapters {
      * @param isCircleCrop Whether to apply a circle crop transformation (default: false).
      * @param cornerRadius Radius in pixels for rounded corners (default: 0, no rounding).
      */
+    @JvmStatic
     @BindingAdapter(
         "imageUrl",
         "placeholderResId",
@@ -51,7 +53,7 @@ object ImageViewBindingAdapters {
                     isCircleCrop -> options.circleCrop()
                     cornerRadius > 0 -> options.transform(
                         CenterCrop(),
-                        RoundedCorners(cornerRadius)
+                        RoundedCorners(cornerRadius.toDp)
                     )
 
                     else -> options
@@ -64,6 +66,7 @@ object ImageViewBindingAdapters {
             .into(this)
     }
 
+    @JvmStatic
     @BindingAdapter("imageRes")
     fun ImageView.imageRes(res: Int) {
         setImageResource(res)

@@ -22,7 +22,7 @@
             android:layout_height="180dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            app:cornerRadius="@{20}"
+            app:cornerRadius="@{12}"
             app:imageUrl="@{item.thumbnail}" />
 
         <TextView
