@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
+import com.lambao.base.extension.getParcelableCompat
 import com.lambao.base.extension.getParcelableListCompat
+import com.lambao.base.extension.launchWhenCreated
 import com.lambao.base.extension.popBackStack
 import com.lambao.base.presentation.ui.fragment.BaseVMFragment
-import com.lambao.mrbeast.domain.model.Thumbnail
+import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.extension.toDp
 import com.lambao.mrbeast.presentation.ui.activity.MusicActivity
 import com.lambao.mrbeast.presentation.ui.fragment.common.SongThumbnailAdapter
@@ -19,11 +21,24 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewModel>() {
 
-    private val songThumbnails by lazy {
-        arguments?.getParcelableListCompat<Thumbnail>(Constants.Argument.THUMBNAILS) ?: emptyList()
+    private lateinit var thumbnailAdapter: SongThumbnailAdapter
+
+    private val argSong by lazy {
+        arguments?.getParcelableCompat<Song>(Constants.Argument.SONG)
     }
 
-    private lateinit var thumbnailAdapter: SongThumbnailAdapter
+    private val argSongList by lazy {
+        arguments?.getParcelableListCompat<Song>(Constants.Argument.SONGS) ?: emptyList()
+    }
+
+    private val onPageChangeCallback by lazy {
+        object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                viewModel.setSong(argSongList[position])
+            }
+        }
+    }
 
     override fun getLayoutResId() = R.layout.fragment_play_song
 
@@ -43,17 +58,29 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
 
     override fun initObserve() {
         binding.viewModel = viewModel
-        thumbnailAdapter.submitList(songThumbnails)
+        with(viewModel) {
+            launchWhenCreated {
+                songThumbnails.collect {
+                    thumbnailAdapter.submitList(it)
+                }
+            }
+
+            argSong?.let { setSong(it) }
+            setSongList(argSongList)
+        }
     }
 
     private fun setupViewPager() {
         thumbnailAdapter = SongThumbnailAdapter()
-        binding.viewPager.adapter = thumbnailAdapter
-        binding.viewPager.offscreenPageLimit = 1
-        binding.viewPager.clipChildren = false
-        binding.viewPager.clipToPadding = false
-        binding.viewPager.setPageTransformer(getTransformation())
-        binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+        binding.viewPager.apply {
+            adapter = thumbnailAdapter
+            offscreenPageLimit = 3
+            clipChildren = false
+            clipToPadding = false
+            setPageTransformer(getTransformation())
+            orientation = ViewPager2.ORIENTATION_HORIZONTAL
+            registerOnPageChangeCallback(onPageChangeCallback)
+        }
     }
 
     private fun getTransformation(): CompositePageTransformer {
