@@ -20,8 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class OnlineSongsViewModel @Inject constructor(
     private val getOnlineSongsUseCase: GetOnlineSongsUseCase,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+    @IoDispatcher ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
 ) : NetworkViewModel(ioDispatcher, defaultDispatcher) {
 
     private val _songs = MutableStateFlow<List<Song>>(emptyList())

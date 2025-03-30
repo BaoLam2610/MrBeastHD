@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlaySongViewModel @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
-) : NetworkViewModel() {
+    @IoDispatcher ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
+) : NetworkViewModel(ioDispatcher, defaultDispatcher) {
 }
