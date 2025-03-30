@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteSongsViewModel @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+    @IoDispatcher ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
 ) : BaseViewModel(ioDispatcher, defaultDispatcher) {
 }
