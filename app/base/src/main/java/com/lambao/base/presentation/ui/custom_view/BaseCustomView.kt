@@ -23,20 +23,24 @@ abstract class BaseCustomView<B : ViewDataBinding> : FrameLayout {
         initBinding()
     }
 
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         initBinding()
+        initView(attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
     ) {
         initBinding()
+        initView(attrs)
     }
 
     @LayoutRes
     abstract fun getLayoutId(): Int
+
+    protected abstract fun initView(attrs: AttributeSet)
 
     private fun initBinding() {
         _binding = DataBindingUtil.inflate(
