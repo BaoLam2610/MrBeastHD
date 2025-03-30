@@ -6,6 +6,7 @@ import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.model.Thumbnail
+import com.lambao.mrbeast.domain.usecase.GetIndexInPlaylistUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlaySongViewModel @Inject constructor(
+    private val getIndexInPlaylistUseCase: GetIndexInPlaylistUseCase,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
 ) : NetworkViewModel(ioDispatcher, defaultDispatcher) {
@@ -33,12 +35,15 @@ class PlaySongViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     val songThumbnails get() = _songThumbnails
 
-    private val _currentSongIndex = combine(
+    private val _combineIndexInPlaylist = combine(
         _song,
         _songList
     ) { song, playlist ->
-        playlist.indexOfFirst { it.id == song?.id }
+        getIndexInPlaylistUseCase.invoke(song, playlist)
     }.stateIn(viewModelScope, SharingStarted.Lazily, -1)
+    val combineIndexInPlaylist get() = _combineIndexInPlaylist
+
+    private val _currentSongIndex = MutableStateFlow(-1)
     val currentSongIndex get() = _currentSongIndex
 
     private val _shouldRegisterPageChangeListener = _currentSongIndex.map {
@@ -55,6 +60,28 @@ class PlaySongViewModel @Inject constructor(
     fun setSongList(songList: List<Song>) {
         launch {
             _songList.emit(songList)
+        }
+    }
+
+    fun setCurrentSongIndex(index: Int) {
+        launch {
+            _currentSongIndex.emit(index)
+        }
+    }
+
+    fun previousSong() {
+        launch {
+            if (currentSongIndex.value > 0) {
+                _currentSongIndex.emit(currentSongIndex.value - 1)
+            }
+        }
+    }
+
+    fun nextSong() {
+        launch {
+            if (currentSongIndex.value < songList.value.size - 1) {
+                _currentSongIndex.emit(currentSongIndex.value + 1)
+            }
         }
     }
 }

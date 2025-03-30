@@ -20,6 +20,7 @@ import com.lambao.mrbeast_music.R
 import com.lambao.mrbeast_music.databinding.FragmentPlaySongBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewModel>() {
@@ -64,16 +65,18 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
                 startIndex = viewModel.currentSongIndex.value
             )
         }
-        binding.btnNextSong.click {
-            MediaPlayerService.startService(
-                requireContext(),
-                Constants.MediaAction.NEXT
-            )
-        }
         binding.btnPreviousSong.click {
+            viewModel.previousSong()
             MediaPlayerService.startService(
                 requireContext(),
                 Constants.MediaAction.PREVIOUS
+            )
+        }
+        binding.btnNextSong.click {
+            viewModel.nextSong()
+            MediaPlayerService.startService(
+                requireContext(),
+                Constants.MediaAction.NEXT
             )
         }
         setupViewPager()
@@ -85,6 +88,14 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             launchWhenCreated {
                 songThumbnails.collect {
                     thumbnailAdapter.submitList(it)
+                }
+            }
+
+            launchWhenCreated {
+                combineIndexInPlaylist.collectLatest {
+                    if (it != -1) {
+                        setCurrentSongIndex(it)
+                    }
                 }
             }
 
