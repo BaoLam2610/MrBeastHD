@@ -1,5 +1,6 @@
 package com.lambao.mrbeast.presentation.ui.fragment.play_song
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
@@ -11,6 +12,7 @@ import com.lambao.base.extension.launchWhenCreated
 import com.lambao.base.extension.popBackStack
 import com.lambao.base.presentation.ui.fragment.BaseVMFragment
 import com.lambao.mrbeast.domain.model.Song
+import com.lambao.mrbeast.domain.service.MediaPlayerService
 import com.lambao.mrbeast.extension.toDp
 import com.lambao.mrbeast.presentation.ui.activity.MusicActivity
 import com.lambao.mrbeast.presentation.ui.fragment.common.SongThumbnailAdapter
@@ -55,9 +57,17 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             popBackStack()
         }
         binding.btnSongAction.click {
-            (requireActivity() as? MusicActivity)?.getMediaPlayerService()?.playSong(
-               viewModel.song.value ?: return@click
+            MediaPlayerService.startService(
+                requireContext(),
+                Constants.MediaAction.PLAY,
+                viewModel.song.value
             )
+        }
+        binding.btnNextSong.click {
+
+        }
+        binding.btnPreviousSong.click {
+
         }
         setupViewPager()
     }

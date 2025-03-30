@@ -1,10 +1,6 @@
 package com.lambao.mrbeast.presentation.ui.activity
 
-import android.content.ComponentName
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import android.os.PersistableBundle
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
@@ -19,7 +15,6 @@ import com.lambao.base.presentation.handler.permission.common.PermissionHandlerF
 import com.lambao.base.presentation.ui.activity.BaseActivity
 import com.lambao.base.utils.log
 import com.lambao.mrbeast.data.model.MenuItem
-import com.lambao.mrbeast.domain.service.MediaPlayerService
 import com.lambao.mrbeast_music.R
 import com.lambao.mrbeast_music.databinding.ActivityMusicBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,22 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MusicActivity : BaseActivity<ActivityMusicBinding>() {
 
     private lateinit var navController: NavController
-
-    private var mediaPlayerService: MediaPlayerService? = null
-    private var isBound = false
-
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as MediaPlayerService.MediaPlayerBinder
-            mediaPlayerService = binder.getService()
-            isBound = true
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            mediaPlayerService = null
-            isBound = false
-        }
-    }
 
     private val menuAdapter by lazy {
         DrawerMenuAdapter { menuItem, _ ->
@@ -79,10 +58,6 @@ class MusicActivity : BaseActivity<ActivityMusicBinding>() {
                 log(it.toString())
             }
         }
-
-        val intent = Intent(this, MediaPlayerService::class.java)
-        bindService(intent, connection, BIND_AUTO_CREATE)
-        startService(intent)
     }
 
     private fun setupNavigation() {
@@ -117,8 +92,6 @@ class MusicActivity : BaseActivity<ActivityMusicBinding>() {
     fun hideToolbar() {
         binding.toolbar.gone()
     }
-
-    fun getMediaPlayerService(): MediaPlayerService? = mediaPlayerService
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
