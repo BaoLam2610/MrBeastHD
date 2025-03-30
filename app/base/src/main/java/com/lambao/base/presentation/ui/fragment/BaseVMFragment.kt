@@ -6,6 +6,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModelProvider
 import com.lambao.base.data.remote.NetworkException
 import com.lambao.base.extension.observe
+import com.lambao.base.extension.observeLatest
 import com.lambao.base.presentation.ui.state.ScreenState
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 
@@ -29,7 +30,7 @@ abstract class BaseVMFragment<B : ViewDataBinding, VM : BaseViewModel> : BaseFra
     }
 
     protected open fun initScreenState() {
-        observe(viewModel.screenState) { state ->
+        observeLatest(viewModel.screenState) { state ->
             when (state) {
                 is ScreenState.Loading -> showLoading()
                 is ScreenState.Error -> {

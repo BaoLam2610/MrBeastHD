@@ -6,6 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -17,13 +18,34 @@ import kotlinx.coroutines.launch
  * @param collect The suspend function to handle each emitted value
  * @return A Job representing the launched coroutine
  */
-fun <T> Flow<T>.launchWhen(
+fun <T> Flow<T>.launchCollect(
     lifecycleOwner: LifecycleOwner,
     lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,
     collect: suspend (T) -> Unit
 ) = lifecycleOwner.lifecycleScope.launch {
     lifecycleOwner.repeatOnLifecycle(lifecycleState) {
         collect { collect(it) }
+    }
+}
+
+/**
+ * Launches a Flow collection tied to a LifecycleOwner's lifecycle, collecting the latest values when in the specified state.
+ * This function ensures that only the most recent value emitted by the Flow is processed, discarding previous values if the collector
+ * cannot keep up with the emission rate.
+ *
+ * @param T The type of data emitted by the Flow
+ * @param lifecycleOwner The LifecycleOwner whose lifecycle will control the collection
+ * @param lifecycleState The Lifecycle state when collection should be active (defaults to [Lifecycle.State.STARTED])
+ * @param collect The suspend function to handle each emitted value
+ * @return A [Job] representing the launched coroutine, which can be used to cancel the collection if needed
+ */
+fun <T> Flow<T>.launchCollectLatest(
+    lifecycleOwner: LifecycleOwner,
+    lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,
+    collect: suspend (T) -> Unit
+) = lifecycleOwner.lifecycleScope.launch {
+    lifecycleOwner.repeatOnLifecycle(lifecycleState) {
+        collectLatest { collect(it) }
     }
 }
 
