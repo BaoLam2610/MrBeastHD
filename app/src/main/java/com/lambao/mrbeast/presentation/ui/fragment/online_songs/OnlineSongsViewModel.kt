@@ -44,7 +44,7 @@ class OnlineSongsViewModel @Inject constructor(
             false
         }
     }.stateIn(viewModelScope, SharingStarted.Lazily, false)
-    val shouldShowEmptyData: StateFlow<Boolean> get() = _shouldShowEmptyData
+    val shouldShowEmptyData get() = _shouldShowEmptyData
 
     fun getOnlineSongs() {
         collectApi(getOnlineSongsUseCase.invoke()) { it ->

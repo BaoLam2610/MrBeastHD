@@ -29,7 +29,8 @@ class MediaPlayerService : Service() {
     private lateinit var mediaPlayer: BaseMediaPlayer
     private lateinit var mediaSession: MediaSessionCompat
     private var positionUpdateJob: Job? = null
-    private var song: Song? = null
+    private val playlist: MutableList<Song> = mutableListOf()
+    private var currentSongIndex: Int = -1
 
     override fun onCreate() {
         super.onCreate()
@@ -41,9 +42,13 @@ class MediaPlayerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             Constants.MediaAction.PLAY -> {
-                intent.getParcelableExtra<Song>(Constants.Argument.SONG)?.let { song ->
-                    this.song = song
-                    handlePlay(song)
+                val songs = intent.getParcelableArrayListExtra<Song>(Constants.Argument.SONGS)
+                val startIndex = intent.getIntExtra(Constants.Argument.START_INDEX, 0)
+                if (songs != null && songs.isNotEmpty()) {
+                    playlist.clear()
+                    playlist.addAll(songs)
+                    currentSongIndex = startIndex.coerceIn(0, playlist.size - 1)
+                    handlePlay(playlist[currentSongIndex])
                 }
             }
 
@@ -172,8 +177,8 @@ class MediaPlayerService : Service() {
                     R.drawable.ic_launcher_background
                 )
             )
-            .setContentTitle(song?.title)
-            .setContentText(song?.artistsNames)
+            .setContentTitle(getCurrentSong()?.title)
+            .setContentText(getCurrentSong()?.artistsNames)
             .setStyle(
                 MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
@@ -214,13 +219,24 @@ class MediaPlayerService : Service() {
     }
 
     private fun handlePrevious() {
-        mediaPlayer.seekTo(0) // Placeholder: Update song if part of a playlist
+        if (playlist.isNotEmpty() && currentSongIndex > 0) {
+            currentSongIndex--
+            handlePlay(playlist[currentSongIndex])
+        } else {
+            mediaPlayer.seekTo(0) // Restart current song if at start
+        }
         updateNotification()
     }
 
     private fun handleNext() {
-        // TODO: Implement next song logic (e.g., from a playlist)
-        mediaPlayer.stop() // Placeholder
+        if (playlist.isNotEmpty() && currentSongIndex < playlist.size - 1) {
+            currentSongIndex++
+            handlePlay(playlist[currentSongIndex])
+        } else {
+            mediaPlayer.stop() // Stop if no next song
+            updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
+            stopPositionUpdates()
+        }
         updateNotification()
     }
 
@@ -260,18 +276,24 @@ class MediaPlayerService : Service() {
         super.onDestroy()
     }
 
+    private fun getCurrentSong() =
+        if (currentSongIndex >= 0 && currentSongIndex < playlist.size) playlist[currentSongIndex]
+        else null
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
         fun startService(
             context: Context,
             action: String,
-            song: Song? = null,
+            playlist: List<Song>? = null,
+            startIndex: Int = 0,
             position: Long? = null
         ) {
             val intent = Intent(context, MediaPlayerService::class.java).apply {
                 this.action = action
-                song?.let { putExtra(Constants.Argument.SONG, it) }
+                playlist?.let { putParcelableArrayListExtra(Constants.Argument.SONGS, ArrayList(it)) }
+                putExtra(Constants.Argument.START_INDEX, startIndex)
                 position?.let { putExtra(Constants.Argument.POSITION, it) }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -16,6 +16,7 @@ object Constants {
         const val SONG = "SONG"
         const val SONGS = "SONGS"
         const val POSITION = "POSITION"
+        const val START_INDEX = "START_INDEX"
         const val THUMBNAILS = "THUMBNAILS"
     }
 

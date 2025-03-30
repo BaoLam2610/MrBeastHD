@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -31,6 +32,19 @@ class PlaySongViewModel @Inject constructor(
         it.map { Thumbnail(it.thumbnail) }
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     val songThumbnails get() = _songThumbnails
+
+    private val _currentSongIndex = combine(
+        _song,
+        _songList
+    ) { song, playlist ->
+        playlist.indexOfFirst { it.id == song?.id }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, -1)
+    val currentSongIndex get() = _currentSongIndex
+
+    private val _shouldRegisterPageChangeListener = _currentSongIndex.map {
+        it != -1
+    }.stateIn(viewModelScope, SharingStarted.Lazily, false)
+    val shouldRegisterPageChangeListener get() = _shouldRegisterPageChangeListener
 
     fun setSong(song: Song) {
         launch {
