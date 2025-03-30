@@ -4,5 +4,5 @@ interface MediaPlayerCallBack {
     fun onStart()
     fun onComplete()
     fun onError(e: Exception)
-    fun onPositionChanged(position: Int, duration: Int)
+    fun onPositionChanged(position: Long, duration: Long)
 }

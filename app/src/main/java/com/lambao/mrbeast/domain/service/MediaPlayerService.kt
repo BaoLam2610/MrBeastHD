@@ -1,115 +1,170 @@
 package com.lambao.mrbeast.domain.service
 
-import android.app.PendingIntent
+import android.app.Notification
 import android.app.Service
+import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.media.app.NotificationCompat.MediaStyle
-import com.lambao.mrbeast.domain.model.MediaAction
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.service.media_player.BaseMediaPlayer
 import com.lambao.mrbeast.domain.service.media_player.MediaPlayerCallBack
 import com.lambao.mrbeast.domain.service.media_player.MediaPlayerImpl
 import com.lambao.mrbeast.utils.Constants
 import com.lambao.mrbeast_music.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class MediaPlayerService : Service() {
-    private val binder = MediaPlayerBinder()
     private lateinit var mediaPlayer: BaseMediaPlayer
+    private lateinit var mediaSession: MediaSessionCompat
+    private var positionUpdateJob: Job? = null
     private var song: Song? = null
-
-    inner class MediaPlayerBinder : Binder() {
-        fun getService(): MediaPlayerService = this@MediaPlayerService
-    }
 
     override fun onCreate() {
         super.onCreate()
         mediaPlayer = MediaPlayerImpl()
+        createNotificationChannel()
+        setupMediaSession()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            Constants.MediaAction.PLAY -> {
+                intent.getParcelableExtra<Song>(Constants.Argument.SONG)?.let { song ->
+                    this.song = song
+                    handlePlay(song)
+                }
+            }
+
+            Constants.MediaAction.PAUSE -> {
+                handlePause()
+            }
+
+            Constants.MediaAction.RESUME -> handleResume()
+            Constants.MediaAction.STOP -> handleStop()
+            Constants.MediaAction.PREVIOUS -> handlePrevious()
+            Constants.MediaAction.NEXT -> handleNext()
+            Constants.MediaAction.SEEK_TO -> {
+                val position = intent.getLongExtra(Constants.Argument.POSITION, 0L)
+                handleSeekTo(position)
+            }
+        }
+        updateNotification()
+        return START_STICKY
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = android.app.NotificationChannel(
+                Constants.Notification.CHANNEL_ID,
+                Constants.Notification.CHANNEL_NAME,
+                android.app.NotificationManager.IMPORTANCE_HIGH
+            )
+            val manager = getSystemService(android.app.NotificationManager::class.java)
+            manager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun setupMediaSession() {
+        mediaSession = MediaSessionCompat(this, this::class.java.simpleName).apply {
+            setCallback(object : MediaSessionCompat.Callback() {
+                override fun onPlay() {
+                    handleResume()
+                }
+
+                override fun onPause() {
+                    handlePause()
+                }
+
+                override fun onSkipToNext() {
+                    handleNext()
+                }
+
+                override fun onSkipToPrevious() {
+                    handlePrevious()
+                }
+
+                override fun onSeekTo(pos: Long) {
+                    handleSeekTo(pos)
+                }
+
+                override fun onStop() {
+                    handleStop()
+                }
+            })
+            setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+            isActive = true
+        }
+
         mediaPlayer.setCallBack(object : MediaPlayerCallBack {
             override fun onStart() {
-                sendNotification(song) // Cần có dữ liệu bài hát
+                updatePlaybackState(
+                    PlaybackStateCompat.STATE_PLAYING,
+                    0L,
+                    mediaPlayer.getDuration()
+                )
+                startPositionUpdates()
             }
 
             override fun onComplete() {
-                sendNotification(song, isPlaying = false)
+                updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
+                stopPositionUpdates()
+                stopForeground(STOP_FOREGROUND_REMOVE)
             }
 
             override fun onError(e: Exception) {
-                sendNotification(song, isPlaying = false)
+                updatePlaybackState(PlaybackStateCompat.STATE_ERROR)
+                stopPositionUpdates()
             }
 
-            override fun onPositionChanged(position: Int, duration: Int) {
-                // Có thể cập nhật notification với tiến độ nếu cần
+            override fun onPositionChanged(position: Long, duration: Long) {
+                updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, position, duration)
             }
         })
     }
 
-    override fun onBind(intent: Intent?): IBinder = binder
+    private fun updatePlaybackState(state: Int, position: Long = 0L, duration: Long = 0L) {
+        val playbackState = PlaybackStateCompat.Builder()
+            .setState(
+                state,
+                position,
+                if (state == PlaybackStateCompat.STATE_PLAYING) 1.0f else 0.0f
+            )
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                        PlaybackStateCompat.ACTION_STOP or
+                        PlaybackStateCompat.ACTION_SEEK_TO
+            )
+            .build()
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
-            MediaAction.PLAY_PAUSE.name -> {
-                if (mediaPlayer.isPlaying()) mediaPlayer.pause() else mediaPlayer.play(song?.data) // Cần URL thực tế
-                sendNotification(song, mediaPlayer.isPlaying())
-            }
+        mediaSession.setPlaybackState(playbackState)
 
-            MediaAction.PREVIOUS.name -> {
-                // Logic cho bài trước (nếu có danh sách phát)
-            }
-
-            MediaAction.NEXT.name -> {
-                // Logic cho bài tiếp theo (nếu có danh sách phát)
-            }
-
-            MediaAction.CLOSE.name -> {
-                mediaPlayer.stop()
-                stopForeground(true)
-                stopSelf()
-            }
-        }
-        return START_STICKY
+        val metadata = MediaMetadataCompat.Builder()
+            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
+            .build()
+        mediaSession.setMetadata(metadata)
     }
 
-    // Hàm gửi notification
-    private fun sendNotification(song: Song?, isPlaying: Boolean = mediaPlayer.isPlaying()) {
-        if (song == null) return
-        val session = MediaSessionCompat(this, "music")
-        val style = MediaStyle()
-            .setShowActionsInCompactView(0, 1, 2, 3)
-//            .setMediaSession(session.sessionToken) // show seekbar on notification system
+    private fun updateNotification() {
+        val notification = buildNotification()
+        startForeground(Constants.Notification.NOTIFICATION_ID, notification)
+    }
 
-        val notification = NotificationCompat.Builder(this, Constants.Notification.CHANNEL_ID)
-            .setStyle(style)
-            .setContentTitle(song.title)
-            .setContentText(song.artistsNames)
-            .addAction(
-                R.drawable.ic_previous_24,
-                MediaAction.PREVIOUS.name,
-                createPendingIntent(MediaAction.PREVIOUS)
-            )
-            .addAction(
-                if (isPlaying) R.drawable.ic_pause_24 else R.drawable.ic_play_24,
-                MediaAction.PLAY_PAUSE.name,
-                createPendingIntent(MediaAction.PLAY_PAUSE)
-            )
-            .addAction(
-                R.drawable.ic_next_24,
-                MediaAction.NEXT.name,
-                createPendingIntent(MediaAction.NEXT)
-            )
-            .addAction(
-                R.drawable.ic_close_24,
-                MediaAction.CLOSE.name,
-                createPendingIntent(MediaAction.CLOSE)
-            )
+    private fun buildNotification(): Notification {
+        return NotificationCompat.Builder(this, Constants.Notification.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
@@ -117,50 +172,113 @@ class MediaPlayerService : Service() {
                     R.drawable.ic_launcher_background
                 )
             )
-            .setOngoing(isPlaying) // Đảm bảo notification không bị xóa khi đang phát
+            .setContentTitle(song?.title)
+            .setContentText(song?.artistsNames)
+            .setStyle(
+                MediaStyle()
+                    .setMediaSession(mediaSession.sessionToken)
+                    .setShowActionsInCompactView(0, 1, 2) // Previous, play/pause, next
+            )
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setOngoing(true)
             .build()
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                startForeground(1, notification)
+    private fun handlePlay(song: Song) {
+        mediaPlayer.play(song.data)
+        startPositionUpdates()
+        updateNotification()
+    }
+
+    private fun handleResume() {
+        mediaPlayer.resume()
+        startPositionUpdates()
+        updateNotification()
+    }
+
+    private fun handlePause() {
+        mediaPlayer.pause()
+        updatePlaybackState(
+            PlaybackStateCompat.STATE_PAUSED,
+            mediaPlayer.getCurrentPosition(),
+            mediaPlayer.getDuration()
+        )
+        stopPositionUpdates()
+        updateNotification()
+    }
+
+    private fun handleStop() {
+        mediaPlayer.stop()
+        stopPositionUpdates()
+        stopSelf()
+    }
+
+    private fun handlePrevious() {
+        mediaPlayer.seekTo(0) // Placeholder: Update song if part of a playlist
+        updateNotification()
+    }
+
+    private fun handleNext() {
+        // TODO: Implement next song logic (e.g., from a playlist)
+        mediaPlayer.stop() // Placeholder
+        updateNotification()
+    }
+
+    private fun handleSeekTo(position: Long) {
+        mediaPlayer.seekTo(position)
+        updatePlaybackState(
+            if (mediaPlayer.isPlaying()) PlaybackStateCompat.STATE_PLAYING
+            else PlaybackStateCompat.STATE_PAUSED,
+            position,
+            mediaPlayer.getDuration().toLong()
+        )
+        updateNotification()
+    }
+
+    private fun startPositionUpdates() {
+        stopPositionUpdates()
+        positionUpdateJob = CoroutineScope(Dispatchers.Main).launch {
+            while (isActive && mediaPlayer.isPlaying()) {
+                val position = mediaPlayer.getCurrentPosition().toLong()
+                val duration = mediaPlayer.getDuration().toLong()
+                updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, position, duration)
+                updateNotification() // Update notification dynamically
+                delay(1000)
             }
-        } else {
-            startForeground(1, notification)
         }
     }
 
-    private fun createPendingIntent(mediaAction: MediaAction): PendingIntent {
-        val intent = Intent(this, MediaPlayerService::class.java).apply {
-            action = mediaAction.name
-        }
-        return PendingIntent.getService(
-            this,
-            mediaAction.requestCode,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
+    private fun stopPositionUpdates() {
+        positionUpdateJob?.cancel()
+        positionUpdateJob = null
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        stopPositionUpdates()
         mediaPlayer.release()
-        stopForeground(true)
+        mediaSession.release()
+        super.onDestroy()
     }
 
-    // Các phương thức public để điều khiển từ binder
-    fun playSong(song: Song?) {
-        this.song = song
-        mediaPlayer.play(song?.data)
-        sendNotification(song, isPlaying = true)
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    companion object {
+        fun startService(
+            context: Context,
+            action: String,
+            song: Song? = null,
+            position: Long? = null
+        ) {
+            val intent = Intent(context, MediaPlayerService::class.java).apply {
+                this.action = action
+                song?.let { putExtra(Constants.Argument.SONG, it) }
+                position?.let { putExtra(Constants.Argument.POSITION, it) }
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        }
     }
-    fun play(data: String?) = mediaPlayer.play(data)
-    fun pause() = mediaPlayer.pause()
-    fun stop() = mediaPlayer.stop()
-    fun seekTo(position: Int) = mediaPlayer.seekTo(position)
-    fun isPlaying(): Boolean = mediaPlayer.isPlaying()
-    fun setCallBack(callBack: MediaPlayerCallBack) = mediaPlayer.setCallBack(callBack)
 }

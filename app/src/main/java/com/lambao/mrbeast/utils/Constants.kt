@@ -15,6 +15,7 @@ object Constants {
     object Argument {
         const val SONG = "SONG"
         const val SONGS = "SONGS"
+        const val POSITION = "POSITION"
         const val THUMBNAILS = "THUMBNAILS"
     }
 
@@ -22,5 +23,15 @@ object Constants {
         const val CHANNEL_ID = "music_channel"
         const val CHANNEL_NAME = "Music Channel"
         const val NOTIFICATION_ID = 1
+    }
+
+    object MediaAction {
+        const val PLAY = "PLAY"
+        const val PAUSE = "PAUSE"
+        const val RESUME = "RESUME"
+        const val STOP = "STOP"
+        const val NEXT = "NEXT"
+        const val PREVIOUS = "PREVIOUS"
+        const val SEEK_TO = "SEEK_TO"
     }
 }
