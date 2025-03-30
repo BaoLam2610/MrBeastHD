@@ -1,6 +1,5 @@
 package com.lambao.mrbeast.presentation.ui.fragment.play_song
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
@@ -20,6 +19,7 @@ import com.lambao.mrbeast.utils.Constants
 import com.lambao.mrbeast_music.R
 import com.lambao.mrbeast_music.databinding.FragmentPlaySongBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewModel>() {
@@ -60,14 +60,21 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             MediaPlayerService.startService(
                 requireContext(),
                 Constants.MediaAction.PLAY,
-                viewModel.song.value
+                playlist = viewModel.songList.value,
+                startIndex = viewModel.currentSongIndex.value
             )
         }
         binding.btnNextSong.click {
-
+            MediaPlayerService.startService(
+                requireContext(),
+                Constants.MediaAction.NEXT
+            )
         }
         binding.btnPreviousSong.click {
-
+            MediaPlayerService.startService(
+                requireContext(),
+                Constants.MediaAction.PREVIOUS
+            )
         }
         setupViewPager()
     }
@@ -78,6 +85,23 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             launchWhenCreated {
                 songThumbnails.collect {
                     thumbnailAdapter.submitList(it)
+                }
+            }
+
+            launchWhenCreated {
+                currentSongIndex.collect {
+                    delay(300)
+                    binding.viewPager.setCurrentItem(it, true)
+                }
+            }
+
+            launchWhenCreated {
+                shouldRegisterPageChangeListener.collect {
+                    if (it) {
+                        binding.viewPager.registerOnPageChangeCallback(onPageChangeCallback)
+                    } else {
+                        binding.viewPager.unregisterOnPageChangeCallback(onPageChangeCallback)
+                    }
                 }
             }
 
@@ -95,7 +119,6 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             clipToPadding = false
             setPageTransformer(getTransformation())
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
-            registerOnPageChangeCallback(onPageChangeCallback)
         }
     }
 
