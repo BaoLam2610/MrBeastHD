@@ -17,4 +17,10 @@ object Constants {
         const val SONGS = "SONGS"
         const val THUMBNAILS = "THUMBNAILS"
     }
+
+    object Notification {
+        const val CHANNEL_ID = "music_channel"
+        const val CHANNEL_NAME = "Music Channel"
+        const val NOTIFICATION_ID = 1
+    }
 }

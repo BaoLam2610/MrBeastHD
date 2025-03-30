@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
+import com.lambao.base.extension.click
 import com.lambao.base.extension.getParcelableCompat
 import com.lambao.base.extension.getParcelableListCompat
 import com.lambao.base.extension.launchWhenCreated
@@ -52,6 +53,11 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
     override fun onViewReady(savedInstanceState: Bundle?) {
         binding.toolbar.setOnBackClickListener {
             popBackStack()
+        }
+        binding.btnSongAction.click {
+            (requireActivity() as? MusicActivity)?.getMediaPlayerService()?.playSong(
+               viewModel.song.value ?: return@click
+            )
         }
         setupViewPager()
     }

@@ -81,6 +81,9 @@ dependencies {
 
     /* Glide */
     implementation(libs.glide)
+
+    /* Media */
+    implementation(libs.androidx.media)
 }
 
 /* Hilt: Allow references to generated code*/
