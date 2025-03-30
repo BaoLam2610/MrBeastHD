@@ -1,7 +1,10 @@
 package com.lambao.mrbeast.domain.model
 
+import android.os.Parcelable
 import com.lambao.mrbeast.data.remote.dto.SongDto
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Song(
     val id: String,
     val name: String,
@@ -26,7 +29,7 @@ data class Song(
     val position: Long,
     val order: String,
     val album: Album?,
-)
+) : Parcelable
 
 fun SongDto.toSong() = Song(
     id = id ?: "",

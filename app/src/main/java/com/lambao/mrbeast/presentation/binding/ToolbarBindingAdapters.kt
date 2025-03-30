@@ -48,6 +48,12 @@ object ToolbarBindingAdapters {
     }
 
     @JvmStatic
+    @BindingAdapter("onBackClick")
+    fun setOnBackClickListener(toolbar: CommonToolbar, listener: (() -> Unit)?) {
+        listener?.let { toolbar.setOnBackClickListener(it) }
+    }
+
+    @JvmStatic
     @BindingAdapter("onActionClick")
     fun setOnActionClickListener(toolbar: CommonToolbar, listener: (() -> Unit)?) {
         listener?.let { toolbar.setOnActionClickListener(it) }

@@ -12,4 +12,8 @@ object Constants {
 
     const val PREF_FILE_NAME = "mrbeast_music_pref"
 
+    object Argument {
+        const val SONG = "SONG"
+        const val THUMBNAILS = "THUMBNAILS"
+    }
 }

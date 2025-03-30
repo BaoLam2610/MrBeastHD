@@ -1,11 +1,13 @@
 package com.lambao.mrbeast.presentation.ui.fragment.online_songs
 
 import android.os.Bundle
+import androidx.core.os.bundleOf
 import com.lambao.base.extension.launchWhenCreated
+import com.lambao.base.extension.navigateWithArgs
 import com.lambao.base.extension.observe
 import com.lambao.base.presentation.ui.fragment.BaseVMFragment
-import com.lambao.base.utils.log
 import com.lambao.mrbeast.presentation.ui.fragment.common.SongInfoAdapter
+import com.lambao.mrbeast.utils.Constants
 import com.lambao.mrbeast_music.R
 import com.lambao.mrbeast_music.databinding.FragmentOnlineSongsBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,7 +18,13 @@ class OnlineSongsFragment : BaseVMFragment<FragmentOnlineSongsBinding, OnlineSon
 
     private val songsAdapter by lazy {
         SongInfoAdapter { song, _ ->
-            log(song.toString())
+            navigateWithArgs(
+                R.id.action_onlineSongsFragment_to_playSongFragment,
+                bundleOf(
+                    Constants.Argument.SONG to song,
+                    Constants.Argument.THUMBNAILS to viewModel.songThumbnails.value
+                )
+            )
         }
     }
 
@@ -33,6 +41,10 @@ class OnlineSongsFragment : BaseVMFragment<FragmentOnlineSongsBinding, OnlineSon
 
         observe(viewModel.songs) {
             songsAdapter.submitList(it)
+        }
+
+        launchWhenCreated {
+            viewModel.songThumbnails.collect()
         }
 
         launchWhenCreated {
