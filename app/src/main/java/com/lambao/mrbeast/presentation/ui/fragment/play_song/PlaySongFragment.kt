@@ -8,9 +8,6 @@ import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.SeekBar
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.viewpager2.widget.CompositePageTransformer
-import androidx.viewpager2.widget.MarginPageTransformer
-import androidx.viewpager2.widget.ViewPager2
 import com.lambao.base.extension.click
 import com.lambao.base.extension.getParcelableCompat
 import com.lambao.base.extension.getParcelableListCompat
@@ -19,10 +16,8 @@ import com.lambao.base.extension.popBackStack
 import com.lambao.base.presentation.ui.fragment.BaseVMFragment
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.service.MediaPlayerService
-import com.lambao.mrbeast.extension.toDp
 import com.lambao.mrbeast.extension.toTimeString
 import com.lambao.mrbeast.presentation.ui.activity.MusicActivity
-import com.lambao.mrbeast.presentation.ui.fragment.common.SongThumbnailAdapter
 import com.lambao.mrbeast.utils.Constants
 import com.lambao.mrbeast.utils.Constants.Argument.DURATION
 import com.lambao.mrbeast.utils.Constants.Argument.POSITION
@@ -33,13 +28,11 @@ import com.lambao.mrbeast.utils.Constants.Broadcast.ACTION_PLAYBACK_STATE_CHANGE
 import com.lambao.mrbeast_music.R
 import com.lambao.mrbeast_music.databinding.FragmentPlaySongBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewModel>() {
 
-    private lateinit var thumbnailAdapter: SongThumbnailAdapter
     private lateinit var broadcastReceiver: BroadcastReceiver
     private var isReceiverRegistered = false
 
@@ -49,15 +42,6 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
 
     private val argSongList by lazy {
         arguments?.getParcelableListCompat<Song>(Constants.Argument.SONGS) ?: emptyList()
-    }
-
-    private val onPageChangeCallback by lazy {
-        object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                viewModel.setSong(argSongList[position])
-            }
-        }
     }
 
     override fun getLayoutResId() = R.layout.fragment_play_song
@@ -107,9 +91,9 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
         }
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val position = progress * 1000L
+                viewModel.setCurrentDuration(position)
                 if (fromUser) {
-                    val position = progress * 1000L
-                    viewModel.setCurrentDuration(position)
                     MediaPlayerService.startService(
                         requireContext(),
                         Constants.MediaAction.SEEK_TO,
@@ -121,7 +105,6 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
-        setupViewPager()
         setupBroadcastReceiver()
     }
 
@@ -129,32 +112,9 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
         binding.viewModel = viewModel
         with(viewModel) {
             launchWhenCreated {
-                songThumbnails.collect {
-                    thumbnailAdapter.submitList(it)
-                }
-            }
-
-            launchWhenCreated {
                 combineIndexInPlaylist.collectLatest {
                     if (it != -1) {
                         setCurrentSongIndex(it)
-                    }
-                }
-            }
-
-            launchWhenCreated {
-                currentSongIndex.collect {
-                    delay(300)
-                    binding.viewPager.setCurrentItem(it, true)
-                }
-            }
-
-            launchWhenCreated {
-                shouldRegisterPageChangeListener.collect {
-                    if (it) {
-                        binding.viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-                    } else {
-                        binding.viewPager.unregisterOnPageChangeCallback(onPageChangeCallback)
                     }
                 }
             }
@@ -177,27 +137,6 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             }
             setSongList(argSongList)
         }
-    }
-
-    private fun setupViewPager() {
-        thumbnailAdapter = SongThumbnailAdapter()
-        binding.viewPager.apply {
-            adapter = thumbnailAdapter
-            offscreenPageLimit = 3
-            clipChildren = false
-            clipToPadding = false
-            setPageTransformer(getTransformation())
-            orientation = ViewPager2.ORIENTATION_HORIZONTAL
-        }
-    }
-
-    private fun getTransformation(): CompositePageTransformer {
-        val transform = CompositePageTransformer()
-        transform.addTransformer(MarginPageTransformer(12.toDp))
-        transform.addTransformer { page, position ->
-            page.scaleY = 0.85f + (1 - kotlin.math.abs(position)) * 0.15f
-        }
-        return transform
     }
 
     private fun setupBroadcastReceiver() {
@@ -267,7 +206,6 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             val index = argSongList.indexOf(it)
             if (index != -1) {
                 viewModel.setCurrentSongIndex(index)
-                binding.viewPager.setCurrentItem(index, true)
             }
         }
     }
@@ -289,7 +227,6 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
                 .unregisterReceiver(broadcastReceiver)
             isReceiverRegistered = false
         }
-        binding.viewPager.unregisterOnPageChangeCallback(onPageChangeCallback)
         super.onDestroyView()
     }
 

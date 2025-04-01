@@ -23,17 +23,19 @@
             app:layout_constraintTop_toTopOf="parent"
             app:title="@string/playing" />
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager"
+        <ImageView
+            android:id="@+id/ivSong"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginHorizontal="12dp"
             android:layout_marginTop="12dp"
-            android:paddingStart="40dp"
-            android:paddingEnd="40dp"
-            app:layout_constraintVertical_chainStyle="packed"
+            app:cornerRadius="@{12}"
+            app:imageUrl="@{viewModel.song.thumbnail}"
             app:layout_constraintBottom_toTopOf="@id/tvSongTitle"
-            app:layout_constraintHeight_percent="0.4"
-            app:layout_constraintTop_toBottomOf="@id/toolbar" />
+            app:layout_constraintHeight_percent="0.46"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintVertical_bias="0.3"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
             android:id="@+id/tvSongTitle"
@@ -52,7 +54,7 @@
             android:singleLine="true"
             android:text="@{viewModel.song.title}"
             app:layout_constraintBottom_toTopOf="@id/tvArtistName"
-            app:layout_constraintTop_toBottomOf="@id/viewPager"
+            app:layout_constraintTop_toBottomOf="@id/ivSong"
             tools:text="Believer" />
 
         <TextView
