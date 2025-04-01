@@ -8,4 +8,8 @@
     <string name="language">Ngôn ngữ</string>
     <string name="empty_data">Không có dữ liệu</string>
     <string name="playing">Đang chơi</string>
+    <string name="error">Lỗi</string>
+    <string name="an_error_occurred_while_playing_the_song">Đã xảy ra lỗi khi phát nhạc</string>
+    <string name="ok">OK</string>
+    <string name="close">Đóng</string>
 </resources>

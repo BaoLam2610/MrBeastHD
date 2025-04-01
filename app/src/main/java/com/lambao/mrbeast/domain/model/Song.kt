@@ -30,7 +30,7 @@ data class Song(
     val position: Long,
     val order: String,
     val album: Album?,
-    val data: String = "https://vnno-ne-1-tf-a128-z3.zmdcdn.me/31cb17656c5146f10de0247036f2772d?authen=exp=1743497847~acl=/31cb17656c5146f10de0247036f2772d*~hmac=18fc4f6cabc8b5c0571881d8e00b69b8&fs=MHx3ZWJWNXwxMDMdUngNTmUsICdUngMjIxLjI3"
+    val data: String = "https://vnso-zn-24-tf-a128-z3.zmdcdn.me/31cb17656c5146f10de0247036f2772d?authen=exp=1743688643~acl=/31cb17656c5146f10de0247036f2772d*~hmac=9dce13b6080fe8d96308d1e30866a73d&fs=MHx3ZWJWNXwxMDMdUngNTmUsICdUngMjIxLjI3"
 ) : Parcelable {
     fun getDurationTime() = duration.toTimeString()
 }

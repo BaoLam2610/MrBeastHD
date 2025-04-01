@@ -11,12 +11,21 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.media.app.NotificationCompat.MediaStyle
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.service.media_player.BaseMediaPlayer
 import com.lambao.mrbeast.domain.service.media_player.MediaPlayerCallBack
 import com.lambao.mrbeast.domain.service.media_player.MediaPlayerImpl
 import com.lambao.mrbeast.utils.Constants
+import com.lambao.mrbeast.utils.Constants.Argument.DURATION
+import com.lambao.mrbeast.utils.Constants.Argument.POSITION
+import com.lambao.mrbeast.utils.Constants.Argument.SONG
+import com.lambao.mrbeast.utils.Constants.Argument.SONGS
+import com.lambao.mrbeast.utils.Constants.Argument.START_INDEX
+import com.lambao.mrbeast.utils.Constants.Argument.STATE
+import com.lambao.mrbeast.utils.Constants.Broadcast.ACTION_METADATA_CHANGED
+import com.lambao.mrbeast.utils.Constants.Broadcast.ACTION_PLAYBACK_STATE_CHANGED
 import com.lambao.mrbeast_music.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,8 +51,8 @@ class MediaPlayerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             Constants.MediaAction.PLAY -> {
-                val songs = intent.getParcelableArrayListExtra<Song>(Constants.Argument.SONGS)
-                val startIndex = intent.getIntExtra(Constants.Argument.START_INDEX, 0)
+                val songs = intent.getParcelableArrayListExtra<Song>(SONGS)
+                val startIndex = intent.getIntExtra(START_INDEX, 0)
                 if (songs != null && songs.isNotEmpty()) {
                     playlist.clear()
                     playlist.addAll(songs)
@@ -67,6 +76,22 @@ class MediaPlayerService : Service() {
         }
         updateNotification()
         return START_STICKY
+    }
+
+    private fun sendPlaybackStateBroadcast(state: Int, position: Long, duration: Long) {
+        val intent = Intent(ACTION_PLAYBACK_STATE_CHANGED).apply {
+            putExtra(STATE, state)
+            putExtra(POSITION, position)
+            putExtra(DURATION, duration)
+        }
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+    }
+
+    private fun sendMetadataChangedBroadcast(song: Song?) {
+        val intent = Intent(ACTION_METADATA_CHANGED).apply {
+            putExtra(SONG, song)
+        }
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
     private fun createNotificationChannel() {
@@ -161,6 +186,7 @@ class MediaPlayerService : Service() {
             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
             .build()
         mediaSession.setMetadata(metadata)
+        sendPlaybackStateBroadcast(state, position, duration)
     }
 
     private fun updateNotification() {
@@ -193,6 +219,7 @@ class MediaPlayerService : Service() {
         mediaPlayer.play(song.data)
         startPositionUpdates()
         updateNotification()
+        sendMetadataChangedBroadcast(song)
     }
 
     private fun handleResume() {
@@ -292,9 +319,9 @@ class MediaPlayerService : Service() {
         ) {
             val intent = Intent(context, MediaPlayerService::class.java).apply {
                 this.action = action
-                playlist?.let { putParcelableArrayListExtra(Constants.Argument.SONGS, ArrayList(it)) }
-                putExtra(Constants.Argument.START_INDEX, startIndex)
-                position?.let { putExtra(Constants.Argument.POSITION, it) }
+                playlist?.let { putParcelableArrayListExtra(SONGS, ArrayList(it)) }
+                putExtra(START_INDEX, startIndex)
+                position?.let { putExtra(POSITION, it) }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
