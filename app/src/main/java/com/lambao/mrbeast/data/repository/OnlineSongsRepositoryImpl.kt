@@ -15,4 +15,8 @@ class OnlineSongsRepositoryImpl @Inject constructor(
     override fun getSongs() = safeCall {
         apiService.getSongs()
     }
+
+    override fun getSongInfo(link: String?) = safeCall {
+        apiService.getSongInfo(link)
+    }
 }
