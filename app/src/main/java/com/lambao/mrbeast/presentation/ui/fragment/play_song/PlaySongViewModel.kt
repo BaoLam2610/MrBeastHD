@@ -35,6 +35,12 @@ class PlaySongViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     val songThumbnails get() = _songThumbnails
 
+    private val _currentSongIndex = MutableStateFlow(-1)
+    val currentSongIndex get() = _currentSongIndex.asStateFlow()
+
+    private val _currentDuration = MutableStateFlow(0L)
+    val currentDuration get() = _currentDuration.asStateFlow()
+
     private val _combineIndexInPlaylist = combine(
         _song,
         _songList
@@ -43,8 +49,13 @@ class PlaySongViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, -1)
     val combineIndexInPlaylist get() = _combineIndexInPlaylist
 
-    private val _currentSongIndex = MutableStateFlow(-1)
-    val currentSongIndex get() = _currentSongIndex
+    private val _shouldPlaySong = combine(
+        _currentSongIndex,
+        _songList
+    ) { index, playlist ->
+        index != -1 && index < playlist.size && playlist.isNotEmpty()
+    }.stateIn(viewModelScope, SharingStarted.Lazily, false)
+    val shouldPlaySong get() = _shouldPlaySong
 
     private val _shouldRegisterPageChangeListener = _currentSongIndex.map {
         it != -1
@@ -66,6 +77,12 @@ class PlaySongViewModel @Inject constructor(
     fun setCurrentSongIndex(index: Int) {
         launch {
             _currentSongIndex.emit(index)
+        }
+    }
+
+    fun setCurrentDuration(duration: Long) {
+        launch {
+            _currentDuration.emit(duration)
         }
     }
 
