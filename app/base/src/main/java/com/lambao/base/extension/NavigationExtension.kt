@@ -1,12 +1,28 @@
 package com.lambao.base.extension
 
 import android.os.Bundle
+import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
+import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 
+
+fun Fragment.safeNavigate(
+    @IdRes id: Int,
+    navOptions: NavOptions? = null,
+    args: Bundle? = null,
+) {
+    val navController = findNavController()
+    val currentDestinationClassName =
+        (navController.currentDestination as FragmentNavigator.Destination).className
+
+    if (currentDestinationClassName == this::class.java.name) {
+        navController.navigate(id, args, navOptions)
+    }
+}
 
 /**
  * Safely navigates using the provided NavDirections, catching any IllegalArgumentException.

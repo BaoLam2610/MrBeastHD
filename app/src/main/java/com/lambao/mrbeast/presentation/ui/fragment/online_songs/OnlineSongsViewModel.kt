@@ -7,12 +7,14 @@ import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.model.Thumbnail
+import com.lambao.mrbeast.domain.usecase.GetOnlineSongInfoUseCase
 import com.lambao.mrbeast.domain.usecase.GetOnlineSongsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -22,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OnlineSongsViewModel @Inject constructor(
     private val getOnlineSongsUseCase: GetOnlineSongsUseCase,
+    private val getOnlineSongInfoUseCase: GetOnlineSongInfoUseCase,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
 ) : NetworkViewModel(ioDispatcher, defaultDispatcher) {
@@ -46,9 +49,31 @@ class OnlineSongsViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, false)
     val shouldShowEmptyData get() = _shouldShowEmptyData
 
+    private val _selectedSong = MutableSharedFlow<Song?>()
+    val selectedSong get() = _selectedSong.asSharedFlow()
+
     fun getOnlineSongs() {
         collectApi(getOnlineSongsUseCase.invoke()) { it ->
             _songs.emit(it)
+        }
+    }
+
+    fun getOnlineSongInfo(song: Song) {
+        collectApi(getOnlineSongInfoUseCase.invoke(song.link)) { onlineSongInfo ->
+            val updatedSong = song.copy(
+                data = onlineSongInfo.mp3Url,
+                thumbnail = onlineSongInfo.thumbnail
+            )
+
+            val currentSongs = _songs.value.toMutableList()
+            val songIndex =
+                currentSongs.indexOfFirst { it.id == song.id }
+            if (songIndex != -1) {
+                currentSongs[songIndex] = updatedSong
+                _songs.value = currentSongs.toList()
+            }
+
+            _selectedSong.emit(updatedSong)
         }
     }
 }
