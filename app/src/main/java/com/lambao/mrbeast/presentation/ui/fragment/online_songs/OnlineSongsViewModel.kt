@@ -7,7 +7,6 @@ import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.model.Thumbnail
-import com.lambao.mrbeast.domain.usecase.GetOnlineSongInfoUseCase
 import com.lambao.mrbeast.domain.usecase.GetOnlineSongsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,7 +23,6 @@ import javax.inject.Inject
 @HiltViewModel
 class OnlineSongsViewModel @Inject constructor(
     private val getOnlineSongsUseCase: GetOnlineSongsUseCase,
-    private val getOnlineSongInfoUseCase: GetOnlineSongInfoUseCase,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
 ) : NetworkViewModel(ioDispatcher, defaultDispatcher) {
@@ -58,22 +56,9 @@ class OnlineSongsViewModel @Inject constructor(
         }
     }
 
-    fun getOnlineSongInfo(song: Song) {
-        collectApi(getOnlineSongInfoUseCase.invoke(song.link)) { onlineSongInfo ->
-            val updatedSong = song.copy(
-                data = onlineSongInfo.mp3Url,
-                thumbnail = onlineSongInfo.thumbnail
-            )
-
-            val currentSongs = _songs.value.toMutableList()
-            val songIndex =
-                currentSongs.indexOfFirst { it.id == song.id }
-            if (songIndex != -1) {
-                currentSongs[songIndex] = updatedSong
-                _songs.value = currentSongs.toList()
-            }
-
-            _selectedSong.emit(updatedSong)
+    fun setSelectedSong(song: Song) {
+        launch {
+            _selectedSong.emit(song)
         }
     }
 }

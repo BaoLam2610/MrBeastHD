@@ -1,25 +1,31 @@
 package com.lambao.mrbeast.presentation.ui.fragment.play_song
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.lambao.base.presentation.ui.viewmodel.network.NetworkViewModel
 import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
 import com.lambao.mrbeast.domain.model.Song
-import com.lambao.mrbeast.domain.model.Thumbnail
 import com.lambao.mrbeast.domain.usecase.GetIndexInPlaylistUseCase
+import com.lambao.mrbeast.domain.usecase.GetOnlineSongInfoUseCase
+import com.lambao.mrbeast_music.R
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class PlaySongViewModel @Inject constructor(
     private val getIndexInPlaylistUseCase: GetIndexInPlaylistUseCase,
+    private val getOnlineSongInfoUseCase: GetOnlineSongInfoUseCase,
+    @ApplicationContext private val context: Context,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
 ) : NetworkViewModel(ioDispatcher, defaultDispatcher) {
@@ -44,24 +50,21 @@ class PlaySongViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, -1)
     val combineIndexInPlaylist get() = _combineIndexInPlaylist
 
-    private val _shouldPlaySong = combine(
-        _currentSongIndex,
-        _songList
-    ) { index, playlist ->
-        index != -1 && index < playlist.size && playlist.isNotEmpty()
-    }.stateIn(viewModelScope, SharingStarted.Lazily, false)
-    val shouldPlaySong get() = _shouldPlaySong
+    private val _shouldPlaySong = MutableSharedFlow<Unit>()
+    val shouldPlaySong get() = _shouldPlaySong.asSharedFlow()
 
-    fun setSong(song: Song) {
+    fun setSong(song: Song?) {
+        _song.value = song
+    }
+
+    fun setSongAsync(song: Song) {
         launch {
             _song.emit(song)
         }
     }
 
     fun setSongList(songList: List<Song>) {
-        launch {
-            _songList.emit(songList)
-        }
+        _songList.value = songList
     }
 
     fun setCurrentSongIndex(index: Int) {
@@ -76,18 +79,42 @@ class PlaySongViewModel @Inject constructor(
         }
     }
 
-    fun previousSong() {
+    fun setShouldPlaySong() {
         launch {
-            if (currentSongIndex.value > 0) {
-                _currentSongIndex.emit(currentSongIndex.value - 1)
-            }
+            _shouldPlaySong.emit(Unit)
+        }
+    }
+
+    fun previousSong() {
+        if (currentSongIndex.value > 0) {
+            setCurrentSongIndex(currentSongIndex.value - 1)
         }
     }
 
     fun nextSong() {
-        launch {
-            if (currentSongIndex.value < songList.value.size - 1) {
-                _currentSongIndex.emit(currentSongIndex.value + 1)
+        if (currentSongIndex.value < songList.value.size - 1) {
+            setCurrentSongIndex(currentSongIndex.value + 1)
+        }
+    }
+
+    fun getSongInfo() {
+        val currentIndex = _currentSongIndex.value
+        if (currentIndex < 0 || currentIndex >= _songList.value.size) return
+
+        collectApi(
+            getOnlineSongInfoUseCase.invoke(_songList.value[currentIndex].link)
+        ) { onlineSongInfo ->
+            val updatedSong = _songList.value[currentIndex].copy(
+                data = onlineSongInfo.mp3Url,
+                thumbnail = onlineSongInfo.thumbnail
+            )
+
+            updatedSong.let {
+                _song.value = it
+                _songList.value = _songList.value.mapIndexed { index, song ->
+                    if (index == currentIndex) it else song
+                }
+                setShouldPlaySong() // Phát tín hiệu để Fragment gọi Service
             }
         }
     }
