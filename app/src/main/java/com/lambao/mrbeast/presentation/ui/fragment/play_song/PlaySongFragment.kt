@@ -67,9 +67,7 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             } else {
                 MediaPlayerService.startService(
                     requireContext(),
-                    Constants.MediaAction.PLAY,
-                    playlist = viewModel.songList.value,
-                    startIndex = viewModel.currentSongIndex.value,
+                    Constants.MediaAction.RESUME,
                     position = viewModel.currentDuration.value
                 )
             }
@@ -77,18 +75,12 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
 
         binding.btnPreviousSong.click {
             viewModel.previousSong()
-            MediaPlayerService.startService(
-                requireContext(),
-                Constants.MediaAction.PREVIOUS
-            )
         }
+
         binding.btnNextSong.click {
             viewModel.nextSong()
-            MediaPlayerService.startService(
-                requireContext(),
-                Constants.MediaAction.NEXT
-            )
         }
+
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 val position = progress * 1000L
@@ -120,21 +112,37 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             }
 
             launchWhenCreated {
-                shouldPlaySong.collectLatest {
-                    if (it) {
+                currentSongIndex.collectLatest {
+                    if (it == -1) return@collectLatest
+                    if (songList.value[it].data.isEmpty()) {
+                        getSongInfo() // Gọi API nếu chưa có URL
+                    } else {
+                        // Phát ngay nếu đã có URL
                         MediaPlayerService.startService(
                             requireContext(),
                             Constants.MediaAction.PLAY,
                             playlist = songList.value,
-                            startIndex = currentSongIndex.value
+                            startIndex = it
                         )
                     }
                 }
             }
 
-            argSong?.let {
-                setSong(it)
+            launchWhenCreated {
+                shouldPlaySong.collectLatest {
+                    val currentIndex = currentSongIndex.value
+                    if (currentIndex != -1) {
+                        MediaPlayerService.startService(
+                            requireContext(),
+                            Constants.MediaAction.PLAY,
+                            playlist = songList.value,
+                            startIndex = currentIndex
+                        )
+                    }
+                }
             }
+
+            setSong(argSong)
             setSongList(argSongList)
         }
     }
@@ -212,12 +220,12 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
 
     private fun updateSeekBar(position: Long, duration: Long) {
         if (duration > 0) {
-            val convertDuration = duration / 1000
-            val convertPosition = position / 1000
-            binding.seekBar.max = convertDuration.toInt()
-            binding.seekBar.progress = convertPosition.toInt()
-            binding.tvDuration.text = convertDuration.toTimeString()
-            binding.tvTime.text = convertPosition.toTimeString()
+            binding.seekBar.max = duration.toInt()
+            binding.seekBar.progress = position.toInt()
+            val secondsPosition = position / 1000
+            val secondsDuration = duration / 1000
+            binding.tvTime.text = secondsPosition.toTimeString()
+            binding.tvDuration.text = secondsDuration.toTimeString()
         }
     }
 

@@ -20,7 +20,7 @@ class OnlineSongsFragment : BaseVMFragment<FragmentOnlineSongsBinding, OnlineSon
 
     private val songsAdapter by lazy {
         SongInfoAdapter { song, _ ->
-            viewModel.getOnlineSongInfo(song)
+            viewModel.setSelectedSong(song)
         }
     }
 
