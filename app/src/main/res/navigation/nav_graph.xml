@@ -9,7 +9,7 @@
         android:id="@+id/onlineSongsFragment"
         android:name="com.lambao.mrbeast.presentation.ui.fragment.online_songs.OnlineSongsFragment"
         android:label="fragment_online_songs"
-        tools:layout="@layout/fragment_online_songs" >
+        tools:layout="@layout/fragment_online_playlist" >
         <action
             android:id="@+id/action_onlineSongsFragment_to_playSongFragment"
             app:destination="@id/playSongFragment" />

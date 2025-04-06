@@ -16,7 +16,7 @@ object Constants {
 
     object Argument {
         const val SONG = "SONG"
-        const val SONGS = "SONGS"
+        const val PLAYLIST = "PLAYLIST"
         const val POSITION = "POSITION"
         const val START_INDEX = "START_INDEX"
         const val THUMBNAILS = "THUMBNAILS"
@@ -32,16 +32,6 @@ object Constants {
 
     object Media {
         const val DEFAULT_TIME = "00:00"
-    }
-
-    object MediaAction {
-        const val PLAY = "PLAY"
-        const val PAUSE = "PAUSE"
-        const val RESUME = "RESUME"
-        const val STOP = "STOP"
-        const val NEXT = "NEXT"
-        const val PREVIOUS = "PREVIOUS"
-        const val SEEK_TO = "SEEK_TO"
     }
 
     object Broadcast {

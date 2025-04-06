@@ -2,8 +2,11 @@ package com.lambao.mrbeast.domain.service.media_player
 
 import android.media.MediaPlayer
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class MediaPlayerImpl : BaseMediaPlayer {
+@Singleton
+class MediaPlayerImpl @Inject constructor() : BaseMediaPlayer {
     private var mediaPlayer: MediaPlayer? = null
     private var callBack: MediaPlayerCallBack? = null
 

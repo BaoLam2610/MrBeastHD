@@ -1,0 +1,103 @@
+package com.lambao.mrbeast.presentation.ui.fragment.online_songs
+
+import androidx.lifecycle.viewModelScope
+import com.lambao.base.data.map
+import com.lambao.base.presentation.ui.state.ScreenState
+import com.lambao.base.presentation.ui.viewmodel.network.MultiNetworkViewModel
+import com.lambao.mrbeast.di.DefaultDispatcher
+import com.lambao.mrbeast.di.IoDispatcher
+import com.lambao.mrbeast.domain.model.Song
+import com.lambao.mrbeast.domain.model.Thumbnail
+import com.lambao.mrbeast.domain.usecase.GetOnlineSongInfoUseCase
+import com.lambao.mrbeast.domain.usecase.GetOnlineSongsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
+
+@HiltViewModel
+class OnlinePlaylistViewModel @Inject constructor(
+    private val getOnlineSongsUseCase: GetOnlineSongsUseCase,
+    private val getOnlineSongInfoUseCase: GetOnlineSongInfoUseCase,
+    @IoDispatcher ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
+) : MultiNetworkViewModel(ioDispatcher, defaultDispatcher) {
+
+    private val _shouldFetchInfo = MutableStateFlow(true)
+    val shouldFetchInfo get() = _shouldFetchInfo.asStateFlow()
+
+    private val _playlist = MutableStateFlow<List<Song>>(emptyList())
+    val playlist get() = _playlist.asStateFlow()
+    val playlistValue get() = _playlist.value
+
+    private val _songThumbnails = _playlist.map {
+        it.map { Thumbnail(it.thumbnail) }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val songThumbnails get() = _songThumbnails
+
+    private val _shouldShowEmptyData = combine(
+        screenState,
+        _playlist
+    ) { screenState, songs ->
+        if (screenState is ScreenState.Success) {
+            songs.isEmpty()
+        } else {
+            false
+        }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, false)
+    val shouldShowEmptyData get() = _shouldShowEmptyData
+
+    private val _selectedSong = MutableSharedFlow<Song?>()
+    val selectedSong get() = _selectedSong.asSharedFlow()
+
+    fun getOnlineSongs() {
+        if (!_shouldFetchInfo.value) return
+        collectApi(getOnlineSongsUseCase.invoke()) {
+            fetchAllSongInfo(it)
+        }
+    }
+
+    fun setSelectedSong(song: Song) {
+        launch {
+            _selectedSong.emit(song)
+        }
+    }
+
+    fun fetchAllSongInfo(dataPlaylist: List<Song>) {
+        if (dataPlaylist.isEmpty()) return
+
+        if (!_shouldFetchInfo.value) return
+
+        val flows = dataPlaylist.map { song ->
+            getOnlineSongInfoUseCase.invoke(song.link).map { resource ->
+                resource.map { Pair(song, it) }
+            }
+        }
+        collectApis(
+            *flows.toTypedArray(),
+        ) { results ->
+            _shouldFetchInfo.value = false
+            val updatedSongs = dataPlaylist.mapIndexed { index, song ->
+                val songInfoPair = results.getOrNull(index)
+                if (songInfoPair != null && songInfoPair.first.id == song.id) {
+                    song.copy(
+                        data = songInfoPair.second.mp3Url,
+                        thumbnail = songInfoPair.second.thumbnail
+                    )
+                } else {
+                    song
+                }
+            }
+            launch {
+                _playlist.emit(updatedSongs)
+            }
+        }
+    }
+}

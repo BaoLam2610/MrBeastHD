@@ -14,12 +14,14 @@ import com.lambao.base.extension.getParcelableListCompat
 import com.lambao.base.extension.launchWhenCreated
 import com.lambao.base.extension.popBackStack
 import com.lambao.base.presentation.ui.fragment.BaseVMFragment
+import com.lambao.mrbeast.domain.model.PlaybackEvent
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.service.MediaPlayerService
 import com.lambao.mrbeast.extension.toTimeString
 import com.lambao.mrbeast.presentation.ui.activity.MusicActivity
 import com.lambao.mrbeast.utils.Constants
 import com.lambao.mrbeast.utils.Constants.Argument.DURATION
+import com.lambao.mrbeast.utils.Constants.Argument.PLAYLIST
 import com.lambao.mrbeast.utils.Constants.Argument.POSITION
 import com.lambao.mrbeast.utils.Constants.Argument.SONG
 import com.lambao.mrbeast.utils.Constants.Argument.STATE
@@ -40,8 +42,8 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
         arguments?.getParcelableCompat<Song>(SONG)
     }
 
-    private val argSongList by lazy {
-        arguments?.getParcelableListCompat<Song>(Constants.Argument.SONGS) ?: emptyList()
+    private val argPlaylist by lazy {
+        arguments?.getParcelableListCompat<Song>(PLAYLIST) ?: emptyList()
     }
 
     override fun getLayoutResId() = R.layout.fragment_play_song
@@ -54,128 +56,112 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
     }
 
     override fun onViewReady(savedInstanceState: Bundle?) {
-        binding.toolbar.setOnBackClickListener {
-            popBackStack()
-        }
+        setupUI()
+        setupBroadcastReceiver()
+    }
 
-        binding.btnSongAction.click {
-            if (binding.btnSongAction.isChecked) {
-                MediaPlayerService.startService(
-                    requireContext(),
-                    Constants.MediaAction.PAUSE
-                )
-            } else {
-                MediaPlayerService.startService(
-                    requireContext(),
-                    Constants.MediaAction.RESUME,
-                    position = viewModel.currentDuration.value
-                )
+    override fun initObserve() {
+        binding.viewModel = viewModel
+        viewModel.setSong(argSong)
+        viewModel.setPlaylist(argPlaylist)
+
+        launchWhenCreated {
+            viewModel.combineIndexInPlaylist.collectLatest { index ->
+                if (index != -1) viewModel.setCurrentSongIndex(index)
             }
         }
 
-        binding.btnPreviousSong.click {
-            viewModel.previousSong()
-        }
-
-        binding.btnNextSong.click {
-            viewModel.nextSong()
-        }
-
-        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val position = progress * 1000L
-                viewModel.setCurrentDuration(position)
-                if (fromUser) {
-                    MediaPlayerService.startService(
+        launchWhenCreated {
+            viewModel.shouldPlaySong.collectLatest { shouldPlay ->
+                if (shouldPlay) {
+                    MediaPlayerService.play(
                         requireContext(),
-                        Constants.MediaAction.SEEK_TO,
-                        position = position
+                        playlist = viewModel.playlistValue,
+                        startIndex = viewModel.currentSongIndexValue
                     )
+                }
+            }
+        }
+
+        launchWhenCreated {
+            viewModel.playbackEvent.collectLatest { event ->
+                when (event) {
+                    PlaybackEvent.PLAY -> MediaPlayerService.play(
+                        requireContext(),
+                        playlist = viewModel.playlistValue,
+                        startIndex = viewModel.currentSongIndexValue
+                    )
+
+                    PlaybackEvent.PAUSE -> MediaPlayerService.pause(requireContext())
+
+                    PlaybackEvent.RESUME -> MediaPlayerService.resume(
+                        requireContext(),
+                        position = viewModel.currentDurationValue
+                    )
+
+                    PlaybackEvent.SEEK_TO -> MediaPlayerService.seekTo(
+                        requireContext(),
+                        position = viewModel.currentDurationValue
+                    )
+
+                    PlaybackEvent.PREVIOUS -> MediaPlayerService.previous(requireContext())
+
+                    PlaybackEvent.NEXT -> MediaPlayerService.next(requireContext())
+
+                    else -> Unit
+                }
+            }
+        }
+    }
+
+    private fun setupUI() {
+        binding.toolbar.setOnBackClickListener { popBackStack() }
+        binding.btnSongAction.click {
+            viewModel.togglePlayPause(binding.btnSongAction.isChecked)
+        }
+        binding.btnPreviousSong.click { viewModel.previousSong() }
+        binding.btnNextSong.click { viewModel.nextSong() }
+        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(
+                seekBar: SeekBar?,
+                progress: Int,
+                fromUser: Boolean
+            ) {
+                val position = progress.toLong()
+                viewModel.setCurrentPosition(position)
+                if (fromUser) {
+                    viewModel.seekTo(position)
                 }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
-        setupBroadcastReceiver()
-    }
-
-    override fun initObserve() {
-        binding.viewModel = viewModel
-        with(viewModel) {
-            launchWhenCreated {
-                combineIndexInPlaylist.collectLatest {
-                    if (it != -1) {
-                        setCurrentSongIndex(it)
-                    }
-                }
-            }
-
-            launchWhenCreated {
-                currentSongIndex.collectLatest {
-                    if (it == -1) return@collectLatest
-                    if (songList.value[it].data.isEmpty()) {
-                        getSongInfo() // Gọi API nếu chưa có URL
-                    } else {
-                        // Phát ngay nếu đã có URL
-                        MediaPlayerService.startService(
-                            requireContext(),
-                            Constants.MediaAction.PLAY,
-                            playlist = songList.value,
-                            startIndex = it
-                        )
-                    }
-                }
-            }
-
-            launchWhenCreated {
-                shouldPlaySong.collectLatest {
-                    val currentIndex = currentSongIndex.value
-                    if (currentIndex != -1) {
-                        MediaPlayerService.startService(
-                            requireContext(),
-                            Constants.MediaAction.PLAY,
-                            playlist = songList.value,
-                            startIndex = currentIndex
-                        )
-                    }
-                }
-            }
-
-            setSong(argSong)
-            setSongList(argSongList)
-        }
     }
 
     private fun setupBroadcastReceiver() {
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 when (intent?.action) {
-                    ACTION_PLAYBACK_STATE_CHANGED -> {
-                        val state = intent.getIntExtra(STATE, PlaybackStateCompat.STATE_NONE)
-                        val position = intent.getLongExtra(POSITION, 0L)
-                        val duration = intent.getLongExtra(DURATION, 0L)
-                        updatePlaybackUI(state, position, duration)
-                    }
-
-                    ACTION_METADATA_CHANGED -> {
-                        val song = intent.getParcelableExtra<Song>(SONG)
-                        updateSongInfoUI(song)
-                    }
+                    ACTION_PLAYBACK_STATE_CHANGED -> handlePlaybackStateChanged(intent)
+                    ACTION_METADATA_CHANGED -> handleMetadataChanged(intent)
                 }
             }
         }
-
-        val intentFilter = IntentFilter().apply {
-            addAction(ACTION_PLAYBACK_STATE_CHANGED)
-            addAction(ACTION_METADATA_CHANGED)
-        }
-        LocalBroadcastManager.getInstance(requireContext())
-            .registerReceiver(broadcastReceiver, intentFilter)
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
+            broadcastReceiver,
+            IntentFilter().apply {
+                addAction(ACTION_PLAYBACK_STATE_CHANGED)
+                addAction(ACTION_METADATA_CHANGED)
+            }
+        )
         isReceiverRegistered = true
     }
 
-    private fun updatePlaybackUI(state: Int, position: Long, duration: Long) {
+    private fun handlePlaybackStateChanged(intent: Intent) {
+        val state = intent.getIntExtra(STATE, PlaybackStateCompat.STATE_NONE)
+        val position = intent.getLongExtra(POSITION, 0L)
+        val duration = intent.getLongExtra(DURATION, 0L)
         when (state) {
             PlaybackStateCompat.STATE_PLAYING -> {
                 binding.btnSongAction.isChecked = true
@@ -196,25 +182,18 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             PlaybackStateCompat.STATE_BUFFERING -> showLoading()
             PlaybackStateCompat.STATE_ERROR -> {
                 hideLoading()
-                dialogHandler.showAlertDialog(
-                    title = getString(R.string.error),
-                    message = getString(R.string.an_error_occurred_while_playing_the_song),
-                    positiveText = null,
-                    negativeText = getString(R.string.close)
-                )
+                showErrorDialog()
             }
 
             else -> hideLoading()
         }
     }
 
-    private fun updateSongInfoUI(song: Song?) {
-        song?.let {
-            viewModel.setSong(it)
-            val index = argSongList.indexOf(it)
-            if (index != -1) {
-                viewModel.setCurrentSongIndex(index)
-            }
+    private fun handleMetadataChanged(intent: Intent) {
+        intent.getParcelableExtra<Song>(SONG)?.let { song ->
+            viewModel.setSong(song)
+            val index = argPlaylist.indexOf(song)
+            if (index != -1) viewModel.setCurrentSongIndex(index)
         }
     }
 
@@ -222,11 +201,18 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
         if (duration > 0) {
             binding.seekBar.max = duration.toInt()
             binding.seekBar.progress = position.toInt()
-            val secondsPosition = position / 1000
-            val secondsDuration = duration / 1000
-            binding.tvTime.text = secondsPosition.toTimeString()
-            binding.tvDuration.text = secondsDuration.toTimeString()
+            binding.tvTime.text = (position / 1000).toTimeString()
+            binding.tvDuration.text = (duration / 1000).toTimeString()
         }
+    }
+
+    private fun showErrorDialog() {
+        dialogHandler.showAlertDialog(
+            title = getString(R.string.error),
+            message = getString(R.string.an_error_occurred_while_playing_the_song),
+            positiveText = null,
+            negativeText = getString(R.string.close)
+        )
     }
 
     override fun onDestroyView() {
