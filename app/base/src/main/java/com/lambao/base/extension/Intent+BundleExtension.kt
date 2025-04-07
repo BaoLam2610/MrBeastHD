@@ -1,10 +1,58 @@
 package com.lambao.base.extension
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.SparseArray
 import java.io.Serializable
+
+/**
+ * Extension function to retrieve a Serializable from a Intent with type safety and
+ * backward compatibility.
+ *
+ * @param key The key associated with the Serializable in the Intent.
+ * @return The Serializable object if found, null otherwise.
+ * @throws ClassCastException if the object under the key is not an instance of [T].
+ */
+inline fun <reified T : Serializable> Intent.getSerializableCompat(key: String): T? = when {
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> getSerializableExtra(
+        key,
+        T::class.java
+    )
+
+    else -> @Suppress("DEPRECATION") getSerializableExtra(key) as? T
+}
+
+/**
+ * Extension function to retrieve a Parcelable from a Intent with type safety and
+ * backward compatibility.
+ *
+ * @param key The key associated with the Parcelable in the Intent.
+ * @return The Parcelable object if found, null otherwise.
+ * @throws ClassCastException if the object under the key is not an instance of [T].
+ */
+inline fun <reified T : Parcelable> Intent.getParcelableCompat(key: String): T? = when {
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> getParcelableExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
+}
+
+/**
+ * Extension function to retrieve a List of Parcelables from a Intent with type safety and
+ * backward compatibility.
+ *
+ * @param key The key associated with the List in the Intent.
+ * @return The List of Parcelables if found, null otherwise.
+ * @throws ClassCastException if any object in the List is not an instance of [T].
+ */
+inline fun <reified T : Parcelable> Intent.getParcelableListCompat(key: String): List<T>? = when {
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> getParcelableArrayListExtra(
+        key,
+        T::class.java
+    )
+
+    else -> @Suppress("DEPRECATION") getParcelableArrayListExtra<T>(key)
+}
 
 /**
  * Extension function to retrieve a Serializable from a Bundle with type safety and
