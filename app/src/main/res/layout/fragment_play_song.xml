@@ -8,6 +8,10 @@
         <variable
             name="viewModel"
             type="com.lambao.mrbeast.presentation.ui.fragment.play_song.PlaySongViewModel" />
+
+        <variable
+            name="musicViewModel"
+            type="com.lambao.mrbeast.presentation.ui.activity.MusicViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +34,7 @@
             android:layout_marginHorizontal="12dp"
             android:layout_marginTop="12dp"
             app:cornerRadius="@{12}"
-            app:imageUrl="@{viewModel.song.thumbnail}"
+            app:imageUrl="@{musicViewModel.song.thumbnail}"
             app:layout_constraintBottom_toTopOf="@id/tvSongTitle"
             app:layout_constraintHeight_percent="0.46"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
@@ -52,7 +56,7 @@
             android:maxLines="1"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="@{viewModel.song.title}"
+            android:text="@{musicViewModel.song.title}"
             app:layout_constraintBottom_toTopOf="@id/tvArtistName"
             app:layout_constraintTop_toBottomOf="@id/ivSong"
             tools:text="Believer" />
@@ -72,11 +76,10 @@
             android:maxLines="1"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="@{viewModel.song.artistsNames}"
+            android:text="@{musicViewModel.song.artistsNames}"
             android:textColor="@color/grey_700"
             app:layout_constraintBottom_toTopOf="@+id/btnFavorite"
             app:layout_constraintTop_toBottomOf="@id/tvSongTitle"
-            tools:layout_editor_absoluteX="4dp"
             tools:text="IMAGINE DRAGON" />
 
         <androidx.appcompat.widget.AppCompatCheckedTextView
@@ -95,22 +98,22 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:adjustViewBounds="true"
-            app:click="@{() -> viewModel.toggleRepeatMode()}"
-            app:backgroundRes="@{viewModel.repeatMode.iconId}"
-            tools:background="@drawable/ic_repeat_disable"
+            app:backgroundRes="@{musicViewModel.repeatMode.iconId}"
+            app:click="@{() -> musicViewModel.toggleRepeatMode()}"
             app:layout_constraintEnd_toStartOf="@id/btnShuffle"
-            app:layout_constraintTop_toTopOf="@id/btnFavorite" />
+            app:layout_constraintTop_toTopOf="@id/btnFavorite"
+            tools:background="@drawable/ic_repeat_disable" />
 
         <ImageButton
             android:id="@+id/btnShuffle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            app:click="@{() -> viewModel.toggleShuffleMode()}"
-            app:backgroundRes="@{viewModel.shuffleMode.iconId}"
-            tools:background="@drawable/ic_shuffle_disable"
+            app:backgroundRes="@{musicViewModel.shuffleMode.iconId}"
+            app:click="@{() -> musicViewModel.toggleShuffleMode()}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/btnFavorite" />
+            app:layout_constraintTop_toTopOf="@id/btnFavorite"
+            tools:background="@drawable/ic_shuffle_disable" />
 
         <TextView
             android:id="@+id/tvTime"
@@ -119,18 +122,20 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginBottom="16dp"
-            android:text="@string/default_duration"
+            android:text="@{musicViewModel.currentDurationTime}"
             app:layout_constraintBottom_toTopOf="@+id/seekBar"
-            app:layout_constraintStart_toStartOf="@id/seekBar" />
+            app:layout_constraintStart_toStartOf="@id/seekBar"
+            tools:text="@string/default_duration" />
 
         <androidx.appcompat.widget.AppCompatSeekBar
             android:id="@+id/seekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
+            android:max="@{musicViewModel.totalDurationInt}"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
-            android:progress="0"
+            android:progress="@{musicViewModel.currentDurationInt}"
             android:progressDrawable="@drawable/seekbar_progress"
             android:splitTrack="false"
             android:thumb="@drawable/seekbar_thumb"
@@ -143,7 +148,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="16dp"
-            android:text="@{viewModel.song.durationTime}"
+            android:text="@{musicViewModel.totalDurationTime}"
             app:layout_constraintBottom_toTopOf="@+id/seekBar"
             app:layout_constraintEnd_toEndOf="@id/seekBar"
             tools:text="04:20" />
@@ -155,6 +160,7 @@
             android:layout_marginEnd="20dp"
             android:adjustViewBounds="true"
             android:background="@drawable/ic_previous_24"
+            app:click="@{() -> musicViewModel.previous()}"
             app:layout_constraintBottom_toBottomOf="@id/btnSongAction"
             app:layout_constraintEnd_toStartOf="@id/btnSongAction"
             app:layout_constraintTop_toTopOf="@id/btnSongAction" />
@@ -165,6 +171,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="28dp"
             android:checkMark="@drawable/selector_action_song_button_56"
+            android:checked="@{musicViewModel.isPlaying()}"
+            app:click="@{() -> musicViewModel.togglePlayPause()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -176,6 +184,7 @@
             android:layout_marginStart="20dp"
             android:adjustViewBounds="true"
             android:background="@drawable/ic_next_24"
+            app:click="@{() -> musicViewModel.next()}"
             app:layout_constraintBottom_toBottomOf="@id/btnSongAction"
             app:layout_constraintStart_toEndOf="@id/btnSongAction"
             app:layout_constraintTop_toTopOf="@id/btnSongAction" />

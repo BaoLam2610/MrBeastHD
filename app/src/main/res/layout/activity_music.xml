@@ -4,6 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".presentation.ui.activity.MusicActivity">
 
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.lambao.mrbeast.presentation.ui.activity.MusicViewModel" />
+    </data>
+
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawerLayout"
         android:layout_width="match_parent"
@@ -26,10 +33,15 @@
                 android:id="@+id/nav_host_fragment"
                 android:name="androidx.navigation.fragment.NavHostFragment"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 app:defaultNavHost="true"
                 app:navGraph="@navigation/nav_graph" />
 
+            <include
+                android:id="@+id/layoutMediaController"
+                layout="@layout/layout_mini_media_player"
+                app:viewModel="@{viewModel}" />
         </LinearLayout>
 
         <com.google.android.material.navigation.NavigationView

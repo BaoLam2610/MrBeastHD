@@ -1,15 +1,22 @@
 package com.lambao.mrbeast.presentation.ui.fragment.common.playback
 
+import androidx.lifecycle.viewModelScope
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
 import com.lambao.mrbeast.domain.usecase.GetRepeatModeUseCase
 import com.lambao.mrbeast.domain.usecase.GetShuffleModeUseCase
 import com.lambao.mrbeast.domain.usecase.SetRepeatModeUseCase
 import com.lambao.mrbeast.domain.usecase.SetShuffleModeUseCase
+import com.lambao.mrbeast.presentation.ui.fragment.common.media_duration.IMediaDurationViewModel
+import com.lambao.mrbeast.presentation.ui.fragment.common.media_duration.MediaDurationViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.media_mode.IMediaModeViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.media_mode.MediaModeViewModel
+import com.lambao.mrbeast.presentation.ui.fragment.common.song.ISongViewModel
+import com.lambao.mrbeast.presentation.ui.fragment.common.song.SongViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 
@@ -19,32 +26,39 @@ class PlaybackViewModel @Inject constructor(
     setRepeatModeUseCase: SetRepeatModeUseCase,
     setShuffleModeUseCase: SetShuffleModeUseCase,
 ) : BaseViewModel(), IPlaybackViewModel,
+    ISongViewModel by SongViewModel(),
+    IMediaDurationViewModel by MediaDurationViewModel(),
     IMediaModeViewModel by MediaModeViewModel(
         getRepeatModeUseCase,
         getShuffleModeUseCase,
         setRepeatModeUseCase,
         setShuffleModeUseCase
     ) {
-
     private val _playbackEvent = MutableSharedFlow<PlaybackEvent>()
 
-    private val _currentDuration = MutableStateFlow(0L)
+    private val _isPlaying = _playbackEvent.map {
+        it != PlaybackEvent.STOP && it != PlaybackEvent.PAUSE
+    }.stateIn(viewModelScope, SharingStarted.Lazily, true)
 
     override fun getPlaybackEvent() = _playbackEvent
-
-    override fun getCurrentDuration() = _currentDuration
-
-    override fun getCurrentDurationValue() = _currentDuration.value
 
     override fun setPlaybackEvent(event: PlaybackEvent) {
         launch { _playbackEvent.emit(event) }
     }
 
-    override fun togglePlayPause(isPlaying: Boolean) {
+    override fun togglePlayPause() {
         setPlaybackEvent(
-            if (isPlaying) PlaybackEvent.PAUSE
+            if (_isPlaying.value) PlaybackEvent.PAUSE
             else PlaybackEvent.RESUME
         )
+    }
+
+    override fun previous() {
+        setPlaybackEvent(PlaybackEvent.PREVIOUS)
+    }
+
+    override fun next() {
+        setPlaybackEvent(PlaybackEvent.NEXT)
     }
 
     override fun toggleRepeatMode() {
@@ -58,11 +72,9 @@ class PlaybackViewModel @Inject constructor(
     }
 
     override fun seekTo(position: Long) {
-        setCurrentPosition(position)
+        setCurrentDuration(position)
         setPlaybackEvent(PlaybackEvent.SEEK_TO)
     }
 
-    override fun setCurrentPosition(duration: Long) {
-        _currentDuration.value = duration
-    }
+    override fun isPlaying() = _isPlaying
 }

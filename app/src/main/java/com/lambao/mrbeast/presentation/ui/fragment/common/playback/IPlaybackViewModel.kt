@@ -1,17 +1,18 @@
 package com.lambao.mrbeast.presentation.ui.fragment.common.playback
 
 import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
+import com.lambao.mrbeast.presentation.ui.fragment.common.media_duration.IMediaDurationViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.media_mode.IMediaModeViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
+import com.lambao.mrbeast.presentation.ui.fragment.common.song.ISongViewModel
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
-interface IPlaybackViewModel : IMediaModeViewModel {
+interface IPlaybackViewModel : ISongViewModel, IMediaDurationViewModel, IMediaModeViewModel {
     fun getPlaybackEvent(): SharedFlow<PlaybackEvent>
-    fun getCurrentDuration(): StateFlow<Long>
-    fun getCurrentDurationValue(): Long
     fun setPlaybackEvent(event: PlaybackEvent)
-    fun togglePlayPause(isPlaying: Boolean)
+    fun togglePlayPause()
+    fun previous()
+    fun next()
     fun seekTo(position: Long)
-    fun setCurrentPosition(duration: Long)
+    fun isPlaying(): StateFlow<Boolean>
 }

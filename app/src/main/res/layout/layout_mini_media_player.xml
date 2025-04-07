@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.lambao.mrbeast.presentation.ui.fragment.common.mini_media_player.IMiniMediaPlayerViewModel" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="@{viewModel.shouldShowMiniPlayer() ? View.VISIBLE : View.GONE, default=gone}"
+        tools:visibility="visible">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/white"
+            app:layout_constraintBottom_toBottomOf="@id/ivSong"
+            app:layout_constraintTop_toTopOf="@id/ivSong" />
+
+        <ImageView
+            android:id="@+id/ivSong"
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:layout_marginTop="4dp"
+            android:adjustViewBounds="true"
+            app:imageUrl="@{viewModel.song.thumbnail}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvSongTitle"
+            style="@style/medium_18"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="start"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="@{viewModel.song.title}"
+            app:layout_constraintBottom_toTopOf="@id/tvArtistName"
+            app:layout_constraintEnd_toStartOf="@id/btnPreviousSong"
+            app:layout_constraintStart_toEndOf="@id/ivSong"
+            app:layout_constraintTop_toTopOf="@id/ivSong"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Believer" />
+
+        <TextView
+            android:id="@+id/tvArtistName"
+            style="@style/regular_12"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="start"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="@{viewModel.song.artistsNames}"
+            android:textColor="@color/grey_700"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnPreviousSong"
+            app:layout_constraintStart_toEndOf="@id/ivSong"
+            app:layout_constraintTop_toBottomOf="@id/tvSongTitle"
+            tools:text="IMAGINE DRAGON" />
+
+        <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:background="@null"
+            android:clickable="false"
+            android:max="@{viewModel.totalDurationInt}"
+            android:maxHeight="4dp"
+            android:minHeight="4dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:progress="@{viewModel.currentDurationInt}"
+            android:progressDrawable="@drawable/seekbar_progress_no_padding"
+            android:splitTrack="false"
+            android:thumb="@android:color/transparent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatCheckedTextView
+            android:id="@+id/btnSongAction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:checkMark="@drawable/selector_action_song_button_24"
+            android:checked="@{viewModel.isPlaying()}"
+            app:click="@{() -> viewModel.togglePlayPause()}"
+            app:layout_constraintBottom_toBottomOf="@id/btnNextSong"
+            app:layout_constraintEnd_toStartOf="@id/btnNextSong"
+            app:layout_constraintTop_toTopOf="@id/btnNextSong" />
+
+        <ImageButton
+            android:id="@+id/btnPreviousSong"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ic_previous_20"
+            app:click="@{() -> viewModel.previous()}"
+            app:layout_constraintBottom_toBottomOf="@id/btnNextSong"
+            app:layout_constraintEnd_toStartOf="@id/btnSongAction"
+            app:layout_constraintTop_toTopOf="@id/btnNextSong" />
+
+        <ImageButton
+            android:id="@+id/btnNextSong"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ic_next_20"
+            app:click="@{() -> viewModel.next()}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/ivSong" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
