@@ -22,34 +22,42 @@ class MediaModeViewModel @Inject constructor(
 
     override fun getRepeatMode() = _repeatMode
 
+    override fun getRepeatModeValue() = _repeatMode.value
+
     override fun getShuffleMode() = _shuffleMode
 
-    override fun setRepeatModeAsync(mode: RepeatMode) {
+    override fun getShuffleModeValue() = _shuffleMode.value
+
+    override fun setRepeatMode(mode: RepeatMode) {
+        _repeatMode.value = mode
         launch {
             setRepeatModeUseCase.invoke(mode)
-            _repeatMode.emit(mode)
         }
     }
 
-    override fun setShuffleModeAsync(mode: ShuffleMode) {
+    override fun setShuffleMode(mode: ShuffleMode) {
+        _shuffleMode.value = mode
         launch {
             setShuffleModeUseCase.invoke(mode)
-            _shuffleMode.emit(mode)
         }
     }
 
-    override fun toggleRepeatMode() {
+    override fun onSwitchRepeatMode() {
         when (_repeatMode.value) {
-            RepeatMode.NONE -> setRepeatModeAsync(RepeatMode.ALL)
-            RepeatMode.ALL -> setRepeatModeAsync(RepeatMode.ONE)
-            RepeatMode.ONE -> setRepeatModeAsync(RepeatMode.NONE)
+            RepeatMode.NONE -> setRepeatMode(RepeatMode.ALL)
+            RepeatMode.ALL -> setRepeatMode(RepeatMode.ONE)
+            RepeatMode.ONE -> setRepeatMode(RepeatMode.NONE)
         }
     }
 
-    override fun toggleShuffleMode() {
+    override fun onSwitchShuffleMode() {
         when (_shuffleMode.value) {
-            ShuffleMode.OFF -> setShuffleModeAsync(ShuffleMode.ON)
-            ShuffleMode.ON -> setShuffleModeAsync(ShuffleMode.OFF)
+            ShuffleMode.OFF -> setShuffleMode(ShuffleMode.ON)
+            ShuffleMode.ON -> setShuffleMode(ShuffleMode.OFF)
         }
     }
+
+    override fun toggleRepeatMode() = Unit
+
+    override fun toggleShuffleMode() = Unit
 }

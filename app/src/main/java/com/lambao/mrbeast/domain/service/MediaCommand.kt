@@ -1,6 +1,8 @@
 package com.lambao.mrbeast.domain.service
 
 import com.lambao.mrbeast.domain.model.Song
+import com.lambao.mrbeast.domain.model.playback.RepeatMode
+import com.lambao.mrbeast.domain.model.playback.ShuffleMode
 
 interface MediaCommand {
     fun execute()
@@ -39,4 +41,22 @@ class SeekToCommand(
     private val position: Long
 ) : MediaCommand {
     override fun execute() = manager.seekTo(position)
+}
+
+class RepeatCommand(
+    private val manager: MediaPlayerManager,
+    private val repeatMode: RepeatMode
+) : MediaCommand {
+    override fun execute() {
+        manager.setRepeatMode(repeatMode)
+    }
+}
+
+class ShuffleCommand(
+    private val manager: MediaPlayerManager,
+    private val shuffleMode: ShuffleMode
+) : MediaCommand {
+    override fun execute() {
+
+    }
 }

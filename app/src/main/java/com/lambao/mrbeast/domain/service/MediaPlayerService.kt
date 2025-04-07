@@ -5,15 +5,21 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.os.Parcelable
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import com.lambao.base.extension.getParcelableCompat
 import com.lambao.base.extension.getParcelableListCompat
-import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
 import com.lambao.mrbeast.domain.model.Song
+import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
+import com.lambao.mrbeast.domain.model.playback.RepeatMode
+import com.lambao.mrbeast.domain.model.playback.ShuffleMode
 import com.lambao.mrbeast.domain.service.media_player.MediaPlayerCallBack
 import com.lambao.mrbeast.utils.Constants
 import com.lambao.mrbeast.utils.Constants.Argument.PLAYLIST
 import com.lambao.mrbeast.utils.Constants.Argument.POSITION
+import com.lambao.mrbeast.utils.Constants.Argument.REPEAT_MODE
+import com.lambao.mrbeast.utils.Constants.Argument.SHUFFLE_MODE
 import com.lambao.mrbeast.utils.Constants.Argument.START_INDEX
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -36,14 +42,13 @@ class MediaPlayerService : Service() {
         sessionHandler.setCallback(object : MediaSessionCompat.Callback() {
             override fun onPlay() = mediaPlayerManager.resume()
             override fun onPause() = mediaPlayerManager.pause()
+
             override fun onSkipToNext() {
                 mediaPlayerManager.next()
-                updateNotification()
             }
 
             override fun onSkipToPrevious() {
                 mediaPlayerManager.previous()
-                updateNotification()
             }
 
             override fun onSeekTo(pos: Long) = mediaPlayerManager.seekTo(pos)
@@ -58,10 +63,12 @@ class MediaPlayerService : Service() {
                     mediaPlayerManager.getDuration()
                 )
                 mediaPlayerManager.startPositionUpdates()
+                updateNotification()
             }
 
             override fun onComplete() {
-                mediaPlayerManager.stop()
+                mediaPlayerManager.handleComplete()
+                updateNotification()
             }
 
             override fun onError(e: Exception) {
@@ -105,6 +112,16 @@ class MediaPlayerService : Service() {
             PlaybackEvent.SEEK_TO.name -> SeekToCommand(
                 mediaPlayerManager,
                 intent.getLongExtra(POSITION, 0L)
+            )
+
+            PlaybackEvent.REPEAT.name -> RepeatCommand(
+                mediaPlayerManager,
+                intent.getParcelableCompat(REPEAT_MODE) ?: RepeatMode.NONE
+            )
+
+            PlaybackEvent.SHUFFLE.name -> ShuffleCommand(
+                mediaPlayerManager,
+                intent.getParcelableCompat(SHUFFLE_MODE) ?: ShuffleMode.OFF
             )
 
             else -> null
@@ -187,6 +204,22 @@ class MediaPlayerService : Service() {
             val intent = Intent(context, MediaPlayerService::class.java).apply {
                 action = PlaybackEvent.SEEK_TO.name
                 putExtra(POSITION, position)
+            }
+            startService(context, intent)
+        }
+
+        fun repeat(context: Context, repeatMode: RepeatMode) {
+            val intent = Intent(context, MediaPlayerService::class.java).apply {
+                action = PlaybackEvent.REPEAT.name
+                putExtra(REPEAT_MODE, repeatMode as Parcelable)
+            }
+            startService(context, intent)
+        }
+
+        fun shuffle(context: Context, shuffleMode: ShuffleMode) {
+            val intent = Intent(context, MediaPlayerService::class.java).apply {
+                action = PlaybackEvent.SHUFFLE.name
+                putExtra(SHUFFLE_MODE, shuffleMode as Parcelable)
             }
             startService(context, intent)
         }

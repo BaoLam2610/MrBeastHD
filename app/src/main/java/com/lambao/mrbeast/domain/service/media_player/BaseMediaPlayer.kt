@@ -11,5 +11,7 @@ interface BaseMediaPlayer {
     fun release()
     fun getCurrentPosition(): Long
     fun getDuration(): Long
+    fun isLooping(): Boolean
+    fun setLooping(isLooping: Boolean)
 }
 

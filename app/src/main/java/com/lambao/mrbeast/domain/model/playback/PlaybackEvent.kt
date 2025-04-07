@@ -7,5 +7,7 @@ enum class PlaybackEvent {
     PAUSE,
     STOP,
     RESUME,
-    SEEK_TO
+    SEEK_TO,
+    REPEAT,
+    SHUFFLE
 }

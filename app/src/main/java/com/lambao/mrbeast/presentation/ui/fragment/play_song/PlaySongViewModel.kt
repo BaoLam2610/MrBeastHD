@@ -10,8 +10,6 @@ import com.lambao.mrbeast.domain.usecase.GetRepeatModeUseCase
 import com.lambao.mrbeast.domain.usecase.GetShuffleModeUseCase
 import com.lambao.mrbeast.domain.usecase.SetRepeatModeUseCase
 import com.lambao.mrbeast.domain.usecase.SetShuffleModeUseCase
-import com.lambao.mrbeast.presentation.ui.fragment.common.media_mode.IMediaModeViewModel
-import com.lambao.mrbeast.presentation.ui.fragment.common.media_mode.MediaModeViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.playback.IPlaybackViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.playback.PlaybackViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.playlist.IPlaylistViewModel
@@ -39,12 +37,11 @@ class PlaySongViewModel @Inject constructor(
 ) : NetworkViewModel(ioDispatcher, defaultDispatcher),
     ISongViewModel by SongViewModel(),
     IPlaylistViewModel by PlaylistViewModel(),
-    IPlaybackViewModel by PlaybackViewModel(),
-    IMediaModeViewModel by MediaModeViewModel(
+    IPlaybackViewModel by PlaybackViewModel(
         getRepeatModeUseCase,
         getShuffleModeUseCase,
         setRepeatModeUseCase,
-        setShuffleModeUseCase
+        setShuffleModeUseCase,
     ) {
 
     private val _currentSongIndex = MutableStateFlow(-1)

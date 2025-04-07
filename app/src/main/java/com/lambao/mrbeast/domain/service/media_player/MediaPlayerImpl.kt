@@ -61,6 +61,7 @@ class MediaPlayerImpl @Inject constructor() : BaseMediaPlayer {
 
     override fun stop() {
         try {
+            mediaPlayer?.seekTo(0)
             mediaPlayer?.stop()
         } catch (e: IllegalStateException) {
             callBack?.onError(MediaPlayerException("Error stopping media: ${e.message}"))
@@ -102,4 +103,10 @@ class MediaPlayerImpl @Inject constructor() : BaseMediaPlayer {
     override fun getCurrentPosition(): Long = mediaPlayer?.currentPosition?.toLong() ?: 0
 
     override fun getDuration(): Long = mediaPlayer?.duration?.toLong() ?: 0
+
+    override fun isLooping() = mediaPlayer?.isLooping == true
+
+    override fun setLooping(isLooping: Boolean) {
+        mediaPlayer?.isLooping = isLooping
+    }
 }

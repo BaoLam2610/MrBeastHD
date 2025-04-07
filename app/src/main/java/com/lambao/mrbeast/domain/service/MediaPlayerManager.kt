@@ -2,6 +2,7 @@ package com.lambao.mrbeast.domain.service
 
 import android.support.v4.media.session.PlaybackStateCompat
 import com.lambao.mrbeast.domain.model.Song
+import com.lambao.mrbeast.domain.model.playback.RepeatMode
 import com.lambao.mrbeast.domain.service.media_player.BaseMediaPlayer
 import com.lambao.mrbeast.domain.service.media_player.MediaPlayerCallBack
 import kotlinx.coroutines.CoroutineScope
@@ -21,12 +22,17 @@ class MediaPlayerManager @Inject constructor(
     private val playlist = mutableListOf<Song>()
     private var currentIndex = -1
     private var positionUpdateJob: Job? = null
+    private var repeatMode = RepeatMode.NONE
 
     val currentSong: Song?
         get() = if (currentIndex in playlist.indices) playlist[currentIndex] else null
 
     fun setMediaPlayerCallback(callback: MediaPlayerCallBack) {
         mediaPlayer.setCallBack(callback)
+    }
+
+    fun setRepeatMode(mode: RepeatMode) {
+        repeatMode = mode
     }
 
     fun play(playlist: List<Song>, startIndex: Int) {
@@ -47,16 +53,20 @@ class MediaPlayerManager @Inject constructor(
     }
 
     fun resume() {
-        mediaPlayer.resume()
-        sessionHandler.updateState(
-            PlaybackStateCompat.STATE_PLAYING,
-            mediaPlayer.getCurrentPosition(),
-            mediaPlayer.getDuration()
-        )
-        startPositionUpdates()
+        if (getCurrentPosition() == 0L) playCurrentSong()
+        else {
+            mediaPlayer.resume()
+            sessionHandler.updateState(
+                PlaybackStateCompat.STATE_PLAYING,
+                mediaPlayer.getCurrentPosition(),
+                mediaPlayer.getDuration()
+            )
+            startPositionUpdates()
+        }
     }
 
     fun stop() {
+        mediaPlayer.seekTo(0)
         mediaPlayer.stop()
         sessionHandler.updateState(PlaybackStateCompat.STATE_STOPPED, 0L, mediaPlayer.getDuration())
         stopPositionUpdates()
@@ -89,7 +99,15 @@ class MediaPlayerManager @Inject constructor(
         )
     }
 
-    private fun playCurrentSong() {
+    fun handleComplete() {
+        when (repeatMode) {
+            RepeatMode.NONE -> stop()
+            RepeatMode.ALL -> next()
+            RepeatMode.ONE -> playCurrentSong()
+        }
+    }
+
+    fun playCurrentSong() {
         if (currentIndex in playlist.indices) {
             mediaPlayer.play(playlist[currentIndex].data)
             sessionHandler.updateMetadata(playlist[currentIndex])
@@ -113,6 +131,8 @@ class MediaPlayerManager @Inject constructor(
     fun stopPositionUpdates() {
         positionUpdateJob?.cancel()
     }
+
+    fun getCurrentPosition() = mediaPlayer.getCurrentPosition()
 
     fun getDuration() = mediaPlayer.getDuration()
 

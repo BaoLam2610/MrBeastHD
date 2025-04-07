@@ -22,6 +22,8 @@ object Constants {
         const val THUMBNAILS = "THUMBNAILS"
         const val STATE = "STATE"
         const val DURATION = "DURATION"
+        const val REPEAT_MODE = "REPEAT_MODE"
+        const val SHUFFLE_MODE = "SHUFFLE_MODE"
     }
 
     object Notification {
