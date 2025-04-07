@@ -45,8 +45,6 @@ open class MultiNetworkViewModel(
                     val throwable = error.throwable ?: Exception("Unknown error")
                     setErrorScreenState(throwable)
                     onError?.invoke(throwable)
-                } ?: run {
-                    setIdleScreenState()
                 }
             }
         }.launchIn(viewModelScope)

@@ -72,6 +72,13 @@ open class BaseViewModel(
         }
     }
 
+    /**
+     * Launches a coroutine in the ViewModel scope using the main dispatcher.
+     * Suitable for updating LiveData, Flow, UI state or Android UI components.
+     *
+     * @param block The suspend function to execute within the coroutine scope
+     * @return A Job representing the launched coroutine
+     * */
     protected fun launch(block: suspend CoroutineScope.() -> Unit) {
         viewModelScope.launch {
             block()
