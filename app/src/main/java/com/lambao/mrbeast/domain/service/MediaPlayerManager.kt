@@ -3,6 +3,7 @@ package com.lambao.mrbeast.domain.service
 import android.support.v4.media.session.PlaybackStateCompat
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.model.playback.RepeatMode
+import com.lambao.mrbeast.domain.model.playback.ShuffleMode
 import com.lambao.mrbeast.domain.service.media_player.BaseMediaPlayer
 import com.lambao.mrbeast.domain.service.media_player.MediaPlayerCallBack
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +24,7 @@ class MediaPlayerManager @Inject constructor(
     private var currentIndex = -1
     private var positionUpdateJob: Job? = null
     private var repeatMode = RepeatMode.NONE
+    private var shuffleMode = ShuffleMode.OFF
 
     val currentSong: Song?
         get() = if (currentIndex in playlist.indices) playlist[currentIndex] else null
@@ -33,6 +35,10 @@ class MediaPlayerManager @Inject constructor(
 
     fun setRepeatMode(mode: RepeatMode) {
         repeatMode = mode
+    }
+
+    fun setShuffleMode(mode: ShuffleMode) {
+        shuffleMode = mode
     }
 
     fun play(playlist: List<Song>, startIndex: Int) {

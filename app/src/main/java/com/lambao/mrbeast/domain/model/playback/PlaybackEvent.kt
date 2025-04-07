@@ -9,5 +9,6 @@ enum class PlaybackEvent {
     RESUME,
     SEEK_TO,
     REPEAT,
-    SHUFFLE
+    SHUFFLE,
+    INIT
 }

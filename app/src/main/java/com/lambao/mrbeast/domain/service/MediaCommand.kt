@@ -57,6 +57,6 @@ class ShuffleCommand(
     private val shuffleMode: ShuffleMode
 ) : MediaCommand {
     override fun execute() {
-
+        manager.setShuffleMode(shuffleMode)
     }
 }

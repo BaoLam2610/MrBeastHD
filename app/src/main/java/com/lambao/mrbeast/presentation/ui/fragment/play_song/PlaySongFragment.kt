@@ -74,11 +74,7 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
         launchWhenCreated {
             viewModel.shouldPlaySong.collectLatest { shouldPlay ->
                 if (shouldPlay) {
-                    MediaPlayerService.play(
-                        requireContext(),
-                        playlist = viewModel.getPlaylistValue(),
-                        startIndex = viewModel.currentSongIndexValue
-                    )
+                    viewModel.setPlaybackEvent(PlaybackEvent.PLAY)
                 }
             }
         }
@@ -210,8 +206,6 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
     private fun handleMetadataChanged(intent: Intent) {
         intent.getParcelableCompat<Song>(SONG)?.let { song ->
             viewModel.setSong(song)
-            val index = argPlaylist.indexOf(song)
-            if (index != -1) viewModel.setCurrentSongIndex(index)
         }
     }
 
