@@ -30,7 +30,7 @@ class MusicActivity : BaseActivity<ActivityMusicBinding>() {
                 binding.drawerLayout.close()
             }
             when (menuItem) {
-                MenuItem.DISCOVER -> navController.navigate(R.id.onlineSongsFragment)
+                MenuItem.DISCOVER -> navController.navigate(R.id.onlinePlaylistFragment)
                 MenuItem.MY_MUSIC -> navController.navigate(R.id.offlineSongsFragment)
                 MenuItem.FAVORITE_SONG -> navController.navigate(R.id.favoriteSongsFragment)
                 MenuItem.LANGUAGE -> {}
