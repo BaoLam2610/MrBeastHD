@@ -190,7 +190,7 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
     }
 
     private fun handleMetadataChanged(intent: Intent) {
-        intent.getParcelableExtra<Song>(SONG)?.let { song ->
+        intent.getParcelableCompat<Song>(SONG)?.let { song ->
             viewModel.setSong(song)
             val index = argPlaylist.indexOf(song)
             if (index != -1) viewModel.setCurrentSongIndex(index)

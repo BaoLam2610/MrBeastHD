@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import com.lambao.base.extension.getParcelableListCompat
 import com.lambao.mrbeast.domain.model.PlaybackEvent
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.service.media_player.MediaPlayerCallBack
@@ -92,7 +93,7 @@ class MediaPlayerService : Service() {
         val command = when (intent.action) {
             PlaybackEvent.PLAY.name -> PlayCommand(
                 mediaPlayerManager,
-                intent.getParcelableArrayListExtra(PLAYLIST) ?: emptyList(),
+                intent.getParcelableListCompat<Song>(PLAYLIST) ?: emptyList(),
                 intent.getIntExtra(START_INDEX, 0)
             )
 
