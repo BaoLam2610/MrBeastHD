@@ -54,19 +54,10 @@ class OnlinePlaylistViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, false)
     val shouldShowEmptyData get() = _shouldShowEmptyData
 
-    private val _selectedSong = MutableSharedFlow<Song?>()
-    val selectedSong get() = _selectedSong.asSharedFlow()
-
     fun getOnlineSongs() {
         if (!_shouldFetchInfo.value) return
         collectApi(getOnlineSongsUseCase.invoke()) {
             fetchAllSongInfo(it)
-        }
-    }
-
-    fun setSelectedSong(song: Song) {
-        launch {
-            _selectedSong.emit(song)
         }
     }
 

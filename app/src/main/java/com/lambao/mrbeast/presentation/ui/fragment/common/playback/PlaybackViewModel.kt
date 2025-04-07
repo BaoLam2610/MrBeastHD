@@ -8,6 +8,7 @@ import com.lambao.mrbeast.domain.usecase.SetRepeatModeUseCase
 import com.lambao.mrbeast.domain.usecase.SetShuffleModeUseCase
 import com.lambao.mrbeast.presentation.ui.fragment.common.media_mode.IMediaModeViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.media_mode.MediaModeViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
@@ -25,7 +26,7 @@ class PlaybackViewModel @Inject constructor(
         setShuffleModeUseCase
     ) {
 
-    private val _playbackEvent = MutableStateFlow(PlaybackEvent.INIT)
+    private val _playbackEvent = MutableSharedFlow<PlaybackEvent>()
 
     private val _currentDuration = MutableStateFlow(0L)
 

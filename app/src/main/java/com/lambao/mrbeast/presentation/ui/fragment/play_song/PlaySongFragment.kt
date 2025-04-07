@@ -38,6 +38,10 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
     private lateinit var broadcastReceiver: BroadcastReceiver
     private var isReceiverRegistered = false
 
+    private val argStartIndex by lazy {
+        arguments?.getInt(Constants.Argument.START_INDEX, 0) ?: 0
+    }
+
     private val argSong by lazy {
         arguments?.getParcelableCompat<Song>(SONG)
     }
@@ -58,26 +62,12 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
     override fun onViewReady(savedInstanceState: Bundle?) {
         setupUI()
         setupBroadcastReceiver()
+        viewModel.initializePlaylist(argPlaylist, argStartIndex)
     }
 
     override fun initObserve() {
         binding.viewModel = viewModel
         viewModel.setSong(argSong)
-        viewModel.setPlaylist(argPlaylist)
-
-        launchWhenCreated {
-            viewModel.combineIndexInPlaylist.collectLatest { index ->
-                if (index != -1) viewModel.setCurrentSongIndex(index)
-            }
-        }
-
-        launchWhenCreated {
-            viewModel.shouldPlaySong.collectLatest { shouldPlay ->
-                if (shouldPlay) {
-                    viewModel.setPlaybackEvent(PlaybackEvent.PLAY)
-                }
-            }
-        }
 
         launchWhenCreated {
             viewModel.getPlaybackEvent().collectLatest { event ->
@@ -85,7 +75,7 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
                     PlaybackEvent.PLAY -> MediaPlayerService.play(
                         requireContext(),
                         playlist = viewModel.getPlaylistValue(),
-                        startIndex = viewModel.currentSongIndexValue
+                        startIndex = viewModel.currentSongIndex.value
                     )
 
                     PlaybackEvent.PAUSE -> MediaPlayerService.pause(requireContext())
@@ -190,7 +180,7 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
             PlaybackStateCompat.STATE_STOPPED -> {
                 binding.btnSongAction.isChecked = false
                 binding.seekBar.progress = 0
-                binding.tvTime.text = Constants.Media.DEFAULT_TIME
+                binding.tvTime.text = getString(R.string.default_duration)
             }
 
             PlaybackStateCompat.STATE_BUFFERING -> showLoading()

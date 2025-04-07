@@ -10,6 +10,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,6 +27,13 @@ class MediaPlayerManager @Inject constructor(
     private var positionUpdateJob: Job? = null
     private var repeatMode = RepeatMode.NONE
     private var shuffleMode = ShuffleMode.OFF
+    private var originalPlaylist = mutableListOf<Song>()
+
+    private val _playlistFlow = MutableSharedFlow<List<Song>>(replay = 1)
+    val playlistFlow get() = _playlistFlow.asSharedFlow()
+
+    private val _currentIndexFlow = MutableSharedFlow<Int>(replay = 1)
+    val currentIndexFlow get() = _currentIndexFlow.asSharedFlow()
 
     val currentSong: Song?
         get() = if (currentIndex in playlist.indices) playlist[currentIndex] else null
@@ -39,13 +48,22 @@ class MediaPlayerManager @Inject constructor(
 
     fun setShuffleMode(mode: ShuffleMode) {
         shuffleMode = mode
+        if (mode == ShuffleMode.ON && playlist.isNotEmpty()) {
+            shufflePlaylist()
+        } else if (mode == ShuffleMode.OFF && originalPlaylist.isNotEmpty()) {
+            restoreOriginalPlaylist()
+        }
     }
 
     fun play(playlist: List<Song>, startIndex: Int) {
         this.playlist.clear()
         this.playlist.addAll(playlist)
+        this.originalPlaylist.clear()
+        this.originalPlaylist.addAll(playlist)
         currentIndex = startIndex.coerceIn(0, playlist.size - 1)
         playCurrentSong()
+        emitPlaylistUpdate()
+        emitCurrentIndexUpdate()
     }
 
     fun pause() {
@@ -82,6 +100,7 @@ class MediaPlayerManager @Inject constructor(
         if (currentIndex > 0) {
             currentIndex--
             playCurrentSong()
+            emitCurrentIndexUpdate()
         } else {
             mediaPlayer.seekTo(0)
         }
@@ -91,6 +110,7 @@ class MediaPlayerManager @Inject constructor(
         if (currentIndex < playlist.size - 1) {
             currentIndex++
             playCurrentSong()
+            emitCurrentIndexUpdate()
         } else {
             stop()
         }
@@ -145,5 +165,39 @@ class MediaPlayerManager @Inject constructor(
     fun release() {
         stopPositionUpdates()
         mediaPlayer.release()
+    }
+
+    private fun shufflePlaylist() {
+        if (playlist.isEmpty() || currentIndex !in playlist.indices) return
+        val currentSong = playlist[currentIndex]
+        val tempList = playlist.toMutableList()
+        tempList.removeAt(currentIndex)
+        tempList.shuffle()
+        playlist.clear()
+        playlist.add(currentSong)
+        playlist.addAll(tempList)
+        currentIndex = 0
+        emitPlaylistUpdate()
+        emitCurrentIndexUpdate()
+    }
+
+    private fun restoreOriginalPlaylist() {
+        playlist.clear()
+        playlist.addAll(originalPlaylist)
+        currentIndex = originalPlaylist.indexOf(currentSong)
+        emitPlaylistUpdate()
+        emitCurrentIndexUpdate()
+    }
+
+    private fun emitPlaylistUpdate() {
+        CoroutineScope(Dispatchers.Main).launch {
+            _playlistFlow.emit(playlist.toList())
+        }
+    }
+
+    private fun emitCurrentIndexUpdate() {
+        CoroutineScope(Dispatchers.Main).launch {
+            _currentIndexFlow.emit(currentIndex)
+        }
     }
 }

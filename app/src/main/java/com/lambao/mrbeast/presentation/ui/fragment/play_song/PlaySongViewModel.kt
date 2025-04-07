@@ -4,8 +4,9 @@ import androidx.lifecycle.viewModelScope
 import com.lambao.base.presentation.ui.viewmodel.network.NetworkViewModel
 import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
+import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
-import com.lambao.mrbeast.domain.usecase.GetIndexInPlaylistUseCase
+import com.lambao.mrbeast.domain.service.MediaPlayerManager
 import com.lambao.mrbeast.domain.usecase.GetRepeatModeUseCase
 import com.lambao.mrbeast.domain.usecase.GetShuffleModeUseCase
 import com.lambao.mrbeast.domain.usecase.SetRepeatModeUseCase
@@ -21,13 +22,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class PlaySongViewModel @Inject constructor(
-    private val getIndexInPlaylistUseCase: GetIndexInPlaylistUseCase,
+    private val mediaPlayerManager: MediaPlayerManager,
     private val setRepeatModeUseCase: SetRepeatModeUseCase,
     private val setShuffleModeUseCase: SetShuffleModeUseCase,
     getRepeatModeUseCase: GetRepeatModeUseCase,
@@ -41,50 +43,44 @@ class PlaySongViewModel @Inject constructor(
         getRepeatModeUseCase,
         getShuffleModeUseCase,
         setRepeatModeUseCase,
-        setShuffleModeUseCase,
+        setShuffleModeUseCase
     ) {
 
     private val _currentSongIndex = MutableStateFlow(-1)
     val currentSongIndex get() = _currentSongIndex.asStateFlow()
-    val currentSongIndexValue get() = _currentSongIndex.value
 
-    private val _combineIndexInPlaylist = combine(
-        getSong(),
-        getPlaylist()
-    ) { song, playlist ->
-        getIndexInPlaylistUseCase.invoke(song, playlist)
-    }.stateIn(viewModelScope, SharingStarted.Lazily, -1)
-    val combineIndexInPlaylist get() = _combineIndexInPlaylist
+    private val _playlist = mediaPlayerManager.playlistFlow.stateIn(
+        viewModelScope,
+        SharingStarted.Lazily,
+        emptyList()
+    )
 
-    private val _shouldPlaySong = combine(
-        _currentSongIndex,
-        getPlaylist()
-    ) { index, playlist ->
-        index != -1 && index < playlist.size && playlist.isNotEmpty()
-    }.stateIn(viewModelScope, SharingStarted.Lazily, false)
-    val shouldPlaySong get() = _shouldPlaySong
+    init {
+        mediaPlayerManager.currentIndexFlow
+            .onEach { index -> _currentSongIndex.value = index }
+            .launchIn(viewModelScope)
+    }
 
-    fun setCurrentSongIndex(index: Int) {
+    override fun getPlaylist() = _playlist
+
+    override fun getPlaylistValue() = _playlist.value
+
+    fun initializePlaylist(initialPlaylist: List<Song>, startIndex: Int) {
         launch {
-            _currentSongIndex.emit(index)
+            mediaPlayerManager.play(initialPlaylist, startIndex)
+            setPlaybackEvent(PlaybackEvent.PLAY)
         }
     }
 
     fun previousSong() {
         launch {
-            if (currentSongIndex.value > 0) {
-                _currentSongIndex.emit(currentSongIndex.value - 1)
-                setPlaybackEvent(PlaybackEvent.PREVIOUS)
-            }
+            setPlaybackEvent(PlaybackEvent.PREVIOUS)
         }
     }
 
     fun nextSong() {
         launch {
-            if (currentSongIndex.value < getPlaylistValue().size - 1) {
-                _currentSongIndex.emit(currentSongIndex.value + 1)
-                setPlaybackEvent(PlaybackEvent.NEXT)
-            }
+            setPlaybackEvent(PlaybackEvent.NEXT)
         }
     }
 }

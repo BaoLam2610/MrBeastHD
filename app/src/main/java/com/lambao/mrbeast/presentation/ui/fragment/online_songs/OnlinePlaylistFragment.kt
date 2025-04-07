@@ -18,8 +18,15 @@ import kotlinx.coroutines.flow.collectLatest
 class OnlinePlaylistFragment : BaseVMFragment<FragmentOnlinePlaylistBinding, OnlinePlaylistViewModel>() {
 
     private val songsAdapter by lazy {
-        SongInfoAdapter { song, _ ->
-            viewModel.setSelectedSong(song)
+        SongInfoAdapter { song, index ->
+            navigate(
+                R.id.action_onlinePlaylistFragment_to_playSongFragment,
+                args = bundleOf(
+                    Constants.Argument.START_INDEX to index,
+                    Constants.Argument.SONG to song,
+                    Constants.Argument.PLAYLIST to viewModel.playlistValue
+                )
+            )
         }
     }
 
@@ -48,18 +55,6 @@ class OnlinePlaylistFragment : BaseVMFragment<FragmentOnlinePlaylistBinding, Onl
 
         launchWhenCreated {
             viewModel.shouldFetchInfo.collect()
-        }
-
-        launchWhenCreated {
-            viewModel.selectedSong.collectLatest {
-                navigate(
-                    R.id.action_onlinePlaylistFragment_to_playSongFragment,
-                    args = bundleOf(
-                        Constants.Argument.SONG to it,
-                        Constants.Argument.PLAYLIST to viewModel.playlistValue
-                    )
-                )
-            }
         }
 
         viewModel.getOnlineSongs()
