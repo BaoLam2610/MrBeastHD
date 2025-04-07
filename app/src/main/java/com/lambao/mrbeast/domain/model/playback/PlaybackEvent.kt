@@ -1,4 +1,4 @@
-package com.lambao.mrbeast.domain.model
+package com.lambao.mrbeast.domain.model.playback
 
 enum class PlaybackEvent {
     PLAY,

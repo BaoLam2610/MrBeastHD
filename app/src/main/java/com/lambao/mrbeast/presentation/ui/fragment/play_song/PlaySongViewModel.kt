@@ -4,8 +4,14 @@ import androidx.lifecycle.viewModelScope
 import com.lambao.base.presentation.ui.viewmodel.network.NetworkViewModel
 import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
-import com.lambao.mrbeast.domain.model.PlaybackEvent
+import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
 import com.lambao.mrbeast.domain.usecase.GetIndexInPlaylistUseCase
+import com.lambao.mrbeast.domain.usecase.GetRepeatModeUseCase
+import com.lambao.mrbeast.domain.usecase.GetShuffleModeUseCase
+import com.lambao.mrbeast.domain.usecase.SetRepeatModeUseCase
+import com.lambao.mrbeast.domain.usecase.SetShuffleModeUseCase
+import com.lambao.mrbeast.presentation.ui.fragment.common.media_mode.IMediaModeViewModel
+import com.lambao.mrbeast.presentation.ui.fragment.common.media_mode.MediaModeViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.playback.IPlaybackViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.playback.PlaybackViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.playlist.IPlaylistViewModel
@@ -24,12 +30,22 @@ import javax.inject.Inject
 @HiltViewModel
 class PlaySongViewModel @Inject constructor(
     private val getIndexInPlaylistUseCase: GetIndexInPlaylistUseCase,
+    private val setRepeatModeUseCase: SetRepeatModeUseCase,
+    private val setShuffleModeUseCase: SetShuffleModeUseCase,
+    getRepeatModeUseCase: GetRepeatModeUseCase,
+    getShuffleModeUseCase: GetShuffleModeUseCase,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
 ) : NetworkViewModel(ioDispatcher, defaultDispatcher),
     ISongViewModel by SongViewModel(),
     IPlaylistViewModel by PlaylistViewModel(),
-    IPlaybackViewModel by PlaybackViewModel() {
+    IPlaybackViewModel by PlaybackViewModel(),
+    IMediaModeViewModel by MediaModeViewModel(
+        getRepeatModeUseCase,
+        getShuffleModeUseCase,
+        setRepeatModeUseCase,
+        setShuffleModeUseCase
+    ) {
 
     private val _currentSongIndex = MutableStateFlow(-1)
     val currentSongIndex get() = _currentSongIndex.asStateFlow()

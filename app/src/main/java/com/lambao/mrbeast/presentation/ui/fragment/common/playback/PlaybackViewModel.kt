@@ -1,7 +1,7 @@
 package com.lambao.mrbeast.presentation.ui.fragment.common.playback
 
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
-import com.lambao.mrbeast.domain.model.PlaybackEvent
+import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 

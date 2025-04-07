@@ -38,4 +38,9 @@ object Constants {
         const val ACTION_PLAYBACK_STATE_CHANGED = "ACTION_PLAYBACK_STATE_CHANGED"
         const val ACTION_METADATA_CHANGED = "ACTION_METADATA_CHANGED"
     }
+
+    object Preference {
+        const val REPEAT = "REPEAT"
+        const val SHUFFLE = "SHUFFLE"
+    }
 }

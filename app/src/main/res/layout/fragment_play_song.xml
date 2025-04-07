@@ -95,16 +95,20 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:adjustViewBounds="true"
-            android:background="@drawable/ic_repeat_disable"
+            app:click="@{() -> viewModel.toggleRepeatMode()}"
+            app:backgroundRes="@{viewModel.repeatMode.iconId}"
+            tools:background="@drawable/ic_repeat_disable"
             app:layout_constraintEnd_toStartOf="@id/btnShuffle"
             app:layout_constraintTop_toTopOf="@id/btnFavorite" />
 
-        <androidx.appcompat.widget.AppCompatCheckedTextView
+        <ImageButton
             android:id="@+id/btnShuffle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            android:checkMark="@drawable/selector_shuffle_button"
+            app:click="@{() -> viewModel.toggleShuffleMode()}"
+            app:backgroundRes="@{viewModel.shuffleMode.iconId}"
+            tools:background="@drawable/ic_shuffle_disable"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/btnFavorite" />
 

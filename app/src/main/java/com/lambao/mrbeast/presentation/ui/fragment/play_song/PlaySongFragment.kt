@@ -14,7 +14,7 @@ import com.lambao.base.extension.getParcelableListCompat
 import com.lambao.base.extension.launchWhenCreated
 import com.lambao.base.extension.popBackStack
 import com.lambao.base.presentation.ui.fragment.BaseVMFragment
-import com.lambao.mrbeast.domain.model.PlaybackEvent
+import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.service.MediaPlayerService
 import com.lambao.mrbeast.extension.toTimeString
