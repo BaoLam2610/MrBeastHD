@@ -5,9 +5,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 interface IPlaybackViewModel {
-    val playbackEvent: SharedFlow<PlaybackEvent>
-    val currentDuration: StateFlow<Long>
-    val currentDurationValue: Long
+    fun getPlaybackEvent(): SharedFlow<PlaybackEvent>
+    fun getCurrentDuration(): StateFlow<Long>
+    fun getCurrentDurationValue(): Long
     fun setPlaybackEvent(event: PlaybackEvent)
     fun togglePlayPause(isPlaying: Boolean)
     fun seekTo(position: Long)

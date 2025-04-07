@@ -6,8 +6,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class PlaylistViewModel : BaseViewModel(), IPlaylistViewModel {
     private val _playlist = MutableStateFlow<List<Song>>(emptyList())
-    override val playlist get() = _playlist
-    override val playlistValue get() = _playlist.value
+
+    override fun getPlaylist() = _playlist
+
+    override fun getPlaylistValue() = _playlist.value
 
     override fun setPlaylistAsync(playlist: List<Song>) {
         launch { _playlist.emit(playlist) }

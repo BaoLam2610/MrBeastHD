@@ -36,8 +36,8 @@ class PlaySongViewModel @Inject constructor(
     val currentSongIndexValue get() = _currentSongIndex.value
 
     private val _combineIndexInPlaylist = combine(
-        song,
-        playlist
+        getSong(),
+        getPlaylist()
     ) { song, playlist ->
         getIndexInPlaylistUseCase.invoke(song, playlist)
     }.stateIn(viewModelScope, SharingStarted.Lazily, -1)
@@ -45,7 +45,7 @@ class PlaySongViewModel @Inject constructor(
 
     private val _shouldPlaySong = combine(
         _currentSongIndex,
-        playlist
+        getPlaylist()
     ) { index, playlist ->
         index != -1 && index < playlist.size && playlist.isNotEmpty()
     }.stateIn(viewModelScope, SharingStarted.Lazily, false)
@@ -68,7 +68,7 @@ class PlaySongViewModel @Inject constructor(
 
     fun nextSong() {
         launch {
-            if (currentSongIndex.value < playlistValue.size - 1) {
+            if (currentSongIndex.value < getPlaylistValue().size - 1) {
                 _currentSongIndex.emit(currentSongIndex.value + 1)
                 setPlaybackEvent(PlaybackEvent.NEXT)
             }

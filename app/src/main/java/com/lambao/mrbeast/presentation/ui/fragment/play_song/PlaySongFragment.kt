@@ -76,7 +76,7 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
                 if (shouldPlay) {
                     MediaPlayerService.play(
                         requireContext(),
-                        playlist = viewModel.playlistValue,
+                        playlist = viewModel.getPlaylistValue(),
                         startIndex = viewModel.currentSongIndexValue
                     )
                 }
@@ -84,11 +84,11 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
         }
 
         launchWhenCreated {
-            viewModel.playbackEvent.collectLatest { event ->
+            viewModel.getPlaybackEvent().collectLatest { event ->
                 when (event) {
                     PlaybackEvent.PLAY -> MediaPlayerService.play(
                         requireContext(),
-                        playlist = viewModel.playlistValue,
+                        playlist = viewModel.getPlaylistValue(),
                         startIndex = viewModel.currentSongIndexValue
                     )
 
@@ -96,12 +96,12 @@ class PlaySongFragment : BaseVMFragment<FragmentPlaySongBinding, PlaySongViewMod
 
                     PlaybackEvent.RESUME -> MediaPlayerService.resume(
                         requireContext(),
-                        position = viewModel.currentDurationValue
+                        position = viewModel.getCurrentDurationValue()
                     )
 
                     PlaybackEvent.SEEK_TO -> MediaPlayerService.seekTo(
                         requireContext(),
-                        position = viewModel.currentDurationValue
+                        position = viewModel.getCurrentDurationValue()
                     )
 
                     PlaybackEvent.PREVIOUS -> MediaPlayerService.previous(requireContext())

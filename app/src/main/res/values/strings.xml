@@ -12,4 +12,5 @@
     <string name="an_error_occurred_while_playing_the_song">Đã xảy ra lỗi khi phát nhạc</string>
     <string name="ok">OK</string>
     <string name="close">Đóng</string>
+    <string name="default_duration">00:00</string>
 </resources>
