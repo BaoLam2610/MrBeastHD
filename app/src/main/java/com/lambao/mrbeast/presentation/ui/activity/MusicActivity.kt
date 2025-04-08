@@ -22,7 +22,7 @@ import com.lambao.base.extension.visible
 import com.lambao.base.presentation.handler.permission.common.PermissionHandlerFactory
 import com.lambao.base.presentation.ui.activity.BaseVMActivity
 import com.lambao.base.utils.log
-import com.lambao.mrbeast.data.model.MenuItem
+import com.lambao.mrbeast.domain.model.MenuItem
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
 import com.lambao.mrbeast.domain.service.MediaPlayerService
@@ -57,7 +57,7 @@ class MusicActivity : BaseVMActivity<ActivityMusicBinding, MusicViewModel>() {
             }
             when (menuItem) {
                 MenuItem.DISCOVER -> navController.navigate(R.id.onlinePlaylistFragment)
-                MenuItem.MY_MUSIC -> navController.navigate(R.id.offlineSongsFragment)
+                MenuItem.MY_MUSIC -> navController.navigate(R.id.offlinePlaylistFragment)
                 MenuItem.FAVORITE_SONG -> navController.navigate(R.id.favoriteSongsFragment)
                 MenuItem.LANGUAGE -> {}
             }

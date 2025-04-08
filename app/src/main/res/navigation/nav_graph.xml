@@ -7,21 +7,21 @@
 
     <fragment
         android:id="@+id/onlinePlaylistFragment"
-        android:name="com.lambao.mrbeast.presentation.ui.fragment.online_songs.OnlinePlaylistFragment"
+        android:name="com.lambao.mrbeast.presentation.ui.fragment.online_playlist.OnlinePlaylistFragment"
         android:label="fragment_online_songs"
-        tools:layout="@layout/fragment_online_playlist" >
+        tools:layout="@layout/fragment_online_playlist">
         <action
             android:id="@+id/action_onlinePlaylistFragment_to_playSongFragment"
             app:destination="@id/playSongFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/offlineSongsFragment"
-        android:name="com.lambao.mrbeast.presentation.ui.fragment.offline_songs.OfflineSongsFragment"
+        android:id="@+id/offlinePlaylistFragment"
+        android:name="com.lambao.mrbeast.presentation.ui.fragment.offline_playlist.OfflinePlaylistFragment"
         android:label="fragment_offline_songs"
-        tools:layout="@layout/fragment_offline_songs" >
+        tools:layout="@layout/fragment_offline_playlist">
         <action
-            android:id="@+id/action_offlineSongsFragment_to_playSongFragment"
+            android:id="@+id/action_offlinePlaylistFragment_to_playSongFragment"
             app:destination="@id/playSongFragment" />
     </fragment>
 
@@ -29,7 +29,7 @@
         android:id="@+id/favoriteSongsFragment"
         android:name="com.lambao.mrbeast.presentation.ui.fragment.favorite_songs.FavoriteSongsFragment"
         android:label="fragment_favorite_songs"
-        tools:layout="@layout/fragment_favorite_songs" >
+        tools:layout="@layout/fragment_favorite_songs">
         <action
             android:id="@+id/action_favoriteSongsFragment_to_playSongFragment"
             app:destination="@id/playSongFragment" />

@@ -1,7 +1,7 @@
 package com.lambao.mrbeast.domain.model
 
 import android.os.Parcelable
-import com.lambao.mrbeast.data.remote.dto.SongDto
+import com.lambao.mrbeast.data.remote.dto.SongRemoteDto
 import com.lambao.mrbeast.extension.toTimeString
 import com.lambao.mrbeast.utils.Constants.ZINGMP3_DOMAIN
 import kotlinx.parcelize.Parcelize
@@ -36,7 +36,7 @@ data class Song(
     fun getDurationTime() = duration.toTimeString()
 }
 
-fun SongDto.toSong() = Song(
+fun SongRemoteDto.toSong() = Song(
     id = id ?: "",
     name = name ?: "",
     title = title ?: "",

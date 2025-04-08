@@ -6,7 +6,7 @@
 
         <variable
             name="viewModel"
-            type="com.lambao.mrbeast.presentation.ui.fragment.online_playlist.OnlinePlaylistViewModel" />
+            type="com.lambao.mrbeast.presentation.ui.fragment.offline_playlist.OfflinePlaylistViewModel" />
 
         <import type="android.view.View" />
     </data>
@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
-            android:text="@string/discover"
+            android:text="@string/my_music"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView

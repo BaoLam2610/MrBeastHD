@@ -1,13 +1,13 @@
 package com.lambao.mrbeast.domain.model
 
-import com.lambao.mrbeast.data.remote.dto.SongInfoDto
+import com.lambao.mrbeast.data.remote.dto.SongInfoRemoteDto
 
 data class OnlineSongInfo(
     val mp3Url: String,
     val thumbnail: String // high quality thumbnail URL
 )
 
-fun SongInfoDto.toOnlineSongInfo(): OnlineSongInfo =
+fun SongInfoRemoteDto.toOnlineSongInfo(): OnlineSongInfo =
     if (success == null) {
         OnlineSongInfo("", "")
     } else {

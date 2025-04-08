@@ -1,7 +1,9 @@
 package com.lambao.mrbeast.di
 
-import com.lambao.mrbeast.data.repository.OnlineSongsRepository
-import com.lambao.mrbeast.data.repository.OnlineSongsRepositoryImpl
+import com.lambao.mrbeast.data.repository.offline.OfflinePlaylistRepository
+import com.lambao.mrbeast.data.repository.offline.OfflinePlaylistRepositoryImpl
+import com.lambao.mrbeast.data.repository.online.OnlinePlaylistRepository
+import com.lambao.mrbeast.data.repository.online.OnlinePlaylistRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,5 +15,11 @@ import javax.inject.Singleton
 object RepositoryModule {
     @Provides
     @Singleton
-    fun provideOnlineSongsRepository(impl: OnlineSongsRepositoryImpl): OnlineSongsRepository = impl
+    fun provideOnlinePlaylistRepository(impl: OnlinePlaylistRepositoryImpl): OnlinePlaylistRepository =
+        impl
+
+    @Provides
+    @Singleton
+    fun provideOfflinePlaylistRepository(impl: OfflinePlaylistRepositoryImpl): OfflinePlaylistRepository =
+        impl
 }

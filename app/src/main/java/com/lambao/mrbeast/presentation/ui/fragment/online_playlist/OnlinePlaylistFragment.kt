@@ -1,4 +1,4 @@
-package com.lambao.mrbeast.presentation.ui.fragment.online_songs
+package com.lambao.mrbeast.presentation.ui.fragment.online_playlist
 
 import android.os.Bundle
 import androidx.core.os.bundleOf
@@ -12,10 +12,10 @@ import com.lambao.mrbeast_music.R
 import com.lambao.mrbeast_music.databinding.FragmentOnlinePlaylistBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class OnlinePlaylistFragment : BaseVMFragment<FragmentOnlinePlaylistBinding, OnlinePlaylistViewModel>() {
+class OnlinePlaylistFragment :
+    BaseVMFragment<FragmentOnlinePlaylistBinding, OnlinePlaylistViewModel>() {
 
     private val songsAdapter by lazy {
         SongInfoAdapter { song, index ->
@@ -43,10 +43,6 @@ class OnlinePlaylistFragment : BaseVMFragment<FragmentOnlinePlaylistBinding, Onl
 
         observe(viewModel.playlist) {
             songsAdapter.submitList(it)
-        }
-
-        launchWhenCreated {
-            viewModel.songThumbnails.collect()
         }
 
         launchWhenCreated {

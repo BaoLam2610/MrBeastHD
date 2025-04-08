@@ -3,7 +3,7 @@ package com.lambao.mrbeast.data.remote.dto
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-data class ArtistDto(
+data class ArtistRemoteDto(
     @Expose @SerializedName("id") val id: String?,
     @Expose @SerializedName("name") val name: String?,
     @Expose @SerializedName("link") val link: String?,

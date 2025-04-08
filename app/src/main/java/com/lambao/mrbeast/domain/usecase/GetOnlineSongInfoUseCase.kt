@@ -3,7 +3,7 @@ package com.lambao.mrbeast.domain.usecase
 import com.lambao.base.data.Resource
 import com.lambao.base.data.map
 import com.lambao.base.domain.FlowUseCase
-import com.lambao.mrbeast.data.repository.OnlineSongsRepository
+import com.lambao.mrbeast.data.repository.online.OnlinePlaylistRepository
 import com.lambao.mrbeast.di.IoDispatcher
 import com.lambao.mrbeast.domain.model.OnlineSongInfo
 import com.lambao.mrbeast.domain.model.toOnlineSongInfo
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 class GetOnlineSongInfoUseCase @Inject constructor(
-    private val repository: OnlineSongsRepository,
+    private val repository: OnlinePlaylistRepository,
     @IoDispatcher ioDispatcher: CoroutineDispatcher
 ) : FlowUseCase<String, Resource<OnlineSongInfo>>(ioDispatcher) {
     override fun execute(params: String?): Flow<Resource<OnlineSongInfo>> {

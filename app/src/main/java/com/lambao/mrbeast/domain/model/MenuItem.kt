@@ -1,4 +1,4 @@
-package com.lambao.mrbeast.data.model
+package com.lambao.mrbeast.domain.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

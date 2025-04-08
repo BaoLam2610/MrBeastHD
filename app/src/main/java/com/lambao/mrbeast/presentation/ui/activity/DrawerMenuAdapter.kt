@@ -1,7 +1,7 @@
 package com.lambao.mrbeast.presentation.ui.activity
 
 import com.lambao.base.presentation.ui.recycler_view.BaseRecyclerAdapter
-import com.lambao.mrbeast.data.model.MenuItem
+import com.lambao.mrbeast.domain.model.MenuItem
 import com.lambao.mrbeast_music.R
 import com.lambao.mrbeast_music.databinding.ItemDrawerMenuBinding
 

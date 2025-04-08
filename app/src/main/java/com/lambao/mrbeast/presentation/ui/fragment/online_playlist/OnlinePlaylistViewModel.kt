@@ -1,4 +1,4 @@
-package com.lambao.mrbeast.presentation.ui.fragment.online_songs
+package com.lambao.mrbeast.presentation.ui.fragment.online_playlist
 
 import androidx.lifecycle.viewModelScope
 import com.lambao.base.data.map
@@ -7,15 +7,12 @@ import com.lambao.base.presentation.ui.viewmodel.network.MultiNetworkViewModel
 import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
 import com.lambao.mrbeast.domain.model.Song
-import com.lambao.mrbeast.domain.model.Thumbnail
 import com.lambao.mrbeast.domain.usecase.GetOnlineSongInfoUseCase
-import com.lambao.mrbeast.domain.usecase.GetOnlineSongsUseCase
+import com.lambao.mrbeast.domain.usecase.GetOnlinePlaylistUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -24,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnlinePlaylistViewModel @Inject constructor(
-    private val getOnlineSongsUseCase: GetOnlineSongsUseCase,
+    private val getOnlinePlaylistUseCase: GetOnlinePlaylistUseCase,
     private val getOnlineSongInfoUseCase: GetOnlineSongInfoUseCase,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
@@ -36,11 +33,6 @@ class OnlinePlaylistViewModel @Inject constructor(
     private val _playlist = MutableStateFlow<List<Song>>(emptyList())
     val playlist get() = _playlist.asStateFlow()
     val playlistValue get() = _playlist.value
-
-    private val _songThumbnails = _playlist.map {
-        it.map { Thumbnail(it.thumbnail) }
-    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    val songThumbnails get() = _songThumbnails
 
     private val _shouldShowEmptyData = combine(
         screenState,
@@ -56,7 +48,7 @@ class OnlinePlaylistViewModel @Inject constructor(
 
     fun getOnlineSongs() {
         if (!_shouldFetchInfo.value) return
-        collectApi(getOnlineSongsUseCase.invoke()) {
+        collectApi(getOnlinePlaylistUseCase.invoke()) {
             fetchAllSongInfo(it)
         }
     }
