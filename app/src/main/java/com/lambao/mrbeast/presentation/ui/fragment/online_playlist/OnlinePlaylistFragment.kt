@@ -53,6 +53,6 @@ class OnlinePlaylistFragment :
             viewModel.shouldFetchInfo.collect()
         }
 
-        viewModel.getOnlineSongs()
+        viewModel.getOnlinePlaylist()
     }
 }

@@ -1,6 +1,6 @@
 package com.lambao.mrbeast.data.local.model
 
-import android.net.Uri
+import android.graphics.Bitmap
 
 data class SongLocalDto(
     val id: String?,
@@ -10,5 +10,5 @@ data class SongLocalDto(
     val duration: Long?,
     val filePath: String?,
     val fileSize: Long?,
-    val thumbnail: Uri?
+    val thumbnail: Bitmap?
 )

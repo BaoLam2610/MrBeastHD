@@ -34,12 +34,12 @@
             android:layout_marginHorizontal="12dp"
             android:layout_marginTop="12dp"
             app:cornerRadius="@{12}"
-            app:imageUrl="@{musicViewModel.song.thumbnail}"
             app:layout_constraintBottom_toTopOf="@id/tvSongTitle"
             app:layout_constraintHeight_percent="0.46"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:layout_constraintVertical_bias="0.3"
-            app:layout_constraintVertical_chainStyle="packed" />
+            app:layout_constraintVertical_chainStyle="packed"
+            app:songThumbnail="@{musicViewModel.song}" />
 
         <TextView
             android:id="@+id/tvSongTitle"
@@ -57,6 +57,7 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:text="@{musicViewModel.song.title}"
+            app:isSelected="@{true}"
             app:layout_constraintBottom_toTopOf="@id/tvArtistName"
             app:layout_constraintTop_toBottomOf="@id/ivSong"
             tools:text="Believer" />
@@ -78,6 +79,7 @@
             android:singleLine="true"
             android:text="@{musicViewModel.song.artistsNames}"
             android:textColor="@color/grey_700"
+            app:isSelected="@{true}"
             app:layout_constraintBottom_toTopOf="@+id/btnFavorite"
             app:layout_constraintTop_toBottomOf="@id/tvSongTitle"
             tools:text="IMAGINE DRAGON" />

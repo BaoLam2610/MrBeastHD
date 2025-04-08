@@ -31,10 +31,12 @@
             android:layout_height="68dp"
             android:layout_marginTop="4dp"
             android:adjustViewBounds="true"
-            app:imageUrl="@{viewModel.song.thumbnail}"
+            android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:songThumbnail="@{viewModel.song}"
+            tools:src="@drawable/img_music_placeholder" />
 
         <TextView
             android:id="@+id/tvSongTitle"
@@ -52,6 +54,7 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:text="@{viewModel.song.title}"
+            app:isSelected="@{true}"
             app:layout_constraintBottom_toTopOf="@id/tvArtistName"
             app:layout_constraintEnd_toStartOf="@id/btnPreviousSong"
             app:layout_constraintStart_toEndOf="@id/ivSong"
@@ -76,6 +79,7 @@
             android:singleLine="true"
             android:text="@{viewModel.song.artistsNames}"
             android:textColor="@color/grey_700"
+            app:isSelected="@{true}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btnPreviousSong"
             app:layout_constraintStart_toEndOf="@id/ivSong"

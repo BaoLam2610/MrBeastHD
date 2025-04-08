@@ -81,22 +81,9 @@ class MusicActivity : BaseVMActivity<ActivityMusicBinding, MusicViewModel>() {
     override fun onViewReady(savedInstanceState: Bundle?) {
         setupNavigation()
         setupDrawerLayout()
+        setupMiniPlayerArea()
         setupBroadcastReceiver()
-        getPermissionHandler(PermissionHandlerFactory.PermissionType.NOTIFICATION).also {
-            it.request {
-                log(it.toString())
-            }
-        }
-        binding.layoutMediaController.root.click {
-            navController.navigate(
-                R.id.playSongFragment,
-                args = bundleOf(
-                    START_INDEX to viewModel.currentSongIndex.value,
-                    SONG to viewModel.getSongValue(),
-                    PLAYLIST to viewModel.getPlaylistValue()
-                )
-            )
-        }
+        setupRequestPermission()
     }
 
     override fun initObserve() {
@@ -212,6 +199,19 @@ class MusicActivity : BaseVMActivity<ActivityMusicBinding, MusicViewModel>() {
         menuAdapter.submitList(MenuItem.entries)
     }
 
+    private fun setupMiniPlayerArea() {
+        binding.layoutMediaController.root.click {
+            navController.navigate(
+                R.id.playSongFragment,
+                args = bundleOf(
+                    START_INDEX to viewModel.currentSongIndex.value,
+                    SONG to viewModel.getSongValue(),
+                    PLAYLIST to viewModel.getPlaylistValue()
+                )
+            )
+        }
+    }
+
     private fun setupBroadcastReceiver() {
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -229,6 +229,20 @@ class MusicActivity : BaseVMActivity<ActivityMusicBinding, MusicViewModel>() {
             }
         )
         isReceiverRegistered = true
+    }
+
+    private fun setupRequestPermission() {
+        getPermissionHandler(PermissionHandlerFactory.PermissionType.NOTIFICATION).also {
+            it.request {
+                log(it.toString())
+            }
+        }
+
+        getPermissionHandler(PermissionHandlerFactory.PermissionType.STORAGE).also {
+            it.request {
+                log(it.toString())
+            }
+        }
     }
 
     private fun handlePlaybackStateChanged(intent: Intent) {

@@ -1,5 +1,6 @@
 package com.lambao.mrbeast.presentation.binding
 
+import android.graphics.Bitmap
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
@@ -11,9 +12,9 @@ import com.lambao.mrbeast.extension.toDp
 
 object ImageViewBindingAdapters {
     /**
-     * Loads an image from a URL into an ImageView using Glide with customizable options.
+     * Loads an image from a URL, Bitmap, Uri, ... into an ImageView using Glide with customizable options.
      *
-     * @param url The URL of the image to load.
+     * @param data The URL, Bitmap, Uri, ... of the image to load.
      * @param placeholderResId Resource ID of the placeholder image (optional).
      * @param errorResId Resource ID of the error image (optional).
      * @param isCircleCrop Whether to apply a circle crop transformation (default: false).
@@ -28,7 +29,7 @@ object ImageViewBindingAdapters {
         "cornerRadius",
         requireAll = false
     )
-    fun ImageView.loadImage(
+    fun ImageView.loadImageUrl(
         url: String?,
         placeholderResId: Int? = null,
         errorResId: Int? = null,
@@ -62,6 +63,53 @@ object ImageViewBindingAdapters {
 
         Glide.with(this)
             .load(url)
+            .apply(requestOptions)
+            .into(this)
+    }
+
+    @JvmStatic
+    @BindingAdapter(
+        "imageBitmap",
+        "placeholderResId",
+        "errorResId",
+        "isCircleCrop",
+        "cornerRadius",
+        requireAll = false
+    )
+    fun ImageView.loadImageBitmap(
+        bitmap: Bitmap?,
+        placeholderResId: Int? = null,
+        errorResId: Int? = null,
+        isCircleCrop: Boolean = false,
+        cornerRadius: Int = 0
+    ) {
+        if (bitmap == null) {
+            placeholderResId?.let { setImageResource(it) }
+            return
+        }
+
+        val requestOptions = RequestOptions()
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .let { options ->
+                placeholderResId?.let { resId -> options.placeholder(resId) } ?: options
+            }
+            .let { options ->
+                errorResId?.let { resId -> options.error(resId) } ?: options
+            }
+            .let { options ->
+                when {
+                    isCircleCrop -> options.circleCrop()
+                    cornerRadius > 0 -> options.transform(
+                        CenterCrop(),
+                        RoundedCorners(cornerRadius.toDp)
+                    )
+
+                    else -> options
+                }
+            }
+
+        Glide.with(this)
+            .load(bitmap)
             .apply(requestOptions)
             .into(this)
     }

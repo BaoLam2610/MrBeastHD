@@ -20,7 +20,7 @@ class OfflinePlaylistFragment :
     private val songsAdapter by lazy {
         SongInfoAdapter { song, index ->
             navigate(
-                R.id.action_onlinePlaylistFragment_to_playSongFragment,
+                R.id.action_offlinePlaylistFragment_to_playSongFragment,
                 args = bundleOf(
                     Constants.Argument.START_INDEX to index,
                     Constants.Argument.SONG to song,
@@ -53,6 +53,6 @@ class OfflinePlaylistFragment :
             viewModel.shouldFetchInfo.collect()
         }
 
+        viewModel.getOfflinePlaylist()
     }
-
 }

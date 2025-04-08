@@ -7,8 +7,8 @@ import com.lambao.base.presentation.ui.viewmodel.network.MultiNetworkViewModel
 import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
 import com.lambao.mrbeast.domain.model.Song
-import com.lambao.mrbeast.domain.usecase.GetOnlineSongInfoUseCase
 import com.lambao.mrbeast.domain.usecase.GetOnlinePlaylistUseCase
+import com.lambao.mrbeast.domain.usecase.GetOnlineSongInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +46,7 @@ class OnlinePlaylistViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, false)
     val shouldShowEmptyData get() = _shouldShowEmptyData
 
-    fun getOnlineSongs() {
+    fun getOnlinePlaylist() {
         if (!_shouldFetchInfo.value) return
         collectApi(getOnlinePlaylistUseCase.invoke()) {
             fetchAllSongInfo(it)

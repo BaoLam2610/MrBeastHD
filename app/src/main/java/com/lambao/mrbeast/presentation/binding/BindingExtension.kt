@@ -6,9 +6,12 @@ import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
-import com.lambao.base.extension.click
 import com.lambao.base.presentation.ui.view.OnSingleClickListener
 
+@BindingAdapter("isSelected")
+fun View.selected(selected: Boolean) {
+    isSelected = selected
+}
 
 @BindingAdapter("textRes")
 fun TextView.setTextRes(res: Int) {

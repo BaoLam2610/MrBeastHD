@@ -21,8 +21,6 @@ class SongInfoAdapter(onItemClickListener: (Song, Int) -> Unit) :
     ) {
         with(binding) {
             this.item = item
-            tvSongTitle.isSelected = true
-            tvArtistName.isSelected = true
         }
     }
 }

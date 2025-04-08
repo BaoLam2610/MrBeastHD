@@ -5,8 +5,8 @@ import com.lambao.base.data.mapList
 import com.lambao.base.domain.FlowUseCase
 import com.lambao.mrbeast.data.repository.online.OnlinePlaylistRepository
 import com.lambao.mrbeast.di.IoDispatcher
+import com.lambao.mrbeast.domain.mapping.toSong
 import com.lambao.mrbeast.domain.model.Song
-import com.lambao.mrbeast.domain.model.toSong
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

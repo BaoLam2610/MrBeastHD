@@ -2,28 +2,33 @@ package com.lambao.mrbeast.data.repository.offline
 
 import android.content.ContentUris
 import android.content.Context
-import android.net.Uri
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Build
 import android.provider.MediaStore
+import android.util.Size
 import com.lambao.base.data.Resource
 import com.lambao.base.data.local.BaseLocalDataSource
 import com.lambao.base.data.local.LocalDataException
 import com.lambao.base.data.local.LocalErrorType
 import com.lambao.mrbeast.data.local.model.SongLocalDto
 import com.lambao.mrbeast.di.IoDispatcher
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class OfflinePlaylistRepositoryImpl @Inject constructor(
-    private val context: Context,
-    @IoDispatcher ioDispatcher: CoroutineDispatcher
+    @ApplicationContext private val context: Context,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseLocalDataSource(ioDispatcher), OfflinePlaylistRepository {
 
     override fun getPlaylist(): Flow<Resource<List<SongLocalDto>>> = safeCall {
         fetchLocalSongs()
     }
 
-    private fun fetchLocalSongs(): List<SongLocalDto> {
+    private suspend fun fetchLocalSongs(): List<SongLocalDto> {
         val songList = mutableListOf<SongLocalDto>()
         val contentResolver = context.contentResolver
 
@@ -61,7 +66,7 @@ class OfflinePlaylistRepositoryImpl @Inject constructor(
 
             while (c.moveToNext()) {
                 val albumId = c.getLong(albumIdColumn)
-                val thumbnailUri = getAlbumArtUri(albumId)
+                val thumbnail = getAlbumArtBitmap(albumId)
 
                 val song = SongLocalDto(
                     id = c.getLong(idColumn).toString(),
@@ -71,7 +76,7 @@ class OfflinePlaylistRepositoryImpl @Inject constructor(
                     duration = c.getLong(durationColumn).takeIf { it > 0 },
                     filePath = c.getString(pathColumn),
                     fileSize = c.getLong(sizeColumn).takeIf { it > 0 },
-                    thumbnail = thumbnailUri
+                    thumbnail = thumbnail
                 )
                 songList.add(song)
             }
@@ -80,18 +85,41 @@ class OfflinePlaylistRepositoryImpl @Inject constructor(
         return songList
     }
 
-    private fun getAlbumArtUri(albumId: Long): Uri? {
-        return try {
+    private suspend fun getAlbumArtBitmap(albumId: Long): Bitmap? = withContext(ioDispatcher) {
+        try {
             val albumUri = ContentUris.withAppendedId(
                 MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                 albumId
             )
-            // Không cần load thumbnail ngay, chỉ trả về Uri
-            // ContentResolver.loadThumbnail() sẽ được gọi khi cần hiển thị
-            albumUri
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // API 29+: Dùng loadThumbnail
+                context.contentResolver.loadThumbnail(
+                    albumUri,
+                    Size(300, 300), // Kích thước mặc định
+                    null
+                )
+            } else {
+                // API < 29: Dùng ALBUM_ART
+                val cursor = context.contentResolver.query(
+                    MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                    arrayOf(MediaStore.Audio.Albums.ALBUM_ART),
+                    MediaStore.Audio.Albums._ID + "=?",
+                    arrayOf(albumId.toString()),
+                    null
+                )
+                cursor?.use {
+                    if (it.moveToFirst()) {
+                        val artPath =
+                            it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART))
+                        artPath?.let { path ->
+                            BitmapFactory.decodeFile(path)
+                        }
+                    } else null
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
-            null // Trả về null nếu không lấy được Uri
+            null
         }
     }
 }

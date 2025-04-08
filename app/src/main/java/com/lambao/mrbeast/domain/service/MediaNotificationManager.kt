@@ -36,11 +36,14 @@ class MediaNotificationManager @Inject constructor(
         onBuilt: (Notification) -> Unit
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            val bitmap = context.getBitmapFromUrl(song?.thumbnail)
-                ?: BitmapFactory.decodeResource(
-                    context.resources,
-                    R.drawable.ic_launcher_background
-                )
+            val bitmap = if (song?.isOnline == true) {
+                context.getBitmapFromUrl(song.thumbnail)
+            } else {
+                song?.thumbnailBitmap
+            } ?: BitmapFactory.decodeResource(
+                context.resources,
+                R.drawable.img_music_placeholder
+            )
 
             val notification =
                 NotificationCompat.Builder(context, Constants.Notification.CHANNEL_ID)

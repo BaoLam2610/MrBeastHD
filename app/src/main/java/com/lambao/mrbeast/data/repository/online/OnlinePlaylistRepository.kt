@@ -1,8 +1,8 @@
 package com.lambao.mrbeast.data.repository.online
 
 import com.lambao.base.data.Resource
-import com.lambao.mrbeast.data.remote.dto.SongRemoteDto
 import com.lambao.mrbeast.data.remote.dto.SongInfoRemoteDto
+import com.lambao.mrbeast.data.remote.dto.SongRemoteDto
 import kotlinx.coroutines.flow.Flow
 
 interface OnlinePlaylistRepository {
