@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -21,7 +20,6 @@ import com.lambao.base.extension.getParcelableCompat
 import com.lambao.base.extension.gone
 import com.lambao.base.extension.launchWhenCreated
 import com.lambao.base.extension.visible
-import com.lambao.base.presentation.handler.permission.common.PermissionHandlerFactory
 import com.lambao.base.presentation.ui.activity.BaseVMActivity
 import com.lambao.base.utils.log
 import com.lambao.mrbeast.domain.model.MenuItem
@@ -235,14 +233,7 @@ class MusicActivity : BaseVMActivity<ActivityMusicBinding, MusicViewModel>() {
 
     private fun setupRequestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getPermissionHandler(
-                android.Manifest.permission.POST_NOTIFICATIONS,
-                permissionDescription = getString(com.lambao.base.R.string.notification_permission_description)
-            )?.also {
-                it.request {
-                    log(it.toString())
-                }
-            }
+            permissionHandler.requestPermission(android.Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 

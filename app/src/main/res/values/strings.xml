@@ -13,5 +13,5 @@
     <string name="ok">OK</string>
     <string name="close">Đóng</string>
     <string name="default_duration">00:00</string>
-    <string name="audio_permission_description">Please grant audio permission to use this feature</string>"
+    <string name="audio_permission_description">Please grant audio permission to use this feature</string>
 </resources>

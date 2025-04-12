@@ -35,7 +35,7 @@ class OfflinePlaylistViewModel @Inject constructor(
         screenState,
         _playlist
     ) { screenState, songs ->
-        if (screenState is ScreenState.Success) {
+        if (screenState is ScreenState.Success || screenState is ScreenState.Error) {
             songs.isEmpty()
         } else {
             false

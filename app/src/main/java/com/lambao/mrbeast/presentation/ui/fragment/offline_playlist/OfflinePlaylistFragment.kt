@@ -1,10 +1,12 @@
 package com.lambao.mrbeast.presentation.ui.fragment.offline_playlist
 
+import android.os.Build
 import android.os.Bundle
 import androidx.core.os.bundleOf
 import com.lambao.base.extension.launchWhenCreated
 import com.lambao.base.extension.navigate
 import com.lambao.base.extension.observe
+import com.lambao.base.presentation.handler.permission.PermissionResult
 import com.lambao.base.presentation.ui.fragment.BaseVMFragment
 import com.lambao.mrbeast.presentation.ui.fragment.common.SongInfoAdapter
 import com.lambao.mrbeast.utils.Constants
@@ -36,6 +38,20 @@ class OfflinePlaylistFragment :
 
     override fun onViewReady(savedInstanceState: Bundle?) {
         binding.rvSongs.adapter = songsAdapter
+        permissionHandler.requestPermission(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) android.Manifest.permission.READ_MEDIA_AUDIO
+            else android.Manifest.permission.READ_EXTERNAL_STORAGE
+        ) { result ->
+            when (result) {
+                is PermissionResult.Granted -> {
+                    viewModel.getOfflinePlaylist()
+                }
+
+                else -> {
+                    viewModel.setErrorScreenState(Exception())
+                }
+            }
+        }
     }
 
     override fun initObserve() {
@@ -52,7 +68,5 @@ class OfflinePlaylistFragment :
         launchWhenCreated {
             viewModel.shouldFetchInfo.collect()
         }
-
-        viewModel.getOfflinePlaylist()
     }
 }
