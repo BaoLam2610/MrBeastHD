@@ -9,7 +9,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Lifecycle
-import com.lambao.base.R
 import com.lambao.base.data.remote.NetworkException
 import com.lambao.base.presentation.handler.dialog.DialogHandler
 import com.lambao.base.presentation.handler.dialog.DialogHandlerImpl
@@ -17,8 +16,9 @@ import com.lambao.base.presentation.handler.loading.LoadingDialogHandler
 import com.lambao.base.presentation.handler.loading.LoadingHandler
 import com.lambao.base.presentation.handler.network_error.NetworkErrorHandler
 import com.lambao.base.presentation.handler.network_error.NetworkErrorHandlerImpl
-import com.lambao.base.presentation.handler.permission.DynamicPermissionHandler
-import com.lambao.base.presentation.handler.permission.common.SpecificPermissionHandler
+import com.lambao.base.presentation.handler.permission.ActivityResultPermissionHandler
+import com.lambao.base.presentation.handler.permission.PermissionContract
+import com.lambao.base.presentation.handler.permission.host.FragmentPermissionHandlerHost
 
 abstract class BaseDialog<B : ViewDataBinding> : DialogFragment() {
 
@@ -42,6 +42,13 @@ abstract class BaseDialog<B : ViewDataBinding> : DialogFragment() {
         )
     }
 
+    protected open val permissionHandler: PermissionContract by lazy {
+        ActivityResultPermissionHandler(
+            FragmentPermissionHandlerHost(this),
+            dialogHandler
+        )
+    }
+
     @LayoutRes
     protected abstract fun getLayoutId(): Int
 
@@ -61,28 +68,6 @@ abstract class BaseDialog<B : ViewDataBinding> : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onViewReady(savedInstanceState)
-    }
-
-    protected open fun getPermissionHandler(
-        vararg permissions: String,
-        permissionDescription: String
-    ): SpecificPermissionHandler? {
-        try {
-            if (permissions.isEmpty()) {
-                dialogHandler.showAlertDialog(getString(R.string.at_least_one_permission_must_be_provided))
-                return null
-            }
-            return DynamicPermissionHandler(
-                requireActivity(),
-                dialogHandler,
-                permissions.toList(),
-                permissionDescription
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            e.message?.let { dialogHandler.showAlertDialog(it) }
-            return null
-        }
     }
 
     protected fun setFull(isFull: Boolean) {
