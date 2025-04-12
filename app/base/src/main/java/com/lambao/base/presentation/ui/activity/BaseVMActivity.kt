@@ -31,7 +31,9 @@ abstract class BaseVMActivity<B : ViewDataBinding, VM : BaseViewModel> : BaseAct
                     hideLoading()
                     if (state.throwable is NetworkException) {
                         handleNetworkError(state.throwable)
+                        return@observeLatest
                     }
+                    state.throwable.message?.let { dialogHandler.showAlertDialog(it) }
                 }
 
                 else -> hideLoading()

@@ -11,4 +11,5 @@
     <string name="camera_permission_description">Please grant camera permission to use this feature</string>"
     <string name="notification_permission_description">Please grant notification permission to use this feature</string>"
     <string name="storage_permission_description">Please grant storage permission to use this feature</string>"
+    <string name="at_least_one_permission_must_be_provided">At least one permission must be provided.</string>
 </resources>

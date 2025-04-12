@@ -12,15 +12,15 @@ class StoragePermissionHandler(
     activity: FragmentActivity,
     dialogHandler: DialogHandler,
 ) : BasePermissionHandler(activity, dialogHandler), SpecificPermissionHandler {
-    override val permissions: Array<String>
+    override val permissions: List<String>
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(
+            listOf(
                 Manifest.permission.READ_MEDIA_IMAGES,
                 Manifest.permission.READ_MEDIA_VIDEO,
                 Manifest.permission.READ_MEDIA_AUDIO
             )
         } else {
-            arrayOf(
+            listOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )

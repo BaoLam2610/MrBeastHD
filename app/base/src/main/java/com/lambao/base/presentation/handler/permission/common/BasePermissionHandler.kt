@@ -60,11 +60,11 @@ abstract class BasePermissionHandler(
      * the [onResult] callback is invoked immediately with a map of permissions set to true.
      * Otherwise, it either shows a rationale dialog (if needed) or launches the permission request.
      *
-     * @param permissions An array of permission strings (e.g., [Manifest.permission.CAMERA]).
+     * @param permissions An array of permission strings (e.g., [android.Manifest.permission.CAMERA]).
      * @param onResult A callback invoked with a map of permissions and their grant status.
      */
     override fun requestPermissions(
-        permissions: Array<String>,
+        permissions: List<String>,
         onResult: (Map<String, Boolean>) -> Unit
     ) {
         val permissionsToRequest = permissions.filter { !checkPermission(it) }.toTypedArray()
@@ -92,7 +92,7 @@ abstract class BasePermissionHandler(
     /**
      * Checks whether a specific permission is granted for the app.
      *
-     * @param permission The permission string to check (e.g., [Manifest.permission.CAMERA]).
+     * @param permission The permission string to check (e.g., [android.Manifest.permission.CAMERA]).
      * @return True if the permission is granted, false otherwise.
      */
     override fun checkPermission(permission: String): Boolean =
@@ -102,7 +102,7 @@ abstract class BasePermissionHandler(
      * Determines whether a rationale should be shown for a specific permission, typically when
      * the user has previously denied it but not permanently.
      *
-     * @param permission The permission string to evaluate (e.g., [Manifest.permission.CAMERA]).
+     * @param permission The permission string to evaluate (e.g., [android.Manifest.permission.CAMERA]).
      * @return True if a rationale should be shown, false otherwise.
      */
     override fun shouldShowRationale(permission: String): Boolean =

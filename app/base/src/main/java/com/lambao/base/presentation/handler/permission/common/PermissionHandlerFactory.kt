@@ -8,17 +8,22 @@ import com.lambao.base.presentation.handler.permission.StoragePermissionHandler
 
 object PermissionHandlerFactory {
     fun getHandler(
-        type: PermissionType,
+        permission: String,
         activity: FragmentActivity,
         dialogHandler: DialogHandler
-    ): SpecificPermissionHandler =
-        when (type) {
-            PermissionType.STORAGE -> StoragePermissionHandler(activity, dialogHandler)
-            PermissionType.NOTIFICATION -> NotificationPermissionHandler(activity, dialogHandler)
-            PermissionType.CAMERA -> CameraPermissionHandler(activity, dialogHandler)
-        }
+    ): SpecificPermissionHandler = when (permission) {
+        android.Manifest.permission.CAMERA -> CameraPermissionHandler(activity, dialogHandler)
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        android.Manifest.permission.READ_EXTERNAL_STORAGE -> StoragePermissionHandler(
+            activity,
+            dialogHandler
+        )
 
-    enum class PermissionType {
-        STORAGE, NOTIFICATION, CAMERA
+        android.Manifest.permission.POST_NOTIFICATIONS -> NotificationPermissionHandler(
+            activity,
+            dialogHandler
+        )
+
+        else -> throw IllegalArgumentException("Unsupported permission: $permission")
     }
 }

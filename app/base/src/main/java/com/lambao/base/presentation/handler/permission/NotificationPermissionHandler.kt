@@ -12,11 +12,11 @@ class NotificationPermissionHandler(
     activity: FragmentActivity,
     dialogHandler: DialogHandler,
 ) : BasePermissionHandler(activity, dialogHandler), SpecificPermissionHandler {
-    override val permissions: Array<String>
+    override val permissions: List<String>
         get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+            listOf(Manifest.permission.POST_NOTIFICATIONS)
         } else {
-            emptyArray()
+            emptyList()
         }
 
     override val permissionDescription: String

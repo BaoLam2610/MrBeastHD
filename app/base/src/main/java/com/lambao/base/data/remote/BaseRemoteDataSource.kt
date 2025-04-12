@@ -3,9 +3,7 @@ package com.lambao.base.data.remote
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.lambao.base.data.Resource
-import com.lambao.base.utils.log
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -18,11 +16,11 @@ abstract class BaseRemoteDataSource(
     private val jsonParser: Gson = Gson(),
     private val dispatcher: CoroutineDispatcher
 ) {
-    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        log(throwable.message ?: "")
-    }
+    protected open fun getUnknownErrorMessage() = "Unknown error"
 
-    fun <T> safeCall(apiCall: suspend () -> Response<T>): Flow<Resource<T>> = flow {
+    protected open fun getNoNetWorkConnectionMessage() = "No network connection"
+
+    protected open fun <T> safeCall(apiCall: suspend () -> Response<T>): Flow<Resource<T>> = flow {
         emit(Resource.Loading())
         val response = apiCall()
         emit(
@@ -32,23 +30,24 @@ abstract class BaseRemoteDataSource(
                 Resource.Error(throwable = parseErrorResponse(response))
             }
         )
-    }.flowOn(dispatcher + exceptionHandler)
+    }.flowOn(dispatcher)
         .catch { e -> emit(Resource.Error(throwable = mapExceptionToNetworkError(e))) }
 
-    fun <T> safeApiCall(apiCall: suspend () -> ApiResponse<T>): Flow<Resource<T>> = flow {
-        emit(Resource.Loading())
-        val response = apiCall()
-        emit(
-            if (response.status == true) {
-                Resource.Success(data = response.data)
-            } else {
-                Resource.Error(throwable = parseErrorResponse(response))
-            }
-        )
-    }.flowOn(dispatcher + exceptionHandler)
-        .catch { e -> emit(Resource.Error(throwable = mapExceptionToNetworkError(e))) }
+    protected open fun <T> safeApiCall(apiCall: suspend () -> ApiResponse<T>): Flow<Resource<T>> =
+        flow {
+            emit(Resource.Loading())
+            val response = apiCall()
+            emit(
+                if (response.status == true) {
+                    Resource.Success(data = response.data)
+                } else {
+                    Resource.Error(throwable = parseErrorResponse(response))
+                }
+            )
+        }.flowOn(dispatcher)
+            .catch { e -> emit(Resource.Error(throwable = mapExceptionToNetworkError(e))) }
 
-    private fun <T> parseErrorResponse(response: Response<T>): NetworkException {
+    protected open fun <T> parseErrorResponse(response: Response<T>): NetworkException {
         return try {
             val type = object : TypeToken<ApiResponse<T>>() {}.type
             val errorResponse: ApiResponse<T>? =
@@ -65,13 +64,13 @@ abstract class BaseRemoteDataSource(
         }
     }
 
-    private fun <T> parseErrorResponse(response: ApiResponse<T>): NetworkException {
+    protected open fun <T> parseErrorResponse(response: ApiResponse<T>): NetworkException {
         val code = response.code ?: 0
-        val message = response.message ?: "Unknown error"
+        val message = response.message ?: getUnknownErrorMessage()
         return mapToNetworkException(code, message)
     }
 
-    private fun mapToNetworkException(code: Int, message: String): NetworkException {
+    protected open fun mapToNetworkException(code: Int, message: String): NetworkException {
         return when (code) {
             400 -> NetworkException(NetworkErrorType.BAD_REQUEST, code, message)
             401 -> NetworkException(NetworkErrorType.UNAUTHORIZED, code, message)
@@ -85,7 +84,7 @@ abstract class BaseRemoteDataSource(
         }
     }
 
-    private fun mapExceptionToNetworkError(e: Throwable): NetworkException {
+    protected open fun mapExceptionToNetworkError(e: Throwable): NetworkException {
         return when (e) {
             is HttpException -> NetworkException(
                 type = when (e.code()) {
@@ -105,12 +104,12 @@ abstract class BaseRemoteDataSource(
 
             is IOException -> NetworkException(
                 type = NetworkErrorType.NO_NETWORK,
-                message = e.message ?: "No network connection"
+                message = e.message ?: getNoNetWorkConnectionMessage()
             )
 
             else -> NetworkException(
                 type = NetworkErrorType.UNKNOWN,
-                message = e.message ?: "Unknown error"
+                message = e.message ?: getUnknownErrorMessage()
             )
         }
     }

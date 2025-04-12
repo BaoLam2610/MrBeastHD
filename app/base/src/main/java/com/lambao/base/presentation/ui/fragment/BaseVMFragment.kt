@@ -37,7 +37,9 @@ abstract class BaseVMFragment<B : ViewDataBinding, VM : BaseViewModel> : BaseFra
                     hideLoading()
                     if (state.throwable is NetworkException) {
                         handleNetworkError(state.throwable)
+                        return@observeLatest
                     }
+                    state.throwable.message?.let { dialogHandler.showAlertDialog(it) }
                 }
 
                 else -> hideLoading()
