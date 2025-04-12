@@ -1,9 +1,10 @@
 package com.lambao.mrbeast.presentation.ui.activity
 
 import androidx.lifecycle.viewModelScope
-import com.lambao.base.presentation.ui.viewmodel.network.NetworkViewModel
+import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
+import com.lambao.mrbeast.di.MainDispatcher
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.service.MediaPlayerManager
 import com.lambao.mrbeast.domain.usecase.GetRepeatModeUseCase
@@ -32,8 +33,9 @@ class MusicViewModel @Inject constructor(
     setRepeatModeUseCase: SetRepeatModeUseCase,
     setShuffleModeUseCase: SetShuffleModeUseCase,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
-) : NetworkViewModel(ioDispatcher, defaultDispatcher),
+    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
+    @MainDispatcher mainDispatcher: CoroutineDispatcher
+) : BaseViewModel(ioDispatcher, defaultDispatcher, mainDispatcher),
     IPlaylistViewModel by PlaylistViewModel(),
     IMiniMediaPlayerViewModel by MiniMediaPlayerViewModel(
         getRepeatModeUseCase,

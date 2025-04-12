@@ -2,9 +2,10 @@ package com.lambao.mrbeast.presentation.ui.fragment.offline_playlist
 
 import androidx.lifecycle.viewModelScope
 import com.lambao.base.presentation.ui.state.ScreenState
-import com.lambao.base.presentation.ui.viewmodel.network.NetworkViewModel
+import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
+import com.lambao.mrbeast.di.MainDispatcher
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.usecase.GetOfflinePlaylistUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,8 +21,9 @@ import javax.inject.Inject
 class OfflinePlaylistViewModel @Inject constructor(
     private val getOfflinePlaylistUseCase: GetOfflinePlaylistUseCase,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
-) : NetworkViewModel(ioDispatcher, defaultDispatcher) {
+    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
+    @MainDispatcher mainDispatcher: CoroutineDispatcher,
+) : BaseViewModel(ioDispatcher, defaultDispatcher, mainDispatcher) {
     private val _shouldFetchInfo = MutableStateFlow(true)
     val shouldFetchInfo get() = _shouldFetchInfo.asStateFlow()
 
@@ -43,7 +45,7 @@ class OfflinePlaylistViewModel @Inject constructor(
 
     fun getOfflinePlaylist() {
         if (!_shouldFetchInfo.value) return
-        collectApi(getOfflinePlaylistUseCase.invoke()) {
+        handleData(getOfflinePlaylistUseCase.invoke()) {
             launch {
                 _shouldFetchInfo.emit(false)
                 _playlist.emit(it)

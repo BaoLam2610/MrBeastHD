@@ -3,9 +3,10 @@ package com.lambao.mrbeast.presentation.ui.fragment.online_playlist
 import androidx.lifecycle.viewModelScope
 import com.lambao.base.data.map
 import com.lambao.base.presentation.ui.state.ScreenState
-import com.lambao.base.presentation.ui.viewmodel.network.MultiNetworkViewModel
+import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 import com.lambao.mrbeast.di.DefaultDispatcher
 import com.lambao.mrbeast.di.IoDispatcher
+import com.lambao.mrbeast.di.MainDispatcher
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.usecase.GetOnlinePlaylistUseCase
 import com.lambao.mrbeast.domain.usecase.GetOnlineSongInfoUseCase
@@ -24,8 +25,9 @@ class OnlinePlaylistViewModel @Inject constructor(
     private val getOnlinePlaylistUseCase: GetOnlinePlaylistUseCase,
     private val getOnlineSongInfoUseCase: GetOnlineSongInfoUseCase,
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
-) : MultiNetworkViewModel(ioDispatcher, defaultDispatcher) {
+    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
+    @MainDispatcher mainDispatcher: CoroutineDispatcher,
+) : BaseViewModel(ioDispatcher, defaultDispatcher, mainDispatcher) {
 
     private val _shouldFetchInfo = MutableStateFlow(true)
     val shouldFetchInfo get() = _shouldFetchInfo.asStateFlow()
@@ -48,7 +50,7 @@ class OnlinePlaylistViewModel @Inject constructor(
 
     fun getOnlinePlaylist() {
         if (!_shouldFetchInfo.value) return
-        collectApi(getOnlinePlaylistUseCase.invoke()) {
+        handleData(getOnlinePlaylistUseCase.invoke()) {
             fetchAllSongInfo(it)
         }
     }
@@ -63,7 +65,7 @@ class OnlinePlaylistViewModel @Inject constructor(
                 resource.map { Pair(song, it) }
             }
         }
-        collectApis(
+        handleMultiData(
             *flows.toTypedArray(),
         ) { results ->
             _shouldFetchInfo.value = false

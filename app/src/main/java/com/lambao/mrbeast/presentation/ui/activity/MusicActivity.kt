@@ -4,10 +4,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -232,15 +234,14 @@ class MusicActivity : BaseVMActivity<ActivityMusicBinding, MusicViewModel>() {
     }
 
     private fun setupRequestPermission() {
-        getPermissionHandler(PermissionHandlerFactory.PermissionType.NOTIFICATION).also {
-            it.request {
-                log(it.toString())
-            }
-        }
-
-        getPermissionHandler(PermissionHandlerFactory.PermissionType.STORAGE).also {
-            it.request {
-                log(it.toString())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getPermissionHandler(
+                android.Manifest.permission.POST_NOTIFICATIONS,
+                permissionDescription = getString(com.lambao.base.R.string.notification_permission_description)
+            )?.also {
+                it.request {
+                    log(it.toString())
+                }
             }
         }
     }
