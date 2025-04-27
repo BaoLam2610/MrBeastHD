@@ -1,5 +1,6 @@
 package com.lambao.mrbeast.presentation.ui.fragment.common.media_mode
 
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 import com.lambao.mrbeast.domain.model.playback.RepeatMode
 import com.lambao.mrbeast.domain.model.playback.ShuffleMode
@@ -14,8 +15,9 @@ class MediaModeViewModel @Inject constructor(
     getRepeatModeUseCase: GetRepeatModeUseCase,
     getShuffleModeUseCase: GetShuffleModeUseCase,
     private val setRepeatModeUseCase: SetRepeatModeUseCase,
-    private val setShuffleModeUseCase: SetShuffleModeUseCase
-) : BaseViewModel(), IMediaModeViewModel {
+    private val setShuffleModeUseCase: SetShuffleModeUseCase,
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel(dispatcherProvider), IMediaModeViewModel {
     private val _repeatMode = MutableStateFlow(getRepeatModeUseCase.invoke())
 
     private val _shuffleMode = MutableStateFlow(getShuffleModeUseCase.invoke())

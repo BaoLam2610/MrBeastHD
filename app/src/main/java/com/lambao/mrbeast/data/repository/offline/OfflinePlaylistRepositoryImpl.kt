@@ -11,18 +11,17 @@ import com.lambao.base.data.Resource
 import com.lambao.base.data.local.BaseLocalDataSource
 import com.lambao.base.data.local.LocalDataException
 import com.lambao.base.data.local.LocalErrorType
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import com.lambao.mrbeast.data.local.model.SongLocalDto
-import com.lambao.mrbeast.di.IoDispatcher
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class OfflinePlaylistRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-) : BaseLocalDataSource(ioDispatcher), OfflinePlaylistRepository {
+    dispatcherProvider: DispatcherProvider
+) : BaseLocalDataSource(dispatcherProvider), OfflinePlaylistRepository {
 
     override fun getPlaylist(): Flow<Resource<List<SongLocalDto>>> = safeCall {
         fetchLocalSongs()
@@ -85,41 +84,42 @@ class OfflinePlaylistRepositoryImpl @Inject constructor(
         return songList
     }
 
-    private suspend fun getAlbumArtBitmap(albumId: Long): Bitmap? = withContext(ioDispatcher) {
-        try {
-            val albumUri = ContentUris.withAppendedId(
-                MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                albumId
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // API 29+: Dùng loadThumbnail
-                context.contentResolver.loadThumbnail(
-                    albumUri,
-                    Size(300, 300), // Kích thước mặc định
-                    null
-                )
-            } else {
-                // API < 29: Dùng ALBUM_ART
-                val cursor = context.contentResolver.query(
+    private suspend fun getAlbumArtBitmap(albumId: Long): Bitmap? =
+        withContext(coroutineDispatcher) {
+            try {
+                val albumUri = ContentUris.withAppendedId(
                     MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                    arrayOf(MediaStore.Audio.Albums.ALBUM_ART),
-                    MediaStore.Audio.Albums._ID + "=?",
-                    arrayOf(albumId.toString()),
-                    null
+                    albumId
                 )
-                cursor?.use {
-                    if (it.moveToFirst()) {
-                        val artPath =
-                            it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART))
-                        artPath?.let { path ->
-                            BitmapFactory.decodeFile(path)
-                        }
-                    } else null
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    // API 29+: Dùng loadThumbnail
+                    context.contentResolver.loadThumbnail(
+                        albumUri,
+                        Size(300, 300), // Kích thước mặc định
+                        null
+                    )
+                } else {
+                    // API < 29: Dùng ALBUM_ART
+                    val cursor = context.contentResolver.query(
+                        MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                        arrayOf(MediaStore.Audio.Albums.ALBUM_ART),
+                        MediaStore.Audio.Albums._ID + "=?",
+                        arrayOf(albumId.toString()),
+                        null
+                    )
+                    cursor?.use {
+                        if (it.moveToFirst()) {
+                            val artPath =
+                                it.getString(it.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART))
+                            artPath?.let { path ->
+                                BitmapFactory.decodeFile(path)
+                            }
+                        } else null
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
-    }
 }

@@ -1,10 +1,8 @@
 package com.lambao.mrbeast.presentation.ui.activity
 
 import androidx.lifecycle.viewModelScope
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
-import com.lambao.mrbeast.di.DefaultDispatcher
-import com.lambao.mrbeast.di.IoDispatcher
-import com.lambao.mrbeast.di.MainDispatcher
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.service.MediaPlayerManager
 import com.lambao.mrbeast.domain.usecase.GetRepeatModeUseCase
@@ -16,7 +14,6 @@ import com.lambao.mrbeast.presentation.ui.fragment.common.mini_media_player.Mini
 import com.lambao.mrbeast.presentation.ui.fragment.common.playlist.IPlaylistViewModel
 import com.lambao.mrbeast.presentation.ui.fragment.common.playlist.PlaylistViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,16 +29,15 @@ class MusicViewModel @Inject constructor(
     getShuffleModeUseCase: GetShuffleModeUseCase,
     setRepeatModeUseCase: SetRepeatModeUseCase,
     setShuffleModeUseCase: SetShuffleModeUseCase,
-    @IoDispatcher ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
-    @MainDispatcher mainDispatcher: CoroutineDispatcher
-) : BaseViewModel(ioDispatcher, defaultDispatcher, mainDispatcher),
-    IPlaylistViewModel by PlaylistViewModel(),
+    dispatcherProvider: DispatcherProvider,
+) : BaseViewModel(dispatcherProvider),
+    IPlaylistViewModel by PlaylistViewModel(dispatcherProvider),
     IMiniMediaPlayerViewModel by MiniMediaPlayerViewModel(
         getRepeatModeUseCase,
         getShuffleModeUseCase,
         setRepeatModeUseCase,
-        setShuffleModeUseCase
+        setShuffleModeUseCase,
+        dispatcherProvider
     ) {
 
     private val _currentSongIndex = MutableStateFlow(-1)

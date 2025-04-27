@@ -1,5 +1,6 @@
 package com.lambao.mrbeast.presentation.ui.fragment.common.mini_media_player
 
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 import com.lambao.mrbeast.domain.usecase.GetRepeatModeUseCase
 import com.lambao.mrbeast.domain.usecase.GetShuffleModeUseCase
@@ -15,12 +16,14 @@ class MiniMediaPlayerViewModel @Inject constructor(
     getShuffleModeUseCase: GetShuffleModeUseCase,
     setRepeatModeUseCase: SetRepeatModeUseCase,
     setShuffleModeUseCase: SetShuffleModeUseCase,
-) : BaseViewModel(), IMiniMediaPlayerViewModel,
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel(dispatcherProvider), IMiniMediaPlayerViewModel,
     IPlaybackViewModel by PlaybackViewModel(
         getRepeatModeUseCase,
         getShuffleModeUseCase,
         setRepeatModeUseCase,
-        setShuffleModeUseCase
+        setShuffleModeUseCase,
+        dispatcherProvider
     ) {
 
     private val _shouldShowMiniPlayer = MutableStateFlow(false)

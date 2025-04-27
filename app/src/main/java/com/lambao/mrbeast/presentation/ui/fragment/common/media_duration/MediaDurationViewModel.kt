@@ -1,6 +1,7 @@
 package com.lambao.mrbeast.presentation.ui.fragment.common.media_duration
 
 import androidx.lifecycle.viewModelScope
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 import com.lambao.mrbeast.extension.toTimeString
 import com.lambao.mrbeast.utils.Constants
@@ -9,7 +10,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class MediaDurationViewModel : BaseViewModel(), IMediaDurationViewModel {
+class MediaDurationViewModel(
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel(dispatcherProvider), IMediaDurationViewModel {
 
     private val _currentDuration = MutableStateFlow(0L)
 

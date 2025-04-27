@@ -2,16 +2,13 @@ package com.lambao.mrbeast.presentation.ui.fragment.online_playlist
 
 import androidx.lifecycle.viewModelScope
 import com.lambao.base.data.map
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import com.lambao.base.presentation.ui.state.ScreenState
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
-import com.lambao.mrbeast.di.DefaultDispatcher
-import com.lambao.mrbeast.di.IoDispatcher
-import com.lambao.mrbeast.di.MainDispatcher
 import com.lambao.mrbeast.domain.model.Song
 import com.lambao.mrbeast.domain.usecase.GetOnlinePlaylistUseCase
 import com.lambao.mrbeast.domain.usecase.GetOnlineSongInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,10 +21,8 @@ import javax.inject.Inject
 class OnlinePlaylistViewModel @Inject constructor(
     private val getOnlinePlaylistUseCase: GetOnlinePlaylistUseCase,
     private val getOnlineSongInfoUseCase: GetOnlineSongInfoUseCase,
-    @IoDispatcher ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
-    @MainDispatcher mainDispatcher: CoroutineDispatcher,
-) : BaseViewModel(ioDispatcher, defaultDispatcher, mainDispatcher) {
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel(dispatcherProvider) {
 
     private val _shouldFetchInfo = MutableStateFlow(true)
     val shouldFetchInfo get() = _shouldFetchInfo.asStateFlow()

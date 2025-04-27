@@ -1,6 +1,7 @@
 package com.lambao.mrbeast.presentation.ui.fragment.common.playback
 
 import androidx.lifecycle.viewModelScope
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import com.lambao.base.presentation.ui.viewmodel.BaseViewModel
 import com.lambao.mrbeast.domain.model.playback.PlaybackEvent
 import com.lambao.mrbeast.domain.usecase.GetRepeatModeUseCase
@@ -25,14 +26,16 @@ class PlaybackViewModel @Inject constructor(
     getShuffleModeUseCase: GetShuffleModeUseCase,
     setRepeatModeUseCase: SetRepeatModeUseCase,
     setShuffleModeUseCase: SetShuffleModeUseCase,
-) : BaseViewModel(), IPlaybackViewModel,
-    ISongViewModel by SongViewModel(),
-    IMediaDurationViewModel by MediaDurationViewModel(),
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel(dispatcherProvider), IPlaybackViewModel,
+    ISongViewModel by SongViewModel(dispatcherProvider),
+    IMediaDurationViewModel by MediaDurationViewModel(dispatcherProvider),
     IMediaModeViewModel by MediaModeViewModel(
         getRepeatModeUseCase,
         getShuffleModeUseCase,
         setRepeatModeUseCase,
-        setShuffleModeUseCase
+        setShuffleModeUseCase,
+        dispatcherProvider
     ) {
     private val _playbackEvent = MutableSharedFlow<PlaybackEvent>()
 

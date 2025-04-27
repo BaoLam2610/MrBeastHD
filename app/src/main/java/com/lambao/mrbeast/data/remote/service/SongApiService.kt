@@ -10,7 +10,6 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface SongApiService {
-
     @GET("${Constants.URL_VER}?hotsong")
     suspend fun getSongs(): Response<List<SongRemoteDto>>
 
