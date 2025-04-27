@@ -7,14 +7,15 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Size
-import com.lambao.base.data.Resource
 import com.lambao.base.data.local.BaseLocalDataSource
 import com.lambao.base.data.local.LocalDataException
 import com.lambao.base.data.local.LocalErrorType
+import com.lambao.base.data.mapList
 import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import com.lambao.mrbeast.data.local.model.SongLocalDto
+import com.lambao.mrbeast.domain.mapping.toSong
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -23,8 +24,10 @@ class OfflinePlaylistRepositoryImpl @Inject constructor(
     dispatcherProvider: DispatcherProvider
 ) : BaseLocalDataSource(dispatcherProvider), OfflinePlaylistRepository {
 
-    override fun getPlaylist(): Flow<Resource<List<SongLocalDto>>> = safeCall {
+    override fun getPlaylist() = safeCall {
         fetchLocalSongs()
+    }.map {
+        it.mapList { it.toSong() }
     }
 
     private suspend fun fetchLocalSongs(): List<SongLocalDto> {

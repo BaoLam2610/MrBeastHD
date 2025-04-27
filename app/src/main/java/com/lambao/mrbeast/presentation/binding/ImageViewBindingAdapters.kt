@@ -12,9 +12,9 @@ import com.lambao.mrbeast.extension.toDp
 
 object ImageViewBindingAdapters {
     /**
-     * Loads an image from a URL, Bitmap, Uri, ... into an ImageView using Glide with customizable options.
+     * Loads an image from a URL into an ImageView using Glide with customizable options.
      *
-     * @param data The URL, Bitmap, Uri, ... of the image to load.
+     * @param url The URL of the image to load.
      * @param placeholderResId Resource ID of the placeholder image (optional).
      * @param errorResId Resource ID of the error image (optional).
      * @param isCircleCrop Whether to apply a circle crop transformation (default: false).
