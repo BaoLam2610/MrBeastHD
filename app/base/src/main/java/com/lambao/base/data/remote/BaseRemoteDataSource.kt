@@ -3,7 +3,7 @@ package com.lambao.base.data.remote
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.lambao.base.data.Resource
-import kotlinx.coroutines.CoroutineDispatcher
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -14,8 +14,10 @@ import java.io.IOException
 
 abstract class BaseRemoteDataSource(
     private val jsonParser: Gson = Gson(),
-    private val dispatcher: CoroutineDispatcher
+    private val dispatcherProvider: DispatcherProvider
 ) {
+    protected open val coroutineDispatcher get() = dispatcherProvider.ioDispatcher
+
     protected open fun getUnknownErrorMessage() = "Unknown error"
 
     protected open fun getNoNetWorkConnectionMessage() = "No network connection"
@@ -30,7 +32,7 @@ abstract class BaseRemoteDataSource(
                 Resource.Error(throwable = parseErrorResponse(response))
             }
         )
-    }.flowOn(dispatcher)
+    }.flowOn(coroutineDispatcher)
         .catch { e -> emit(Resource.Error(throwable = mapExceptionToNetworkError(e))) }
 
     protected open fun <T> safeApiCall(apiCall: suspend () -> ApiResponse<T>): Flow<Resource<T>> =
@@ -44,7 +46,7 @@ abstract class BaseRemoteDataSource(
                     Resource.Error(throwable = parseErrorResponse(response))
                 }
             )
-        }.flowOn(dispatcher)
+        }.flowOn(coroutineDispatcher)
             .catch { e -> emit(Resource.Error(throwable = mapExceptionToNetworkError(e))) }
 
     protected open fun <T> parseErrorResponse(response: Response<T>): NetworkException {

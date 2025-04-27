@@ -3,10 +3,9 @@ package com.lambao.base.presentation.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lambao.base.data.Resource
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import com.lambao.base.presentation.ui.state.ScreenState
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,15 +18,11 @@ import kotlinx.coroutines.launch
 /**
  * Base ViewModel providing utilities for managing screen state and launching coroutines with configurable dispatchers.
  * This class simplifies common ViewModel operations like handling data flows, screen states, and coroutine scopes.
+ * @param dispatcherProvider The [DispatcherProvider] to use for coroutine dispatchers.
  *
- * @param ioDispatcher The [CoroutineDispatcher] for IO-bound operations (defaults to [Dispatchers.IO]).
- * @param defaultDispatcher The [CoroutineDispatcher] for general-purpose operations (defaults to [Dispatchers.Default]).
- * @param mainDispatcher The [CoroutineDispatcher] for UI-related operations (defaults to [Dispatchers.Main]).
  */
 open class BaseViewModel(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default,
-    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
     private val _screenState = MutableStateFlow<ScreenState>(ScreenState.Idle())
@@ -39,7 +34,7 @@ open class BaseViewModel(
      * @param state The [ScreenState] to set (e.g., Idle, Loading, Success, Error).
      */
     fun setScreenState(state: ScreenState) {
-        viewModelScope.launch(mainDispatcher) {
+        launch {
             _screenState.emit(state)
         }
     }
@@ -92,7 +87,7 @@ open class BaseViewModel(
      * @return A [Job] representing the launched coroutine.
      */
     protected fun launchIo(block: suspend CoroutineScope.() -> Unit): Job {
-        return viewModelScope.launch(ioDispatcher) {
+        return viewModelScope.launch(dispatcherProvider.ioDispatcher) {
             block()
         }
     }
@@ -105,7 +100,7 @@ open class BaseViewModel(
      * @return A [Job] representing the launched coroutine.
      */
     protected fun launchDefault(block: suspend CoroutineScope.() -> Unit): Job {
-        return viewModelScope.launch(defaultDispatcher) {
+        return viewModelScope.launch(dispatcherProvider.defaultDispatcher) {
             block()
         }
     }
@@ -118,7 +113,7 @@ open class BaseViewModel(
      * @return A [Job] representing the launched coroutine.
      */
     protected fun launch(block: suspend CoroutineScope.() -> Unit): Job {
-        return viewModelScope.launch(mainDispatcher) {
+        return viewModelScope.launch(dispatcherProvider.mainDispatcher) {
             block()
         }
     }
@@ -148,11 +143,13 @@ open class BaseViewModel(
                         onError?.invoke(error)
                     }
                 }
+
                 is Resource.Error -> {
                     val throwable = resource.throwable ?: Exception(getUnknownErrorMessage())
                     setErrorScreenState(throwable)
                     onError?.invoke(throwable)
                 }
+
                 else -> setIdleScreenState()
             }
         }.launchIn(viewModelScope)
@@ -184,11 +181,13 @@ open class BaseViewModel(
                         onError?.invoke(error)
                     }
                 }
+
                 is Resource.Error -> {
                     val throwable = resource.throwable ?: Exception(getUnknownErrorMessage())
                     setErrorScreenState(throwable)
                     onError?.invoke(throwable)
                 }
+
                 else -> setIdleScreenState()
             }
         }.launchIn(viewModelScope)

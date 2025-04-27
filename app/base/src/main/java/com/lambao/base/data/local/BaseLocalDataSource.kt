@@ -1,7 +1,7 @@
 package com.lambao.base.data.local
 
 import com.lambao.base.data.Resource
-import kotlinx.coroutines.CoroutineDispatcher
+import com.lambao.base.presentation.handler.dispatcher.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -9,8 +9,10 @@ import kotlinx.coroutines.flow.flowOn
 import java.io.IOException
 
 abstract class BaseLocalDataSource(
-    private val dispatcher: CoroutineDispatcher
+    private val dispatcherProvider: DispatcherProvider
 ) {
+    protected open val coroutineDispatcher get() = dispatcherProvider.ioDispatcher
+
     protected open fun getUnknownErrorMessage() = "Unknown error"
 
     protected open fun getPermissionDeniedMessage() = "Permission denied"
@@ -23,7 +25,7 @@ abstract class BaseLocalDataSource(
         emit(Resource.Loading())
         val result = localCall()
         emit(Resource.Success(data = result))
-    }.flowOn(dispatcher)
+    }.flowOn(coroutineDispatcher)
         .catch { e -> emit(Resource.Error(throwable = mapToLocalException(e))) }
 
     protected open fun mapToLocalException(e: Throwable): LocalException {
