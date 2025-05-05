@@ -17,8 +17,6 @@ interface DialogHandler {
         positiveText: String?,
         negativeText: String?,
         cancelable: Boolean = true,
-        shouldShowPositiveButton: Boolean = true,
-        shouldShowNegativeButton: Boolean = true,
         onPositiveListener: (() -> Unit)? = null,
         onNegativeListener: (() -> Unit)? = null,
         onDismissListener: (() -> Unit)? = null

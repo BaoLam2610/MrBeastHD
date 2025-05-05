@@ -86,7 +86,7 @@ fun AppCompatActivity.getCurrentFragment(@IdRes navHostFragmentId: Int): Fragmen
     return try {
         val navController = findNavController(navHostFragmentId)
         val currentBackStackEntry = navController.currentBackStackEntry
-        currentBackStackEntry?.let { entry ->
+        currentBackStackEntry?.let {
             (supportFragmentManager.findFragmentById(navHostFragmentId) as? NavHostFragment)
                 ?.childFragmentManager?.fragments?.firstOrNull()
         }

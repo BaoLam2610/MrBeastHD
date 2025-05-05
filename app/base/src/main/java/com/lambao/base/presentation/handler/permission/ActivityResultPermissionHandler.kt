@@ -119,8 +119,8 @@ class ActivityResultPermissionHandler(
             title = "",
             message = customSettingsMessage,
             positiveText = "Settings",
-            onPositiveListener = { openAppSettings() },
-            negativeText = "Cancel"
+            negativeText = "Cancel",
+            onPositiveListener = { openAppSettings() }
         )
     }
 

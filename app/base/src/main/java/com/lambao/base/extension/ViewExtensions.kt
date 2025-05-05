@@ -1,5 +1,6 @@
 package com.lambao.base.extension
 
+import android.content.res.Resources.getSystem
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.SparseArray
@@ -10,6 +11,10 @@ import com.lambao.base.presentation.ui.view.OnSingleClickListener
 
 private const val SUPER_STATE = "SUPER_STATE"
 private const val SPARSE_STATE_KEY = "SPARSE_STATE_KEY"
+
+val Int.toPx: Int get() = (this / getSystem().displayMetrics.density).toInt()
+
+val Int.toDp: Int get() = (this * getSystem().displayMetrics.density).toInt()
 
 fun View.click(func: (v: View) -> Unit) {
     setOnClickListener(

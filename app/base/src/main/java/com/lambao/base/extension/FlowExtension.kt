@@ -37,7 +37,7 @@ fun <T> Flow<T>.launchCollect(
  * @param lifecycleOwner The LifecycleOwner whose lifecycle will control the collection
  * @param lifecycleState The Lifecycle state when collection should be active (defaults to [Lifecycle.State.STARTED])
  * @param collect The suspend function to handle each emitted value
- * @return A [Job] representing the launched coroutine, which can be used to cancel the collection if needed
+ * @return A Job representing the launched coroutine, which can be used to cancel the collection if needed
  */
 fun <T> Flow<T>.launchCollectLatest(
     lifecycleOwner: LifecycleOwner,

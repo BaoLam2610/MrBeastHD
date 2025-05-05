@@ -1,7 +1,7 @@
-package com.lambao.base.presentation.ui.dialog
+package com.lambao.base.presentation.handler.dialog
 
-import android.app.Dialog
 import android.content.Context
+import androidx.fragment.app.DialogFragment
 
 interface DialogCreator {
     fun createDialog(
@@ -10,9 +10,9 @@ interface DialogCreator {
         message: String,
         positiveText: String?,
         negativeText: String?,
-        cancelable: Boolean,
+        cancelable: Boolean = true,
         onPositiveClick: (() -> Unit)?,
         onNegativeClick: (() -> Unit)?,
         onDismiss: (() -> Unit)?
-    ): Dialog
+    ): DialogFragment
 }

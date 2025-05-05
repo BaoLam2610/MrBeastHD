@@ -1,11 +1,9 @@
 package com.lambao.base.presentation.handler.dialog
 
-import android.app.Dialog
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import com.lambao.base.R
-import com.lambao.base.presentation.ui.dialog.DefaultDialogCreator
-import com.lambao.base.presentation.ui.dialog.DialogCreator
 import com.lambao.base.utils.log
 
 class DialogHandlerImpl(
@@ -13,7 +11,7 @@ class DialogHandlerImpl(
     private val dialogCreator: DialogCreator = DefaultDialogCreator()
 ) : DialogHandler {
 
-    private var currentDialog: Dialog? = null
+    private var currentDialog: DialogFragment? = null
 
     override fun showRationaleDialog(
         title: String,
@@ -29,8 +27,6 @@ class DialogHandlerImpl(
             positiveText = positiveText,
             negativeText = negativeText,
             cancelable = false,
-            shouldShowPositiveButton = true,
-            shouldShowNegativeButton = true,
             onPositiveListener = onPositiveListener,
             onNegativeListener = onNegativeListener
         )
@@ -40,11 +36,9 @@ class DialogHandlerImpl(
         showAlertDialog(
             title = null,
             message = message,
-            positiveText = null,
-            negativeText = activity.getString(R.string.cancel),
-            cancelable = false,
-            shouldShowPositiveButton = false,
-            shouldShowNegativeButton = true
+            positiveText = activity.getString(R.string.cancel),
+            negativeText = null,
+            cancelable = false
         )
     }
 
@@ -54,8 +48,6 @@ class DialogHandlerImpl(
         positiveText: String?,
         negativeText: String?,
         cancelable: Boolean,
-        shouldShowPositiveButton: Boolean,
-        shouldShowNegativeButton: Boolean,
         onPositiveListener: (() -> Unit)?,
         onNegativeListener: (() -> Unit)?,
         onDismissListener: (() -> Unit)?
@@ -66,7 +58,7 @@ class DialogHandlerImpl(
         }
 
         currentDialog?.let {
-            if (it.isShowing) {
+            if (it.isAdded) {
                 it.dismiss()
             }
         }
@@ -75,8 +67,8 @@ class DialogHandlerImpl(
             context = activity,
             title = title,
             message = message,
-            positiveText = if (shouldShowPositiveButton) positiveText else null,
-            negativeText = if (shouldShowNegativeButton) negativeText else null,
+            positiveText = positiveText,
+            negativeText = negativeText,
             cancelable = cancelable,
             onPositiveClick = onPositiveListener,
             onNegativeClick = onNegativeListener,
@@ -87,6 +79,6 @@ class DialogHandlerImpl(
         )
 
         currentDialog = newDialog
-        newDialog.show()
+        newDialog.show(activity.supportFragmentManager, newDialog::class.java.simpleName)
     }
 }
