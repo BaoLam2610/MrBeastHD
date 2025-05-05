@@ -54,7 +54,6 @@ class MediaNotificationManager @Inject constructor(
                     .setStyle(
                         MediaStyle()
                             .setMediaSession(sessionToken)
-                            .setShowActionsInCompactView(0, 1, 2)
                     )
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
