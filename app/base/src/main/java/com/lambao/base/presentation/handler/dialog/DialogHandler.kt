@@ -12,7 +12,7 @@ interface DialogHandler {
 
     fun showAlertDialog(message: String)
     fun showAlertDialog(
-        title: String?,
+        title: String? = null,
         message: String,
         positiveText: String?,
         negativeText: String?,

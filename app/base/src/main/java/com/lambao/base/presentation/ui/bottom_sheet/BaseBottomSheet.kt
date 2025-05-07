@@ -1,14 +1,19 @@
 package com.lambao.base.presentation.ui.bottom_sheet
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
+import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.lifecycle.Lifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.lambao.base.data.remote.NetworkException
@@ -16,11 +21,14 @@ import com.lambao.base.presentation.handler.dialog.DialogHandler
 import com.lambao.base.presentation.handler.dialog.DialogHandlerImpl
 import com.lambao.base.presentation.handler.loading.LoadingDialogHandler
 import com.lambao.base.presentation.handler.loading.LoadingHandler
+import com.lambao.base.presentation.handler.media.MediaPickerHandler
+import com.lambao.base.presentation.handler.media.MediaPickerHandlerImpl
+import com.lambao.base.presentation.handler.media.MediaPickerResult
 import com.lambao.base.presentation.handler.network_error.NetworkErrorHandler
 import com.lambao.base.presentation.handler.network_error.NetworkErrorHandlerImpl
-import com.lambao.base.presentation.handler.permission.ActivityResultPermissionHandler
-import com.lambao.base.presentation.handler.permission.PermissionContract
-import com.lambao.base.presentation.handler.permission.host.FragmentPermissionHandlerHost
+import com.lambao.base.presentation.handler.permission.PermissionHandler
+import com.lambao.base.presentation.handler.permission.PermissionHandlerImpl
+import com.lambao.base.presentation.handler.permission.PermissionResult
 
 abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment() {
 
@@ -28,6 +36,53 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
     protected val binding: B
         get() = _binding
             ?: throw IllegalStateException("Binding in ${this::class.java.simpleName} is null")
+
+    private val settingsLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (permissionHandler.isPermissionsGranted()) {
+                permissionHandler.onPermissionResult(
+                    PermissionResult.Granted(permissionHandler.getPermissions())
+                )
+            }
+        }
+
+    private val requestPermissionLauncher: ActivityResultLauncher<Array<String>> =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionsResult ->
+            val grantedPermissions = permissionsResult.filter { it.value }.keys.toList()
+            val deniedPermissions = permissionsResult.filter { !it.value }.keys.toList()
+            if (deniedPermissions.isEmpty()) {
+                permissionHandler.onPermissionResult(PermissionResult.Granted(grantedPermissions))
+            } else {
+                val permanentlyDenied = deniedPermissions.any {
+                    !ActivityCompat.shouldShowRequestPermissionRationale(
+                        requireActivity(),
+                        it
+                    )
+                }
+                if (permanentlyDenied) {
+                    permissionHandler.promptOpenSettings()
+                }
+                permissionHandler.onPermissionResult(
+                    PermissionResult.Denied(deniedPermissions, permanentlyDenied)
+                )
+            }
+        }
+
+    protected open var maxMediaPickerLimit =
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
+            MediaStore.getPickImagesMaxLimit()
+        else 100
+
+    private val mediaLauncher: ActivityResultLauncher<PickVisualMediaRequest> =
+        registerForActivityResult(
+            ActivityResultContracts.PickMultipleVisualMedia(
+                maxMediaPickerLimit
+            )
+        ) { uris ->
+            if (!uris.isNullOrEmpty()) {
+                mediaPickerHandler.onResult(MediaPickerResult.Success(uris))
+            }
+        }
 
     protected open val dialogHandler: DialogHandler by lazy {
         DialogHandlerImpl(requireActivity())
@@ -44,10 +99,20 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
         )
     }
 
-    protected open val permissionHandler: PermissionContract by lazy {
-        ActivityResultPermissionHandler(
-            FragmentPermissionHandlerHost(this),
-            dialogHandler
+    protected val permissionHandler: PermissionHandler by lazy {
+        PermissionHandlerImpl(
+            settingsLauncher,
+            requestPermissionLauncher,
+            dialogHandler,
+            requireActivity()
+        )
+    }
+
+    protected val mediaPickerHandler: MediaPickerHandler by lazy {
+        MediaPickerHandlerImpl(
+            mediaLauncher,
+            dialogHandler,
+            requireActivity()
         )
     }
 
@@ -93,9 +158,7 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
     }
 
     fun showLoading() {
-        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-            loadingHandler.showLoading()
-        }
+        loadingHandler.showLoading()
     }
 
     fun hideLoading() {

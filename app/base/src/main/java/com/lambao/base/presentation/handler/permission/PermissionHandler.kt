@@ -1,6 +1,7 @@
 package com.lambao.base.presentation.handler.permission
 
-interface PermissionContract {
+interface PermissionHandler {
+    fun getPermissions(): List<String>
     fun requestPermission(
         permission: String,
         settingsMessage: String? = null,
@@ -13,5 +14,8 @@ interface PermissionContract {
         onResult: ((PermissionResult) -> Unit)? = null
     )
 
-    fun checkPermission(permission: String): Boolean
+    fun checkPermissionGranted(permission: String): Boolean
+    fun isPermissionsGranted(): Boolean
+    fun promptOpenSettings()
+    fun onPermissionResult(result: PermissionResult)
 }

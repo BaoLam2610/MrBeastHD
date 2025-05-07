@@ -8,8 +8,11 @@
     <string name="settings">Settings</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
-    <string name="camera_permission_description">Please grant camera permission to use this feature</string>"
-    <string name="notification_permission_description">Please grant notification permission to use this feature</string>"
-    <string name="storage_permission_description">Please grant storage permission to use this feature</string>"
+    <string name="camera_permission_description">Please grant camera permission to use this feature</string>
+    <string name="notification_permission_description">Please grant notification permission to use this feature</string>
+    <string name="storage_permission_description">Please grant storage permission to use this feature</string>
     <string name="at_least_one_permission_must_be_provided">At least one permission must be provided.</string>
+    <string name="cannot_open_app_settings_please_open_manual">Không thể mở cài đặt. Vui lòng kiểm tra quyền thủ công.</string>
+    <string name="required_permissions_have_been_denied_please_enable_in_app_settings">Required permissions have been denied. Please enable them in app settings to use this feature.</string>
+    <string name="failed_to_open_media_picker">Failed to open media picker</string>
 </resources>
