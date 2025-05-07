@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import com.lambao.base.R
 import com.lambao.base.presentation.handler.dialog.DialogHandler
 
-class MediaPickerHandlerImpl(
+open class MediaPickerHandlerImpl(
     private val mediaLauncher: ActivityResultLauncher<PickVisualMediaRequest>,
     private val dialogHandler: DialogHandler,
     private val activity: FragmentActivity
@@ -16,11 +16,13 @@ class MediaPickerHandlerImpl(
 
     override fun pickMedia(
         mediaType: PickVisualMediaRequest.Builder.() -> Unit,
+        maxItems: Int,
         onResult: ((MediaPickerResult) -> Unit)?
     ) {
         try {
             val request = PickVisualMediaRequest.Builder()
-                .apply(mediaType).build()
+                .apply(mediaType)
+                .build()
             onMediaResult = onResult
             mediaLauncher.launch(request)
         } catch (e: Exception) {

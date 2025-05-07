@@ -2,7 +2,6 @@ package com.lambao.base.presentation.ui.bottom_sheet
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +20,7 @@ import com.lambao.base.presentation.handler.dialog.DialogHandler
 import com.lambao.base.presentation.handler.dialog.DialogHandlerImpl
 import com.lambao.base.presentation.handler.loading.LoadingDialogHandler
 import com.lambao.base.presentation.handler.loading.LoadingHandler
+import com.lambao.base.presentation.handler.media.CustomPickMultipleVisualMedia
 import com.lambao.base.presentation.handler.media.MediaPickerHandler
 import com.lambao.base.presentation.handler.media.MediaPickerHandlerImpl
 import com.lambao.base.presentation.handler.media.MediaPickerResult
@@ -68,17 +68,10 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
             }
         }
 
-    protected open var maxMediaPickerLimit =
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
-            MediaStore.getPickImagesMaxLimit()
-        else 100
+    private val customMediaContract = CustomPickMultipleVisualMedia()
 
     private val mediaLauncher: ActivityResultLauncher<PickVisualMediaRequest> =
-        registerForActivityResult(
-            ActivityResultContracts.PickMultipleVisualMedia(
-                maxMediaPickerLimit
-            )
-        ) { uris ->
+        registerForActivityResult(customMediaContract) { uris ->
             if (!uris.isNullOrEmpty()) {
                 mediaPickerHandler.onResult(MediaPickerResult.Success(uris))
             }
@@ -109,11 +102,16 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
     }
 
     protected val mediaPickerHandler: MediaPickerHandler by lazy {
-        MediaPickerHandlerImpl(
-            mediaLauncher,
-            dialogHandler,
-            requireActivity()
-        )
+        object : MediaPickerHandlerImpl(mediaLauncher, dialogHandler, requireActivity()) {
+            override fun pickMedia(
+                mediaType: PickVisualMediaRequest.Builder.() -> Unit,
+                maxItems: Int,
+                onResult: ((MediaPickerResult) -> Unit)?
+            ) {
+                customMediaContract.updateMaxItems(maxItems)
+                super.pickMedia(mediaType, maxItems, onResult)
+            }
+        }
     }
 
     @LayoutRes
