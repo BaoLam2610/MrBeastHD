@@ -1,6 +1,7 @@
 package com.lambao.base.presentation.ui.activity
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
@@ -11,6 +12,9 @@ import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.lambao.base.data.remote.NetworkException
+import com.lambao.base.presentation.handler.camera.CameraHandler
+import com.lambao.base.presentation.handler.camera.CameraHandlerImpl
+import com.lambao.base.presentation.handler.camera.CameraResult
 import com.lambao.base.presentation.handler.dialog.DialogHandler
 import com.lambao.base.presentation.handler.dialog.DialogHandlerImpl
 import com.lambao.base.presentation.handler.loading.LoadingDialogHandler
@@ -63,12 +67,26 @@ abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
             }
         }
 
-    private val customMediaContract = CustomPickMultipleVisualMedia()
+    private val customMultipleMediaContract = CustomPickMultipleVisualMedia()
 
     private val mediaLauncher: ActivityResultLauncher<PickVisualMediaRequest> =
-        registerForActivityResult(customMediaContract) { uris ->
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                mediaPickerHandler.onResult(MediaPickerResult.Success(listOf(uri)))
+            }
+        }
+
+    private val multipleMediaLauncher: ActivityResultLauncher<PickVisualMediaRequest> =
+        registerForActivityResult(customMultipleMediaContract) { uris ->
             if (!uris.isNullOrEmpty()) {
                 mediaPickerHandler.onResult(MediaPickerResult.Success(uris))
+            }
+        }
+
+    private val cameraLauncher: ActivityResultLauncher<Uri> =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { uri ->
+            if (uri != null) {
+                cameraHandler.onResult(CameraResult.Success(cameraHandler.uri))
             }
         }
 
@@ -97,16 +115,21 @@ abstract class BaseActivity<B : ViewDataBinding> : AppCompatActivity() {
     }
 
     protected val mediaPickerHandler: MediaPickerHandler by lazy {
-        object : MediaPickerHandlerImpl(mediaLauncher, dialogHandler, this) {
-            override fun pickMedia(
-                mediaType: PickVisualMediaRequest.Builder.() -> Unit,
-                maxItems: Int,
-                onResult: ((MediaPickerResult) -> Unit)?
-            ) {
-                customMediaContract.updateMaxItems(maxItems)
-                super.pickMedia(mediaType, maxItems, onResult)
-            }
-        }
+        MediaPickerHandlerImpl(
+            mediaLauncher,
+            multipleMediaLauncher,
+            dialogHandler,
+            customMultipleMediaContract,
+            this
+        )
+    }
+
+    protected val cameraHandler: CameraHandler by lazy {
+        CameraHandlerImpl(
+            cameraLauncher,
+            dialogHandler,
+            this
+        )
     }
 
     @LayoutRes

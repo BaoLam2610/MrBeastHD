@@ -6,22 +6,25 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 
 class CustomPickMultipleVisualMedia : ActivityResultContracts.PickMultipleVisualMedia() {
-    private var maxItems: Int = 1
+    private var maxItems: Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) MediaStore.getPickImagesMaxLimit()
+        else 100
 
     fun updateMaxItems(newMaxItems: Int) {
-        if (newMaxItems < 1) {
-            maxItems = 1
-            return
-        }
-        maxItems = newMaxItems
+        maxItems = if (newMaxItems <= 1) 2 else newMaxItems
     }
 
     override fun createIntent(context: Context, input: PickVisualMediaRequest): Intent {
         val intent = super.createIntent(context, input)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, maxItems)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, maxItems)
+            }
+            intent.putExtra(PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX, maxItems)
+        } catch (_: Exception) {
         }
         return intent
     }

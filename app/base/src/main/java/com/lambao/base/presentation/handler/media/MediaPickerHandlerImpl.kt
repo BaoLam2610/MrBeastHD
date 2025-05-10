@@ -8,7 +8,9 @@ import com.lambao.base.presentation.handler.dialog.DialogHandler
 
 open class MediaPickerHandlerImpl(
     private val mediaLauncher: ActivityResultLauncher<PickVisualMediaRequest>,
+    private val multipleMediaLauncher: ActivityResultLauncher<PickVisualMediaRequest>,
     private val dialogHandler: DialogHandler,
+    private val customMultipleMediaContract: CustomPickMultipleVisualMedia,
     private val activity: FragmentActivity
 ) : MediaPickerHandler {
 
@@ -24,6 +26,11 @@ open class MediaPickerHandlerImpl(
                 .apply(mediaType)
                 .build()
             onMediaResult = onResult
+            if (maxItems > 1) {
+                customMultipleMediaContract.updateMaxItems(maxItems)
+                multipleMediaLauncher.launch(request)
+                return
+            }
             mediaLauncher.launch(request)
         } catch (e: Exception) {
             dialogHandler.showAlertDialog(

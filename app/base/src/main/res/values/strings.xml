@@ -15,4 +15,5 @@
     <string name="cannot_open_app_settings_please_open_manual">Không thể mở cài đặt. Vui lòng kiểm tra quyền thủ công.</string>
     <string name="required_permissions_have_been_denied_please_enable_in_app_settings">Required permissions have been denied. Please enable them in app settings to use this feature.</string>
     <string name="failed_to_open_media_picker">Failed to open media picker</string>
+    <string name="failed_to_open_camera">Failed to open camera</string>
 </resources>

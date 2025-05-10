@@ -68,10 +68,17 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
             }
         }
 
-    private val customMediaContract = CustomPickMultipleVisualMedia()
+    private val customMultipleMediaContract = CustomPickMultipleVisualMedia()
 
     private val mediaLauncher: ActivityResultLauncher<PickVisualMediaRequest> =
-        registerForActivityResult(customMediaContract) { uris ->
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                mediaPickerHandler.onResult(MediaPickerResult.Success(listOf(uri)))
+            }
+        }
+
+    private val multipleMediaLauncher: ActivityResultLauncher<PickVisualMediaRequest> =
+        registerForActivityResult(customMultipleMediaContract) { uris ->
             if (!uris.isNullOrEmpty()) {
                 mediaPickerHandler.onResult(MediaPickerResult.Success(uris))
             }
@@ -102,16 +109,13 @@ abstract class BaseBottomSheet<B : ViewDataBinding> : BottomSheetDialogFragment(
     }
 
     protected val mediaPickerHandler: MediaPickerHandler by lazy {
-        object : MediaPickerHandlerImpl(mediaLauncher, dialogHandler, requireActivity()) {
-            override fun pickMedia(
-                mediaType: PickVisualMediaRequest.Builder.() -> Unit,
-                maxItems: Int,
-                onResult: ((MediaPickerResult) -> Unit)?
-            ) {
-                customMediaContract.updateMaxItems(maxItems)
-                super.pickMedia(mediaType, maxItems, onResult)
-            }
-        }
+        MediaPickerHandlerImpl(
+            mediaLauncher,
+            multipleMediaLauncher,
+            dialogHandler,
+            customMultipleMediaContract,
+            requireActivity()
+        )
     }
 
     @LayoutRes
